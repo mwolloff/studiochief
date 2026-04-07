@@ -648,7 +648,10 @@ Sort by start date. Only include phases you can confidently identify."""
 
 # ── COST REPORT PARSER ───────────────────────────────────────────────────────
 def parse_cost_report_pdf(pdf_b64):
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    client = anthropic.Anthropic(
+        api_key=ANTHROPIC_API_KEY,
+        timeout=300.0,  # 5 minute timeout for large cost reports
+    )
     prompt = """You are reading a TV/film production cost report PDF.
 
 Extract every line item you can find. For each line return:
