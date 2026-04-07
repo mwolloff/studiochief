@@ -59,19 +59,29 @@ BUDGET_LINES = [
 
 # ── PHASE NAME NORMALIZATION ──────────────────────────────────────────────────
 # Maps any variant phase name to its canonical spread category.
-# The display name (from AI) is preserved for the staircase; this is used
-# only for spread rule lookups.
+# The display name (from AI) is preserved for the staircase row; this mapping
+# is used only for spread rule lookups and payment milestones.
+#
+# KEY RULE — PRODUCTION:
+# Everything from the first truck roll (Load In) through the last strike or
+# shoot day is ONE continuous "Production" window for cash flow purposes.
+# Dark days, travel days, rehearsals, ESU, strike — all fall inside it.
+# Sub-phases (Shoot Pitches, Field Pranks, etc.) display on the staircase
+# as informational rows but map to the same canonical PRODUCTION category.
 PHASE_ALIASES = {
-    'CASTING':   ['CASTING'],
-    'PREP':      ['PREP','PRE-PRODUCTION','PRE PRODUCTION','FIELD PREP',
-                  'FIELD PRANKS PREP','STUDIO PREP'],
-    'SHOOT':     ['SHOOT','SHOOT PITCHES','SHOOT PRANKS','SHOOT EPISODES',
-                  'SHOOT PRANK','SHOOT PITCH','SHOOT EPISODE','FIELD SHOOT',
-                  'STUDIO SHOOT','PRODUCTION','PRINCIPAL PHOTOGRAPHY',
-                  'FIELD PRANKS','TAPING','FILMING'],
-    'LOAD IN':   ['LOAD IN','LOAD-IN','LOAD','LOADIN','LOAD OUT','LOAD-OUT'],
-    'POST':      ['POST','POST PRODUCTION','POST-PRODUCTION','DELIVERY',
-                  'POST WRAP','WRAP'],
+    'CASTING':    ['CASTING'],
+    'PREP':       ['PREP','PRE-PRODUCTION','PRE PRODUCTION','FIELD PREP',
+                   'FIELD PRANKS PREP','STUDIO PREP','PREP FIELD PRANKS',
+                   'PRE PROD'],
+    'PRODUCTION': ['PRODUCTION','SHOOT','SHOOT PITCHES','SHOOT PRANKS',
+                   'SHOOT EPISODES','SHOOT PRANK','SHOOT PITCH','SHOOT EPISODE',
+                   'FIELD SHOOT','STUDIO SHOOT','PRINCIPAL PHOTOGRAPHY',
+                   'FIELD PRANKS','TAPING','FILMING','LOAD IN','LOAD-IN',
+                   'LOAD','LOADIN','ESU','SET UP','SETUP','REHEARSAL',
+                   'STRIKE','DARK','HIATUS','TRAVEL','LOAD OUT','LOAD-OUT',
+                   'PRANK STAGE','PITCH STAGE','FIELD PRANK'],
+    'POST':       ['POST','POST PRODUCTION','POST-PRODUCTION',
+                   'POST WRAP','DELIVERY','WRAP'],
 }
 
 def canonical_phase(name):
@@ -100,8 +110,10 @@ def parse_date(s):
 # ── SPREAD ENGINE ─────────────────────────────────────────────────────────────
 def build_phase_ranges(phases, wk1, nw):
     """
-    Build spread-category -> (start_wk, end_wk) mapping.
-    Merges multiple phases of the same canonical category into one span.
+    Build canonical-category -> (start_wk, end_wk) mapping.
+    Merges ALL phases of the same canonical category into one continuous span.
+    This means every load-in, ESU, shoot block, strike etc. collapses into
+    one PRODUCTION range spanning first load to last shoot/strike.
     """
     ranges = {}
     for ph in phases:
@@ -135,35 +147,35 @@ def spread(spread_type, amt, nw, pr):
         for i in range(s, e+1):
             w[i] += pw
 
-    cs, ce = pr.get('CASTING',   (0, 0))
-    ps, pe = pr.get('PREP',      (0, 0))
-    ss, se = pr.get('SHOOT',     (0, 0))
-    pos,poe= pr.get('POST',      (0, nw-1))
+    cs, ce   = pr.get('CASTING',    (0, 0))
+    ps, pe   = pr.get('PREP',       (0, 0))
+    ss, se   = pr.get('PRODUCTION', (0, 0))   # PRODUCTION = full load-to-strike window
+    pos, poe = pr.get('POST',       (0, nw-1))
 
-    if spread_type == 'full':             fill(0, nw-1, amt)
-    elif spread_type == 'casting':        fill(cs, ce, amt)
-    elif spread_type == 'prep_only':      fill(ps, pe, amt)
-    elif spread_type == 'prep_shoot':     fill(ps, se, amt)
+    if spread_type == 'full':               fill(0, nw-1, amt)
+    elif spread_type == 'casting':          fill(cs, ce, amt)
+    elif spread_type == 'prep_only':        fill(ps, pe, amt)
+    elif spread_type == 'prep_shoot':       fill(ps, se, amt)
     elif spread_type == 'prep_shoot_plus4': fill(ps, se+4, amt)
-    elif spread_type == 'talent_fees':    fill(max(0, ss-3), se, amt)
-    elif spread_type == 'shoot_only':     fill(ss, se, amt)
-    elif spread_type == 'shoot_plus2':    fill(max(0, ss-2), se, amt)
-    elif spread_type == 'shoot_plus4':    fill(max(0, ss-4), se, amt)
-    elif spread_type == 'post':           fill(pos, poe, amt)
-    elif spread_type == 'post_plus2':     fill(max(0, pos-2), poe, amt)
+    elif spread_type == 'talent_fees':      fill(max(0, ss-3), se, amt)
+    elif spread_type == 'shoot_only':       fill(ss, se, amt)
+    elif spread_type == 'shoot_plus2':      fill(max(0, ss-2), se, amt)
+    elif spread_type == 'shoot_plus4':      fill(max(0, ss-4), se, amt)
+    elif spread_type == 'post':             fill(pos, poe, amt)
+    elif spread_type == 'post_plus2':       fill(max(0, pos-2), poe, amt)
     elif spread_type == 'graphics':
         fill(max(0, ss-4), pos-1, amt/2)
         fill(pos, poe, amt/2)
-    elif spread_type == 'week1':          w[0] += amt
-    else:                                 fill(0, nw-1, amt)
+    elif spread_type == 'week1':            w[0] += amt
+    else:                                   fill(0, nw-1, amt)
     return w
 
 # ── PAYMENT ENGINE ────────────────────────────────────────────────────────────
 def compute_payments(wk_totals, nw, pr, phases):
-    cs, ce = pr.get('CASTING', (0, 0))
-    ps, pe = pr.get('PREP',    (0, 0))
-    ss, se = pr.get('SHOOT',   (0, 0))
-    pos,poe= pr.get('POST',    (0, nw-1))
+    cs, ce   = pr.get('CASTING',    (0, 0))
+    ps, pe   = pr.get('PREP',       (0, 0))
+    ss, se   = pr.get('PRODUCTION', (0, 0))
+    pos, poe = pr.get('POST',       (0, nw-1))
 
     mid_prep = (ps + pe) // 2
     mid_post = (pos + poe) // 2
@@ -171,30 +183,30 @@ def compute_payments(wk_totals, nw, pr, phases):
     ms = []
     labels = []
 
-    # P1 start of casting / first phase
+    # P1 — start of casting / first phase
     ms.append(cs if 'CASTING' in pr else min(v[0] for v in pr.values()))
     labels.append('Start of Casting' if 'CASTING' in pr else 'Start of Production')
 
-    # P2 mid prep
+    # P2 — mid prep
     if 'PREP' in pr:
         ms.append(mid_prep)
         labels.append('Mid Prep')
     else:
         ms.append(min(v[0] for v in pr.values()) + nw//4)
-        labels.append('Mid Production')
+        labels.append('Mid Pre-Production')
 
-    # P3 start of shoot / P4 end of shoot
-    if 'SHOOT' in pr:
-        ms.append(ss); labels.append('Start of Shoot')
-        ms.append(se); labels.append('End of Shoot')
+    # P3 — start of production / P4 — end of production
+    if 'PRODUCTION' in pr:
+        ms.append(ss); labels.append('Start of Production')
+        ms.append(se); labels.append('End of Production')
     else:
         ms.append(nw//2); labels.append('Mid Production')
 
-    # P5 mid post
+    # P5 — mid post
     if 'POST' in pr:
         ms.append(mid_post); labels.append('Mid Post')
 
-    # P6 final delivery
+    # P6 — final delivery
     last = max(v[1] for v in pr.values())
     ms.append(last)
     labels.append('Final Delivery')
@@ -213,7 +225,7 @@ def compute_payments(wk_totals, nw, pr, phases):
     for i, (s, e) in enumerate(ranges):
         total = sum(wk_totals[max(0,s):min(nw,e+1)])
         result.append({
-            'label': f'Payment {i+1}',
+            'label':     f'Payment {i+1}',
             'milestone': labels[i] if i < len(labels) else f'Payment {i+1}',
             'start': s, 'end': e, 'amount': total
         })
