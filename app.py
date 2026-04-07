@@ -646,6 +646,247 @@ Sort by start date. Only include phases you can confidently identify."""
 
     return sorted(parsed, key=sort_key)
 
+# ── COST REPORT PARSER ───────────────────────────────────────────────────────
+def parse_cost_report_pdf(pdf_b64):
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    prompt = """You are reading a TV/film production cost report PDF.
+
+Extract every line item you can find. For each line return:
+- acct: account number (e.g. "100408")
+- dept: department/account group name (e.g. "PRODUCERS")
+- description: line item description (e.g. "Co-Executive Producer")
+- is_total: true if this is a department total row, false for detail lines
+- actuals: actual spend to date (number, 0 if blank)
+- pos: purchase orders / commitments (number, 0 if blank)
+- efc: estimate at final cost — use the EFC column if present, otherwise Total Cost (number, 0 if blank)
+- budget: approved budget amount (number, 0 if blank)
+- variance: variance amount if shown (number, null if not shown) — NOTE: some reports show overages as negative
+
+Also extract show metadata if visible:
+- showTitle, network, prodCo, period (cost report period number or date)
+
+Return ONLY valid JSON, no markdown:
+{
+  "showTitle": "Show Name",
+  "network": "NBC",
+  "prodCo": "Production Co",
+  "period": "6",
+  "lines": [
+    {
+      "acct": "100408",
+      "dept": "PRODUCERS",
+      "description": "Co-Executive Producer",
+      "is_total": false,
+      "actuals": 349711,
+      "pos": 0,
+      "efc": 349711,
+      "budget": 370880,
+      "variance": 21169
+    }
+  ]
+}
+
+Use integers only. If a value is blank or dash, use 0. Include ALL lines including totals and grand total."""
+
+    response = client.messages.create(
+        model='claude-opus-4-5',
+        max_tokens=8000,
+        messages=[{
+            'role': 'user',
+            'content': [
+                {'type':'document','source':{'type':'base64','media_type':'application/pdf','data':pdf_b64}},
+                {'type':'text','text':prompt}
+            ]
+        }]
+    )
+    raw = response.content[0].text.strip()
+    clean = re.sub(r'^```[a-z]*\n?','',raw).replace('```','').strip()
+    return json.loads(clean)
+
+# ── VARIANCE EXCEL BUILDER ────────────────────────────────────────────────────
+def build_variance_excel(show_info, lines, threshold=10):
+    title   = show_info.get('showTitle','Untitled Show')
+    network = show_info.get('network','')
+    prod_co = show_info.get('prodCo','')
+    period  = show_info.get('period','')
+
+    wb = openpyxl.Workbook()
+
+    # ── SHEET 1: HOT SHEET (line producer view) ───────────────────────────────
+    ws1 = wb.active
+    ws1.title = 'Hot Sheet'
+
+    # Color fills
+    RED        = PatternFill('solid', fgColor='FF4444')
+    RED_ORANGE = PatternFill('solid', fgColor='FF7733')
+    ORANGE     = PatternFill('solid', fgColor='FFB300')
+    YELLOW     = PatternFill('solid', fgColor='FFE566')
+    BLUE       = PatternFill('solid', fgColor='99CCFF')
+    GRAY_HDR   = PatternFill('solid', fgColor='D0D0D0')
+    GRAY_DEPT  = PatternFill('solid', fgColor='E8E8E8')
+    NOFILL     = PatternFill(fill_type=None)
+
+    BOLD12  = Font(name='Arial', size=11, bold=True)
+    REG11   = Font(name='Arial', size=11)
+    BOLD11  = Font(name='Arial', size=11, bold=True)
+    BOLD14  = Font(name='Arial', size=13, bold=True)
+    CTR     = Alignment(horizontal='center', vertical='center')
+    LFT     = Alignment(horizontal='left',   vertical='center')
+    RGT     = Alignment(horizontal='right',  vertical='center')
+    FMT     = '#,##0'
+    PCTFMT  = '0.0%'
+
+    def ap(cell, font=None, fill=None, align=None, fmt=None):
+        if font:  cell.font  = font
+        if fill:  cell.fill  = fill
+        if align: cell.alignment = align
+        if fmt:   cell.number_format = fmt
+
+    run_date = datetime.now().strftime('%m/%d/%Y')
+    period_str = f'Period {period}' if period else ''
+
+    # Title rows
+    ws1.cell(1,1,'HOT SHEET — VARIANCE ANALYSIS')
+    ap(ws1.cell(1,1), font=BOLD14, align=LFT)
+    subtitle = '   |   '.join(filter(None,[title,network,prod_co,period_str])) + f'   |   Generated {run_date}'
+    ws1.cell(2,1, subtitle)
+    ap(ws1.cell(2,1), font=BOLD11, align=LFT)
+
+    # Color key (top right, columns 7-8)
+    key_data = [
+        ('31%+ over budget',    RED),
+        ('21-30% over budget',  RED_ORANGE),
+        ('11-20% over budget',  ORANGE),
+        ('1-10% over budget',   YELLOW),
+        ('10%+ under budget',   BLUE),
+        ('Within 10% (either)', NOFILL),
+    ]
+    ws1.cell(1,7,'COLOR KEY')
+    ap(ws1.cell(1,7), font=BOLD11, align=LFT)
+    for i,(label,fill) in enumerate(key_data):
+        r = 2+i
+        ws1.cell(r,7,'')
+        ap(ws1.cell(r,7), fill=fill)
+        ws1.cell(r,8, label)
+        ap(ws1.cell(r,8), font=REG11, align=LFT)
+
+    # Column headers row 4
+    HDR_ROW = 4
+    headers = ['ACCT','DESCRIPTION','ACTUALS','POs','EFC','BUDGET','VARIANCE','VAR %','OVER/UNDER']
+    for i,h in enumerate(headers):
+        c = ws1.cell(HDR_ROW, i+1, h)
+        ap(c, font=BOLD12, fill=GRAY_HDR, align=CTR)
+    ws1.row_dimensions[HDR_ROW].height = 18
+
+    # Column widths
+    widths = [10, 38, 16, 14, 16, 16, 16, 10, 14]
+    for i,w in enumerate(widths):
+        ws1.column_dimensions[get_column_letter(i+1)].width = w
+
+    # Data rows
+    r = HDR_ROW + 1
+    for line in lines:
+        acct    = line.get('acct','')
+        desc    = line.get('description','')
+        actuals = line.get('actuals',0) or 0
+        pos     = line.get('pos',0) or 0
+        efc     = line.get('efc',0) or 0
+        budget  = line.get('budget',0) or 0
+        is_tot  = line.get('is_total', False)
+
+        # Compute variance — positive = under budget (good), negative = over
+        if budget != 0:
+            var_amt = budget - efc
+            var_pct = var_amt / budget
+        else:
+            var_amt = 0
+            var_pct = 0
+
+        over_under = 'OVER' if var_amt < 0 else ('UNDER' if var_amt > 0 else '')
+
+        # Pick fill color based on variance %
+        pct = var_pct * 100  # negative = over
+        if pct < -30:            fill = RED
+        elif pct < -21:          fill = RED_ORANGE
+        elif pct < -11:          fill = ORANGE
+        elif pct < -1:           fill = YELLOW
+        elif pct <= -0.5:        fill = YELLOW
+        elif pct >= 10:          fill = BLUE
+        else:                    fill = NOFILL
+
+        font  = BOLD11 if is_tot else REG11
+        dfill = GRAY_DEPT if is_tot else fill
+
+        vals = [acct, desc, actuals, pos, efc, budget, var_amt, var_pct, over_under]
+        fmts = [None, None, FMT, FMT, FMT, FMT, FMT, PCTFMT, None]
+        alns = [CTR, LFT, RGT, RGT, RGT, RGT, RGT, CTR, CTR]
+
+        for i,(v,f,a) in enumerate(zip(vals,fmts,alns)):
+            cell = ws1.cell(r, i+1, v)
+            cell_fill = GRAY_DEPT if is_tot else (fill if i >= 2 else NOFILL)
+            ap(cell, font=font, fill=cell_fill, align=a, fmt=f)
+
+        if is_tot:
+            ws1.row_dimensions[r].height = 16
+        r += 1
+
+    ws1.freeze_panes = ws1.cell(HDR_ROW+1, 1)
+
+    # ── SHEET 2: VARIANCE REPORT (network view) ───────────────────────────────
+    ws2 = wb.create_sheet('Variance Report')
+
+    ws2.cell(1,1,'VARIANCE REPORT')
+    ap(ws2.cell(1,1), font=BOLD14, align=LFT)
+    ws2.cell(2,1, subtitle)
+    ap(ws2.cell(2,1), font=BOLD11, align=LFT)
+
+    HDR2 = 4
+    hdrs2 = ['ACCT','DESCRIPTION','BUDGET','EFC','VARIANCE','EXPLANATION']
+    for i,h in enumerate(hdrs2):
+        c = ws2.cell(HDR2, i+1, h)
+        ap(c, font=BOLD12, fill=GRAY_HDR, align=CTR)
+    ws2.row_dimensions[HDR2].height = 18
+
+    ws2.column_dimensions['A'].width = 10
+    ws2.column_dimensions['B'].width = 38
+    ws2.column_dimensions['C'].width = 16
+    ws2.column_dimensions['D'].width = 16
+    ws2.column_dimensions['E'].width = 16
+    ws2.column_dimensions['F'].width = 52
+
+    r2 = HDR2 + 1
+    # Variance report shows department totals only (not sub-lines)
+    for line in lines:
+        if not line.get('is_total', False):
+            continue
+        acct   = line.get('acct','')
+        desc   = line.get('description','')
+        budget = line.get('budget',0) or 0
+        efc    = line.get('efc',0) or 0
+        var    = budget - efc
+
+        is_grand = 'grand' in desc.lower() or 'total' in acct.lower()
+        font = BOLD11 if is_grand else REG11
+        fill = GRAY_DEPT if is_grand else NOFILL
+
+        for i,(v,f,a) in enumerate(zip(
+            [acct, desc, budget, efc, var, ''],
+            [None, None, FMT, FMT, FMT, None],
+            [CTR, LFT, RGT, RGT, RGT, LFT]
+        )):
+            cell = ws2.cell(r2, i+1, v)
+            ap(cell, font=font, fill=fill, align=a, fmt=f)
+
+        ws2.row_dimensions[r2].height = 18
+        r2 += 1
+
+    ws2.freeze_panes = ws2.cell(HDR2+1, 1)
+
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    return buf, title
+
 # ── ROUTES ────────────────────────────────────────────────────────────────────
 @app.route('/health', methods=['GET'])
 def health():
@@ -693,6 +934,43 @@ def generate():
         date_stamp = datetime.now().strftime('%Y-%m-%d')
         safe_title = re.sub(r'[^a-zA-Z0-9_\- ]','',title).strip().replace(' ','_')
         filename   = f'{safe_title}_CashFlow_{date_stamp}.xlsx'
+
+        return send_file(
+            buf,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name=filename
+        )
+    except Exception as e:
+        return jsonify({'error':str(e)}), 500
+
+@app.route('/parse-variance', methods=['POST'])
+def parse_variance():
+    try:
+        data = request.get_json()
+        pdf_b64 = data.get('pdf_b64','')
+        if not pdf_b64:
+            return jsonify({'error':'No PDF data'}), 400
+        result = parse_cost_report_pdf(pdf_b64)
+        return jsonify({'ok':True,'data':result})
+    except Exception as e:
+        return jsonify({'ok':False,'error':str(e)}), 500
+
+@app.route('/generate-variance', methods=['POST'])
+def generate_variance():
+    try:
+        data      = request.get_json()
+        show_info = data.get('showInfo', {})
+        lines     = data.get('lines', [])
+        threshold = data.get('threshold', 10)
+
+        if not lines:
+            return jsonify({'error':'No line items provided'}), 400
+
+        buf, title = build_variance_excel(show_info, lines, threshold)
+        date_stamp = datetime.now().strftime('%Y-%m-%d')
+        safe_title = re.sub(r'[^a-zA-Z0-9_\- ]','',title).strip().replace(' ','_')
+        filename   = f'{safe_title}_Variance_{date_stamp}.xlsx'
 
         return send_file(
             buf,
