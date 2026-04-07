@@ -59,37 +59,116 @@ BUDGET_LINES = [
 
 # ── PHASE NAME NORMALIZATION ──────────────────────────────────────────────────
 # Maps any variant phase name to its canonical spread category.
-# The display name (from AI) is preserved for the staircase row; this mapping
-# is used only for spread rule lookups and payment milestones.
+# Display names on the staircase are consolidated to the canonical name —
+# so "LOAD", "ESU", "SHOOT PITCHES" etc. all display as "PRODUCTION".
 #
-# KEY RULE — PRODUCTION:
-# Everything from the first truck roll (Load In) through the last strike or
-# shoot day is ONE continuous "Production" window for cash flow purposes.
-# Dark days, travel days, rehearsals, ESU, strike — all fall inside it.
-# Sub-phases (Shoot Pitches, Field Pranks, etc.) display on the staircase
-# as informational rows but map to the same canonical PRODUCTION category.
+# CORE RULE: Cash flow spreads continuously across each phase window.
+# No breaks for holidays, dark weeks, hiatuses, or Thanksgiving/Christmas.
+# The outer boundary (first day to last day) is what matters.
+#
+# FOUR CANONICAL PHASES:
+#   CASTING    — talent search through last callback/round
+#   PREP       — office open through last prep day before production
+#   PRODUCTION — first truck roll through last strike day (no gaps)
+#   POST       — edit start through final delivery
+#
+# HIATUS rule: always PRODUCTION (crew costs continue mid-shoot)
+# WRAP rule: always POST (refers to wrapping the show, not a shoot day)
+# HOLIDAY/DARK weeks: ignored — spread continues through them
+
 PHASE_ALIASES = {
-    'CASTING':    ['CASTING'],
-    'PREP':       ['PREP','PRE-PRODUCTION','PRE PRODUCTION','FIELD PREP',
-                   'FIELD PRANKS PREP','STUDIO PREP','PREP FIELD PRANKS',
-                   'PRE PROD'],
-    'PRODUCTION': ['PRODUCTION','SHOOT','SHOOT PITCHES','SHOOT PRANKS',
-                   'SHOOT EPISODES','SHOOT PRANK','SHOOT PITCH','SHOOT EPISODE',
-                   'FIELD SHOOT','STUDIO SHOOT','PRINCIPAL PHOTOGRAPHY',
-                   'FIELD PRANKS','TAPING','FILMING','LOAD IN','LOAD-IN',
-                   'LOAD','LOADIN','ESU','SET UP','SETUP','REHEARSAL',
-                   'STRIKE','DARK','HIATUS','TRAVEL','LOAD OUT','LOAD-OUT',
-                   'PRANK STAGE','PITCH STAGE','FIELD PRANK'],
-    'POST':       ['POST','POST PRODUCTION','POST-PRODUCTION',
-                   'POST WRAP','DELIVERY','WRAP'],
+    'CASTING': [
+        'CASTING', 'CASTING PERIOD', 'TALENT SEARCH', 'AUDITIONS',
+        'CALLBACKS', 'CASTING ROUNDS', 'CASTING SESSIONS',
+    ],
+    'PREP': [
+        'PREP', 'PRE-PRODUCTION', 'PRE PRODUCTION', 'PRE-PROD', 'PRE PROD',
+        'FIELD PREP', 'STUDIO PREP', 'FIELD PRANKS PREP', 'PREP FIELD PRANKS',
+        'OFFICE OPEN', 'START STAFF', 'STAFF START', 'OFFICE START',
+        'SCOUT', 'TECH SCOUT', 'LOCATION SCOUT', 'SCOUTS',
+        'READ THROUGH', 'TABLE READ',
+    ],
+    'PRODUCTION': [
+        # Load / Setup
+        'LOAD', 'LOAD IN', 'LOAD-IN', 'LOADIN', 'LOAD OUT', 'LOAD-OUT',
+        'LOADOUT', 'ESU', 'EQUIPMENT SET UP', 'EQUIPMENT SETUP',
+        'SET UP', 'SETUP', 'TECH SET UP', 'TECH SETUP', 'RIG',
+        # Shoot variants
+        'SHOOT', 'SHOOT DAY', 'SHOOTING', 'PRODUCTION',
+        'SHOOT PITCHES', 'SHOOT PRANKS', 'SHOOT EPISODES',
+        'SHOOT PRANK', 'SHOOT PITCH', 'SHOOT EPISODE',
+        'FIELD SHOOT', 'STUDIO SHOOT', 'FIELD PRANKS', 'FIELD PRANK',
+        'PRANK STAGE', 'PITCH STAGE', 'STUDIO STAGE',
+        'TAPING', 'TAPE', 'FILMING', 'FILM DAY',
+        'PRINCIPAL PHOTOGRAPHY', 'RECORD', 'RECORDING', 'RECORDING DAY',
+        # Rehearsal variants
+        'REHEARSE', 'REHEARSAL', 'REHEARSALS', 'TECH REHEARSE',
+        'TECH REHEARSAL', 'DRY RUN', 'RUN THROUGH', 'RUN-THROUGH',
+        'CAMERA REHEARSAL', 'DRESS REHEARSAL', 'BLOCKING',
+        # Production support days
+        'VTR', 'PLAYBACK', 'PLAYBACK DAY',
+        'TRAVEL', 'TRAVEL DAY', 'TRAVEL DAYS',
+        'DARK', 'DARK DAY', 'DARK WEEK', 'DOWN DAY',
+        'STRIKE', 'STRIKE DAY', 'WRAP DAY', 'SET STRIKE',
+        'HIATUS', 'BREAK', 'HOLIDAY BREAK', 'CHRISTMAS', 'THANKSGIVING',
+        # Field/location specific
+        'FIELD PRANKS X', 'FIELD PRANKS WEEK', 'BTS', 'BEHIND THE SCENES',
+        'LOCATION SHOOT', 'ON LOCATION', 'REMOTE SHOOT',
+    ],
+    'POST': [
+        'POST', 'POST PRODUCTION', 'POST-PRODUCTION', 'POST-PROD', 'POST PROD',
+        'EDIT', 'EDITING', 'EDITORIAL', 'OFFLINE', 'OFFLINE EDIT',
+        'ONLINE', 'ONLINE EDIT', 'COLOR', 'COLOR CORRECT', 'COLOR CORRECTION',
+        'MIX', 'AUDIO MIX', 'SOUND MIX', 'FINISHING', 'POST FINISHING',
+        'DELIVERY', 'MASTER DELIVERY', 'DELIVERIES',
+        'QC', 'QUALITY CONTROL', 'QUALITY CHECK',
+        'CLOSED CAPTIONING', 'CAPTIONING', 'CC',
+        'VFX', 'VISUAL EFFECTS', 'GRAPHICS',
+        'WRAP', 'POST WRAP', 'PRODUCTION WRAP',
+        'TRANSCRIPTION', 'TRANSCRIPTIONS',
+    ],
 }
 
+# Keywords that contain these strings anywhere map to PRODUCTION
+# (catches things like "PREP FIELD PRANKS X (3) TEAMS")
+PRODUCTION_CONTAINS = [
+    'SHOOT', 'LOAD', 'ESU', 'FIELD PRANK', 'PRANK STAGE', 'PITCH STAGE',
+    'REHEARS', 'DRY RUN', 'RUN THROUGH', 'STRIKE', 'HIATUS', 'DARK',
+    'TRAVEL', 'TAPING', 'FILMING', 'VTR', 'PLAYBACK', 'BTS',
+]
+
+PREP_CONTAINS = [
+    'PREP', 'SCOUT', 'PRE-PROD', 'PRE PROD',
+]
+
+CASTING_CONTAINS = [
+    'CASTING', 'AUDITION', 'CALLBACK',
+]
+
+POST_CONTAINS = [
+    'POST', 'EDIT', 'COLOR', 'MIX', 'DELIVER', 'QC', 'CAPTIO',
+]
+
 def canonical_phase(name):
-    """Return the canonical spread category for a phase name."""
+    """Return canonical phase category for any phase name."""
     upper = name.upper().strip()
+
+    # Exact match first
     for canon, aliases in PHASE_ALIASES.items():
-        if upper in aliases or any(a in upper for a in aliases):
+        if upper in aliases:
             return canon
+
+    # Substring match — order matters (PRODUCTION before PREP to avoid
+    # "FIELD PRANKS PREP" matching PREP instead of PRODUCTION)
+    if any(kw in upper for kw in PRODUCTION_CONTAINS):
+        return 'PRODUCTION'
+    if any(kw in upper for kw in CASTING_CONTAINS):
+        return 'CASTING'
+    if any(kw in upper for kw in POST_CONTAINS):
+        return 'POST'
+    if any(kw in upper for kw in PREP_CONTAINS):
+        return 'PREP'
+
     return None
 
 # ── CALENDAR HELPERS ──────────────────────────────────────────────────────────
@@ -258,6 +337,21 @@ def build_excel(show_info, phases, budget_vals):
 
     pr = build_phase_ranges(phases, wk1, nw)
 
+    # ── STAIRCASE DISPLAY PHASES ─────────────────────────────────────────────
+    # Consolidate all AI-returned phases into the four clean canonical bars
+    # for display. The full sub-phase detail informed the date ranges above;
+    # the staircase shows CASTING / PREP / PRODUCTION / POST only.
+    # This prevents confusing displays like "LOAD...LOAD...LOAD" for 12 weeks.
+    display_phases = []
+    canon_order = ['CASTING', 'PREP', 'PRODUCTION', 'POST']
+    for canon in canon_order:
+        if canon in pr:
+            display_phases.append({
+                'name':  canon,
+                'start': (wk1 + timedelta(weeks=pr[canon][0])).strftime('%Y-%m-%d'),
+                'end':   (wk1 + timedelta(weeks=pr[canon][1])).strftime('%Y-%m-%d'),
+            })
+
     # Spread each budget line
     line_data = []
     for acct, label, stype in BUDGET_LINES:
@@ -291,7 +385,7 @@ def build_excel(show_info, phases, budget_vals):
     CA, CB, CC, CW1 = 1, 2, 3, 4
     CWL = CW1 + nw - 1
     CTT = CW1 + nw
-    NP  = len(phases)
+    NP  = len(display_phases)
     NL  = len(line_data)
     NPM = len(payments)
 
@@ -331,8 +425,8 @@ def build_excel(show_info, phases, budget_vals):
     for i in range(nw):
         ap(ws.cell(R_DAT, CW1+i, wk_date(i).strftime('%m/%d/%y')), font=BOLD12, align=CTR)
 
-    # Phase staircase — gray bars, one row per phase
-    for pi, ph in enumerate(phases):
+    # Phase staircase — gray bars, one row per canonical phase
+    for pi, ph in enumerate(display_phases):
         r = R_PH0 + pi
         ap(ws.cell(r, CB, ph['name']), font=BOLD12, align=CTR)
         s_date = parse_date(ph['start'])
