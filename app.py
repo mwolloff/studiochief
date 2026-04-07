@@ -704,7 +704,22 @@ Use integers only. If a value is blank or dash, use 0. Include ALL lines includi
     )
     raw = response.content[0].text.strip()
     clean = re.sub(r'^```[a-z]*\n?','',raw).replace('```','').strip()
-    return json.loads(clean)
+    try:
+        return json.loads(clean)
+    except json.JSONDecodeError:
+        # Claude truncated the JSON — recover by closing open structures
+        last_brace = clean.rfind('}')
+        if last_brace > 0:
+            trimmed = clean[:last_brace+1]
+            open_brackets = trimmed.count('[') - trimmed.count(']')
+            open_braces   = trimmed.count('{') - trimmed.count('}')
+            for _ in range(open_brackets): trimmed += ']'
+            for _ in range(open_braces):   trimmed += '}'
+            try:
+                return json.loads(trimmed)
+            except Exception as e2:
+                raise ValueError(f'JSON recovery failed: {e2}. Raw length: {len(raw)} chars')
+        raise ValueError(f'No valid JSON found in response. Raw length: {len(raw)} chars')
 
 # ── VARIANCE EXCEL BUILDER ────────────────────────────────────────────────────
 def build_variance_excel(show_info, lines, threshold=10):
@@ -957,7 +972,8 @@ def parse_variance():
         result = parse_cost_report_pdf(pdf_b64)
         return jsonify({'ok':True,'data':result})
     except Exception as e:
-        return jsonify({'ok':False,'error':str(e)}), 500
+        import traceback
+        return jsonify({'ok':False,'error':str(e),'trace':traceback.format_exc()[-500:]}), 500
 
 @app.route('/generate-variance', methods=['POST'])
 def generate_variance():
