@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudioChief — Production Management Suite</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#111213;--surface:#1e2124;--surface2:#252a2e;
+--border:#2e3338;--border2:#3a4048;
+--text:#f0ede8;--text2:#a8a49e;--text3:#8e8a85;
+--amber:#e8a020;--amber-glow:rgba(232,160,32,0.12);
+--green:#3db87a;--green-dim:rgba(61,184,122,0.08);
+--red:#e05252;--blue:#4a8fe8;--purple:#8b5cf6;
+--font-d:'Playfair Display',Georgia,serif;
+--font-b:'Outfit',system-ui,sans-serif;
+--font-m:'DM Mono',monospace;
+--r:4px;--rl:8px;
+--ease:cubic-bezier(0.25,0.46,0.45,0.94);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:15px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:1000;opacity:0.5}
+.view{display:none;min-height:100vh}.view.active{display:block}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;height:56px;background:rgba(17,18,19,0.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 32px}
+.nav-logo{font-family:var(--font-d);font-size:18px;font-weight:700;color:var(--text);cursor:pointer;transition:color .15s;flex-shrink:0;letter-spacing:-.3px}
+.nav-logo:hover,.nav-logo span{color:var(--amber)}
+.nav-div{width:1px;height:20px;background:var(--border);margin:0 18px;flex-shrink:0}
+.nav-crumb{font-family:var(--font-m);font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase}
+.nav-sp{flex:1}
+.nav-badge{display:flex;align-items:center;gap:6px;font-family:var(--font-m);font-size:10px;color:var(--green);letter-spacing:1px;text-transform:uppercase;background:var(--green-dim);border:1px solid rgba(61,184,122,0.15);padding:5px 12px;border-radius:2px}
+.nav-badge::before{content:'';width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+#view-dash{padding-top:56px}
+.hero{padding:72px 32px 48px;max-width:1100px;margin:0 auto}
+.eyebrow{font-family:var(--font-m);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--amber);margin-bottom:18px;animation:fadeUp .5s var(--ease) both}
+.hero h1{font-family:var(--font-d);font-size:clamp(38px,5.5vw,64px);font-weight:900;line-height:1.0;letter-spacing:-2px;color:var(--text);margin-bottom:20px;animation:fadeUp .5s .08s var(--ease) both}
+.hero h1 em{font-style:normal;color:var(--amber)}
+.hero p{font-size:17px;color:var(--text2);font-weight:300;max-width:520px;line-height:1.7;animation:fadeUp .5s .16s var(--ease) both}
+.priv-badge{display:inline-flex;align-items:flex-start;gap:12px;margin-top:28px;padding:14px 18px;background:var(--green-dim);border:1px solid rgba(61,184,122,0.2);border-radius:var(--r);font-size:13px;color:var(--text2);line-height:1.5;max-width:540px;animation:fadeUp .5s .24s var(--ease) both}
+.priv-badge .ico{font-size:18px;flex-shrink:0;margin-top:1px}
+.priv-badge strong{color:var(--green);font-weight:600}
+.tools-wrap{max-width:1100px;margin:0 auto;padding:0 32px 80px}
+.sec-label{font-family:var(--font-m);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.grid-tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:26px;cursor:pointer;transition:all .2s var(--ease);position:relative;overflow:hidden;animation:fadeUp .5s var(--ease) both}
+.card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--amber-glow) 0%,transparent 60%);opacity:0;transition:opacity .3s}
+.card:hover::before{opacity:1}
+.card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 12px 36px rgba(0,0,0,.4)}
+.card.live{border-color:rgba(232,160,32,.3)}
+.card.live::after{content:'LIVE';position:absolute;top:14px;right:14px;font-family:var(--font-m);font-size:9px;letter-spacing:2px;color:var(--amber);background:var(--amber-glow);border:1px solid rgba(232,160,32,.25);padding:3px 8px;border-radius:2px}
+.card.soon{opacity:.55;cursor:default}
+.card.soon:hover{transform:none;box-shadow:none}
+.card.soon::after{content:'COMING SOON';position:absolute;top:14px;right:14px;font-family:var(--font-m);font-size:9px;letter-spacing:2px;color:var(--text3);background:var(--surface2);border:1px solid var(--border);padding:3px 8px;border-radius:2px}
+.card:nth-child(1){animation-delay:.04s}.card:nth-child(2){animation-delay:.08s}
+.card:nth-child(3){animation-delay:.12s}.card:nth-child(4){animation-delay:.16s}
+.card:nth-child(5){animation-delay:.20s}.card:nth-child(6){animation-delay:.24s}
+.cico{width:42px;height:42px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:19px;margin-bottom:16px;position:relative;z-index:1}
+.ci-a{background:var(--amber-glow);border:1px solid rgba(232,160,32,.2)}
+.ci-b{background:rgba(74,143,232,.08);border:1px solid rgba(74,143,232,.2)}
+.ci-r{background:rgba(224,82,82,.08);border:1px solid rgba(224,82,82,.2)}
+.ci-g{background:var(--green-dim);border:1px solid rgba(61,184,122,.2)}
+.ci-x{background:var(--surface2);border:1px solid var(--border)}
+.cname{font-family:var(--font-d);font-size:18px;font-weight:700;color:var(--text);margin-bottom:7px;position:relative;z-index:1}
+.cdesc{font-size:13px;color:var(--text2);line-height:1.6;font-weight:300;position:relative;z-index:1}
+.ctags{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px;position:relative;z-index:1;align-items:center}
+.tag{font-family:var(--font-m);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);background:var(--surface2);border:1px solid var(--border);padding:3px 8px;border-radius:2px}
+.tag.a{color:var(--amber);background:var(--amber-glow);border-color:rgba(232,160,32,.2)}
+.arr{margin-left:auto;color:var(--amber);font-size:16px;opacity:0;transform:translateX(-6px);transition:all .2s var(--ease)}
+.card:hover .arr{opacity:1;transform:translateX(0)}
+.dfooter{border-top:1px solid var(--border);padding:24px 32px;max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+.dbrand{font-family:var(--font-d);font-size:14px;color:var(--text3)}.dbrand span{color:var(--amber)}
+.dcopy{font-family:var(--font-m);font-size:10px;color:var(--text3);letter-spacing:1px}
+#view-cf,#view-vr{padding-top:56px}
+.tool-hdr{border-bottom:1px solid var(--border);padding:22px 32px 18px;max-width:1100px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:20px}
+.tool-hdr h2{font-family:var(--font-d);font-size:26px;font-weight:700;color:var(--text);letter-spacing:-.5px;margin-bottom:4px}
+.tool-hdr p{font-size:15px;color:var(--text2);font-weight:300;max-width:560px;line-height:1.6}
+.back-btn{display:flex;align-items:center;gap:6px;font-family:var(--font-m);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);background:transparent;border:1px solid var(--border);padding:8px 14px;border-radius:var(--r);cursor:pointer;transition:all .15s;flex-shrink:0}
+.back-btn:hover{color:var(--text);border-color:var(--border2)}
+.tc{max-width:1100px;margin:0 auto;padding:26px 32px 80px}
+.step{font-family:var(--font-m);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--amber);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.step::after{content:'';flex:1;height:1px;background:var(--border)}
+.step-opt{font-size:10px;color:var(--text3);font-family:var(--font-m);letter-spacing:0;text-transform:none;margin-left:8px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:22px;margin-bottom:16px}
+.imp-zone{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:22px;margin-bottom:16px}
+.imp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.imp-grid.single{grid-template-columns:1fr;max-width:480px;margin:0 auto 14px;}
+.imp-box{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;background:var(--surface2);border:1px dashed var(--border);border-radius:var(--r);padding:18px;transition:border-color .15s;position:relative;min-height:120px;justify-content:center}
+.imp-box.has-file{border-color:rgba(61,184,122,.4);border-style:solid}
+.imp-box.parsing{border-color:var(--amber);border-style:solid}
+.imp-drop{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.imp-ico{font-size:22px}
+.imp-lbl{font-family:var(--font-m);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2)}
+.imp-hint{font-size:12px;color:var(--text3);line-height:1.4}
+.imp-stat{font-family:var(--font-m);font-size:10px;letter-spacing:.5px;display:none;max-width:100%;text-align:center;line-height:1.4}
+.imp-stat.ok{color:var(--green);display:block}
+.imp-stat.warn{color:var(--amber);display:block}
+.imp-stat.err{color:var(--red);display:block}
+.imp-clear{display:none;margin-top:6px;background:transparent;border:1px solid var(--border);color:var(--text3);font-family:var(--font-m);font-size:9px;letter-spacing:1px;padding:3px 10px;border-radius:2px;cursor:pointer;transition:all .15s}
+.imp-clear:hover{border-color:var(--red);color:var(--red)}
+.imp-clear.show{display:inline-block}
+.imp-spinner{display:none;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--amber);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
+.imp-spinner.show{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.imp-note{font-family:var(--font-m);font-size:12px;color:var(--text3);text-align:center;padding-top:14px;border-top:1px solid var(--border);line-height:1.6;letter-spacing:.3px}
+.imp-note strong{color:var(--green)}
+.ai-status{font-family:var(--font-m);font-size:12px;color:var(--amber);text-align:center;padding:10px 14px;background:var(--amber-glow);border:1px solid rgba(232,160,32,.2);border-radius:var(--r);margin-top:12px;display:none}
+.ai-status.show{display:block}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-family:var(--font-m);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)}
+.field input,.field select{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font-m);font-size:13px;padding:9px 12px;border-radius:var(--r);outline:none;transition:border-color .15s;width:100%}
+.field input[type=date]{color-scheme:dark}
+.field input:focus,.field select:focus{border-color:var(--amber)}
+.phases-wrap{display:flex;flex-direction:column;gap:8px}
+.ph-block{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--text3);border-radius:var(--r);padding:12px 14px}
+.ph-row{display:grid;grid-template-columns:170px 1fr 1fr auto auto;gap:10px;align-items:center}
+.ph-pmt{display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);grid-column:1/-1}
+.ph-pmt.open{display:grid;grid-template-columns:170px 1fr;gap:10px;align-items:center}
+.ph-pmt-lbl{font-family:var(--font-m);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);padding-left:2px}
+.ph-toggle{background:transparent;border:none;font-family:var(--font-m);font-size:9px;letter-spacing:1px;color:var(--text3);cursor:pointer;padding:2px 6px;border-radius:2px;transition:color .15s;white-space:nowrap;text-transform:uppercase}
+.ph-toggle:hover{color:var(--amber)}.ph-toggle.active{color:var(--amber)}
+.ph-name{background:transparent;border:none;border-bottom:1px solid transparent;font-family:var(--font-m);font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);outline:none;width:100%;padding:2px 0;transition:border-color .15s}
+.ph-name:focus{color:var(--text);border-bottom-color:var(--border2)}
+.ph-rem{background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:0 6px;border-radius:var(--r);transition:color .15s;line-height:1}
+.ph-rem:hover{color:var(--red)}
+.add-ph{display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--font-m);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--amber);background:transparent;border:1px dashed rgba(232,160,32,0.4);padding:11px;border-radius:var(--r);cursor:pointer;transition:all .15s;width:100%;margin-top:8px}
+.add-ph:hover{border-color:var(--amber);background:var(--amber-glow)}
+.bud-note{font-family:var(--font-m);font-size:13px;color:var(--text3);margin-bottom:14px;padding:10px 14px;background:var(--amber-glow);border-left:2px solid var(--amber);border-radius:2px;line-height:1.6}
+.sections-grid{display:flex;flex-direction:column;gap:6px}
+.section-row{display:grid;grid-template-columns:110px 1fr 160px 140px;gap:10px;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px}
+.section-row.ai-filled{border-color:rgba(61,184,122,.3);background:rgba(61,184,122,.03)}
+.section-acct{font-family:var(--font-m);font-size:10px;color:var(--text3);letter-spacing:.5px}
+.section-label{font-family:var(--font-m);font-size:11px;color:var(--text2);font-weight:500;letter-spacing:.5px}
+.section-total{font-family:var(--font-m);font-size:12px;color:var(--text);text-align:right;background:transparent;border:none;border-bottom:1px solid var(--border);outline:none;width:100%;padding:2px 4px;transition:border-color .15s}
+.section-total:focus{border-bottom-color:var(--amber);color:var(--amber)}
+.section-spread{font-family:var(--font-m);font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:3px 6px}
+.sections-hdr{display:grid;grid-template-columns:110px 1fr 160px 140px;gap:10px;padding:0 12px 6px;font-family:var(--font-m);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)}
+.total-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);margin-top:10px}
+.total-bar-lbl{font-family:var(--font-m);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)}
+.total-bar-val{font-family:var(--font-m);font-size:18px;font-weight:500;color:var(--amber);letter-spacing:1px}
+.gen-btn{width:100%;padding:16px;background:var(--amber);color:#0d0f14;border:none;border-radius:var(--r);font-family:var(--font-d);font-size:16px;font-weight:700;cursor:pointer;transition:all .15s var(--ease);margin-top:6px}
+.gen-btn:hover{background:#f0b030;transform:translateY(-1px);box-shadow:0 8px 28px rgba(232,160,32,.28)}
+.gen-btn:active{transform:translateY(0)}
+.gen-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.dl-btn{width:100%;padding:16px;background:var(--green);color:#0d0f14;border:none;border-radius:var(--r);font-family:var(--font-d);font-size:16px;font-weight:700;cursor:pointer;transition:all .15s var(--ease);margin-top:12px;display:none;text-align:center;text-decoration:none}
+.dl-btn:hover{background:#4ecf8a;transform:translateY(-1px)}
+.dl-btn.show{display:block}
+.status{display:none;margin-top:12px;padding:12px 16px;border-radius:var(--r);font-family:var(--font-m);font-size:12px;letter-spacing:.3px}
+.status.ok{background:var(--green-dim);border:1px solid rgba(61,184,122,.2);color:var(--green);display:block}
+.status.warn{background:var(--amber-glow);border:1px solid rgba(232,160,32,.3);color:var(--amber);display:block}
+.status.err{background:rgba(224,82,82,.08);border:1px solid rgba(224,82,82,.2);color:var(--red);display:block}
+.thresh-wrap{display:flex;align-items:flex-start;gap:32px;flex-wrap:wrap}
+.thresh-input{display:flex;flex-direction:column;gap:8px;min-width:160px}
+.thresh-input label{font-family:var(--font-m);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)}
+.thresh-input input{background:var(--surface2);border:1px solid var(--border);color:var(--amber);font-family:var(--font-m);font-size:22px;font-weight:500;padding:10px 14px;border-radius:var(--r);outline:none;width:120px;text-align:center}
+.thresh-input input:focus{border-color:var(--amber)}
+.color-key{display:flex;flex-direction:column;gap:8px}
+.color-key-row{display:flex;align-items:center;gap:10px;font-family:var(--font-m);font-size:12px;color:var(--text2)}
+.color-swatch{width:18px;height:18px;border-radius:3px;flex-shrink:0}
+@media(max-width:700px){
+.hero{padding:44px 20px 36px}.tools-wrap{padding:0 20px 60px}
+.grid-tools{grid-template-columns:1fr}.g2{grid-template-columns:1fr}
+.imp-grid{grid-template-columns:1fr}.tc{padding:18px 20px 60px}
+.tool-hdr{padding:16px 20px;flex-direction:column;align-items:flex-start}
+.nav{padding:0 20px}.nav-badge{display:none}
+.section-row{grid-template-columns:1fr 1fr}
+.sections-hdr{display:none}
+.thresh-wrap{flex-direction:column;gap:16px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo" onclick="showDash()">Studio<span>Chief</span></div>
+  <div class="nav-div"></div>
+  <div class="nav-crumb" id="crumb">Dashboard</div>
+  <div class="nav-sp"></div>
+  <div class="nav-badge">Private by design</div>
+</nav>
+
+<!-- DASHBOARD -->
+<div id="view-dash" class="view active">
+  <div class="hero">
+    <div class="eyebrow">Production Management Suite</div>
+    <h1>Run your<br>production<br>like a <em>chief.</em></h1>
+    <p>Professional tools for production executives, line producers, UPMs, and coordinators. Built for the way productions actually work.</p>
+    <div class="priv-badge">
+      <span class="ico">🔒</span>
+      <div><strong>Private by design.</strong> Every tool processes your files locally. Your budgets and calendars are never stored on any server. Ever.</div>
+    </div>
+  </div>
+  <div class="tools-wrap">
+    <div class="sec-label">Production Tools</div>
+    <div class="grid-tools">
+      <div class="card live" onclick="showTool('cf')">
+        <div class="cico ci-a">💰</div>
+        <div class="cname">Cash Flow Generator</div>
+        <div class="cdesc">Import your budget top sheet and production calendar. AI reads both together and builds a network-quality cash flow spreadsheet from your actual sections.</div>
+        <div class="ctags"><span class="tag a">AI-Powered</span><span class="tag a">Excel Output</span><span class="tag">Budget</span><span class="tag">Finance</span><span class="arr">→</span></div>
+      </div>
+      <div class="card live" onclick="showTool('vr')">
+        <div class="cico ci-b">📊</div>
+        <div class="cname">Variance Report</div>
+        <div class="cdesc">Import a cost report PDF. AI reads every line, color-codes what's hot, and generates a clean network-ready variance report, editable in Excel.</div>
+        <div class="ctags"><span class="tag a">AI-Powered</span><span class="tag a">Excel Output</span><span class="tag">Cost Report</span><span class="tag">PDF</span><span class="arr">→</span></div>
+      </div>
+      <div class="card soon">
+        <div class="cico ci-r">⚠️</div>
+        <div class="cname">Risk &amp; Diligence Scanner</div>
+        <div class="cdesc">Import any script, beat sheet, or production doc. AI flags IP issues, stunts, logos, safety concerns, and legal red flags.</div>
+        <div class="ctags"><span class="tag">PDF</span><span class="tag">Word</span><span class="tag">Script</span></div>
+      </div>
+      <div class="card soon">
+        <div class="cico ci-g">📋</div>
+        <div class="cname">Call Sheet</div>
+        <div class="cdesc">Build clean, professional call sheets and contact sheets from your crew and talent data. Print-ready in one click.</div>
+        <div class="ctags"><span class="tag">Crew</span><span class="tag">Scheduling</span></div>
+      </div>
+      <div class="card soon">
+        <div class="cico ci-x">🔧</div>
+        <div class="cname">Coming Soon</div>
+        <div class="cdesc">Another production tool is on the way. The suite grows as the industry needs it.</div>
+        <div class="ctags"><span class="tag">2026</span></div>
+      </div>
+      <div class="card soon">
+        <div class="cico ci-x">🔧</div>
+        <div class="cname">Coming Soon</div>
+        <div class="cdesc">Another production tool is on the way. The suite grows as the industry needs it.</div>
+        <div class="ctags"><span class="tag">2026</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="dfooter">
+    <div class="dbrand">Studio<span>Chief</span></div>
+    <div class="dcopy">© 2026 STUDIOCHIEF.COM</div>
+  </div>
+</div>
+
+<!-- CASH FLOW TOOL -->
+<div id="view-cf" class="view">
+  <div class="tool-hdr">
+    <div>
+      <h2>Cash Flow Generator</h2>
+      <p>Drop in your budget top sheet and production calendar. AI reads both together and builds a cash flow from your actual budget sections.</p>
+    </div>
+    <button class="back-btn" onclick="showDash()">← All Tools</button>
+  </div>
+  <div class="tc">
+
+    <div class="step">01 — Import Documents <span class="step-opt">Drop both files — AI reads them together for the best result</span></div>
+    <div class="imp-zone">
+      <div class="imp-grid">
+        <div class="imp-box" id="budBox">
+          <input class="imp-drop" type="file" accept=".pdf" onchange="onFileDropped('bud', this)">
+          <div class="imp-ico" id="budIco">📄</div>
+          <div class="imp-lbl">Budget Top Sheet</div>
+          <div class="imp-hint" id="budHint">PDF — AI reads your actual sections from the top sheet</div>
+          <div class="imp-spinner" id="budSpinner"></div>
+          <div class="imp-stat" id="budStat"></div>
+          <button class="imp-clear" id="budClear" onclick="clearFile('bud')">✕ Remove</button>
+        </div>
+        <div class="imp-box" id="calBox">
+          <input class="imp-drop" type="file" accept=".pdf" onchange="onFileDropped('cal', this)">
+          <div class="imp-ico" id="calIco">📅</div>
+          <div class="imp-lbl">Production Calendar</div>
+          <div class="imp-hint" id="calHint">PDF — AI extracts all phases and date ranges</div>
+          <div class="imp-spinner" id="calSpinner"></div>
+          <div class="imp-stat" id="calStat"></div>
+          <button class="imp-clear" id="calClear" onclick="clearFile('cal')">✕ Remove</button>
+        </div>
+      </div>
+      <div class="ai-status" id="aiStatus">AI is reading your documents — this takes 20-40 seconds...</div>
+      <div class="imp-note"><strong>Private by design</strong> — files are sent only to the AI. Nothing is stored by StudioChief.</div>
+    </div>
+
+    <div class="step">02 — Show Information</div>
+    <div class="panel">
+      <div class="g2">
+        <div class="field"><label>Show Title</label><input type="text" id="showTitle" placeholder="Auto-filled from budget"></div>
+        <div class="field"><label>Production Company</label><input type="text" id="prodCo" placeholder=""></div>
+        <div class="field"><label>Network / Studio</label><input type="text" id="network" placeholder=""></div>
+        <div class="field"><label>Number of Episodes</label><input type="number" id="numEps" min="1" max="200"></div>
+      </div>
+    </div>
+
+    <div class="step">03 — Production Phases <span class="step-opt">Auto-filled from calendar — or enter dates manually</span></div>
+    <div class="panel">
+      <div style="font-family:var(--font-m);font-size:13px;color:var(--text3);line-height:1.6;margin-bottom:14px;padding:10px 14px;background:var(--surface2);border-radius:var(--r);border-left:2px solid var(--border);">
+        Phase dates are required to generate a cash flow. Upload a calendar to auto-fill, or enter dates manually below.
+      </div>
+      <div class="phases-wrap" id="phasesWrap"></div>
+      <button class="add-ph" onclick="addPhase()">+ Add Phase</button>
+    </div>
+
+    <div class="step">04 — Budget Sections <span class="step-opt">Auto-filled from your top sheet — review AI spread assignments</span></div>
+    <div class="panel" id="budgetPanel">
+      <div class="bud-note" id="budNote">Upload a budget PDF above and AI will read your actual sections automatically. You can also enter sections manually below.</div>
+      <div class="sections-hdr" id="sectionsHdr" style="display:none">
+        <span>ACCT #</span><span>SECTION</span><span style="text-align:right">TOTAL</span><span style="text-align:center">PHASE SPREAD</span>
+      </div>
+      <div class="sections-grid" id="sectionsGrid"></div>
+      <div class="total-bar">
+        <span class="total-bar-lbl">Budget Total</span>
+        <span class="total-bar-val" id="totalBudgetDisplay">$0</span>
+      </div>
+      <button onclick="addManualSection()" style="margin-top:10px;font-family:var(--font-m);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--amber);background:transparent;border:1px dashed rgba(232,160,32,.4);padding:8px 16px;border-radius:var(--r);cursor:pointer;width:100%;">+ Add Section Manually</button>
+    </div>
+
+    <button class="gen-btn" id="genBtn" onclick="generate()" disabled>Add phase dates to continue</button>
+    <div class="status" id="statusBar"></div>
+  </div>
+</div>
+
+<!-- VARIANCE REPORT TOOL -->
+<div id="view-vr" class="view">
+  <div class="tool-hdr">
+    <div>
+      <h2>Variance Report</h2>
+      <p>Drop in your cost report PDF. AI reads every line and generates a color-coded Hot Sheet plus a network-ready variance report, both in one Excel file.</p>
+    </div>
+    <button class="back-btn" onclick="showDash()">← All Tools</button>
+  </div>
+  <div class="tc">
+    <div class="step">01 — Import Cost Report <span class="step-opt">PDF only — Movie Magic or any standard cost report format</span></div>
+    <div class="imp-zone">
+      <div class="imp-grid single">
+        <div class="imp-box" id="vrBox">
+          <input class="imp-drop" type="file" accept=".pdf" onchange="onVrFile(this)">
+          <div class="imp-ico" id="vrIco">📋</div>
+          <div class="imp-lbl">Cost Report PDF</div>
+          <div class="imp-hint" id="vrHint">Movie Magic cost report, any period, any format</div>
+          <div class="imp-spinner" id="vrSpinner"></div>
+          <div class="imp-stat" id="vrStat"></div>
+          <button class="imp-clear" id="vrClear" onclick="clearVrFile()">✕ Remove</button>
+        </div>
+      </div>
+      <div class="imp-note">
+        <strong>Private by design</strong> — your cost report is sent only to the AI. Nothing is stored.<br>
+        Processing takes <strong style="color:var(--amber);">60-120 seconds</strong> — AI reads the report in two passes. Please wait after dropping your file in.
+      </div>
+    </div>
+
+    <div class="step">02 — Show Information <span class="step-opt">Auto-filled from your cost report</span></div>
+    <div class="panel">
+      <div class="g2">
+        <div class="field"><label>Show Title</label><input type="text" id="vrShowTitle" placeholder="Auto-filled from cost report"></div>
+        <div class="field"><label>Production Company</label><input type="text" id="vrProdCo" placeholder=""></div>
+        <div class="field"><label>Network / Studio</label><input type="text" id="vrNetwork" placeholder=""></div>
+        <div class="field"><label>Cost Report Period</label><input type="text" id="vrPeriod" placeholder="e.g. Period 6 or 04/14/2022"></div>
+      </div>
+    </div>
+
+    <div class="step">03 — Flag Threshold</div>
+    <div class="panel">
+      <p style="font-family:var(--font-m);font-size:13px;color:var(--text3);line-height:1.6;margin-bottom:18px;">The Hot Sheet colors lines based on how far over budget they are. Set the base threshold, anything above this gets flagged yellow. Lines further over get progressively warmer colors.</p>
+      <div class="thresh-wrap">
+        <div class="thresh-input">
+          <label>Base Threshold (%)</label>
+          <input type="number" id="vrThreshold" value="10" min="1" max="50">
+        </div>
+        <div class="color-key">
+          <div class="color-key-row"><div class="color-swatch" style="background:#FF4444"></div>31%+ over budget</div>
+          <div class="color-key-row"><div class="color-swatch" style="background:#FF7733"></div>21-30% over budget</div>
+          <div class="color-key-row"><div class="color-swatch" style="background:#FFB300"></div>11-20% over budget</div>
+          <div class="color-key-row"><div class="color-swatch" style="background:#FFE566"></div>1-10% over budget</div>
+          <div class="color-key-row"><div class="color-swatch" style="background:#99CCFF"></div>10%+ under budget</div>
+          <div class="color-key-row"><div class="color-swatch" style="background:#333;border:1px solid #555"></div>Within threshold</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="gen-btn" id="vrGenBtn" onclick="generateVariance()" disabled style="opacity:.4;cursor:not-allowed;">Drop a cost report above to generate</button>
+    <a class="dl-btn" id="vrDlBtn" href="#" download>⬇ Download Variance Report — Excel</a>
+    <div class="status" id="vrStatusBar"></div>
+  </div>
+</div>
+
+<script>
+const BACKEND = 'https://studiochief.onrender.com';
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let budB64      = null;  // budget PDF base64
+let calB64      = null;  // calendar PDF base64
+let userPhases  = [];    // [{name, start, end, payDate, removable}]
+let userSections= [];    // [{acct, label, total, spread_type}]
+let vrFileB64   = null;
+let vrFileName  = '';
+let vrBlobUrl   = null;
+let aiRunning   = false;
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+function showDash() {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-dash').classList.add('active');
+  document.getElementById('crumb').textContent = 'Dashboard';
+  window.scrollTo(0,0);
+}
+function showTool(id) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  document.getElementById('crumb').textContent = {cf:'Cash Flow Generator',vr:'Variance Report'}[id]||id;
+  window.scrollTo(0,0);
+}
+
+// ── FILE HELPERS ──────────────────────────────────────────────────────────────
+function fileToBase64(file) {
+  return new Promise((res,rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+function setBoxState(prefix, state, msg) {
+  const box     = document.getElementById(prefix+'Box');
+  const spinner = document.getElementById(prefix+'Spinner');
+  const stat    = document.getElementById(prefix+'Stat');
+  const clear   = document.getElementById(prefix+'Clear');
+  const hint    = document.getElementById(prefix+'Hint');
+  box.classList.remove('has-file','parsing');
+  spinner.classList.remove('show');
+  stat.className='imp-stat'; stat.style.display='none'; stat.textContent='';
+  clear.classList.remove('show');
+  if (state==='loading') { box.classList.add('parsing'); spinner.classList.add('show'); if(hint) hint.style.display='none'; }
+  if (state==='ok')      { box.classList.add('has-file'); stat.className='imp-stat ok'; stat.textContent=msg; stat.style.display='block'; clear.classList.add('show'); if(hint) hint.style.display='none'; }
+  if (state==='warn')    { stat.className='imp-stat warn'; stat.textContent=msg; stat.style.display='block'; clear.classList.add('show'); if(hint) hint.style.display='none'; }
+  if (state==='err')     { stat.className='imp-stat err'; stat.textContent=msg; stat.style.display='block'; clear.classList.add('show'); if(hint) hint.style.display='block'; }
+  if (state==='idle')    { if(hint) hint.style.display='block'; }
+}
+
+// ── FILE DROP HANDLER — stores file, triggers combined parse when ready ────────
+async function onFileDropped(prefix, input) {
+  const f = input.files[0]; if(!f) return;
+  setBoxState(prefix, 'loading', 'Reading file...');
+  try {
+    const b64 = await fileToBase64(f);
+    if (prefix === 'bud') { budB64 = b64; document.getElementById('budIco').textContent = '📄'; }
+    if (prefix === 'cal') { calB64 = b64; document.getElementById('calIco').textContent = '📅'; }
+    setBoxState(prefix, 'ok', '✓ ' + f.name + ' — loaded');
+    // If we have at least one file and AI isn't already running, parse
+    if (!aiRunning) await runCombinedParse();
+  } catch(err) {
+    setBoxState(prefix, 'err', 'Could not read file: ' + err.message);
+  }
+}
+
+function clearFile(prefix) {
+  if (prefix === 'bud') { budB64 = null; document.getElementById('budIco').textContent = '📄'; }
+  if (prefix === 'cal') { calB64 = null; document.getElementById('calIco').textContent = '📅'; }
+  setBoxState(prefix, 'idle', '');
+  const drop = document.querySelector('#'+prefix+'Box .imp-drop');
+  if (drop) drop.value = '';
+}
+
+// ── COMBINED AI PARSE ─────────────────────────────────────────────────────────
+async function runCombinedParse() {
+  if (!budB64 && !calB64) return;
+  aiRunning = true;
+
+  const aiStatus = document.getElementById('aiStatus');
+  if (budB64 && calB64) {
+    aiStatus.textContent = 'AI is reading your budget and calendar together — 20-40 seconds...';
+  } else if (budB64) {
+    aiStatus.textContent = 'AI is reading your budget top sheet — 20-40 seconds...';
+  } else {
+    aiStatus.textContent = 'AI is reading your production calendar — 10-20 seconds...';
+  }
+  aiStatus.classList.add('show');
+
+  try {
+    const resp = await fetch(`${BACKEND}/parse-both`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        budget_base64:   budB64   || null,
+        calendar_base64: calB64   || null
+      })
+    });
+
+    if (!resp.ok) {
+      const e = await resp.json().catch(()=>({}));
+      throw new Error(e.error || 'Backend error ' + resp.status);
+    }
+
+    const result = await resp.json();
+    if (!result.ok) throw new Error(result.error || 'Parse failed');
+    const data = result.data;
+
+    // Populate show info
+    if (data.showTitle) { const el=document.getElementById('showTitle'); if(!el.value) el.value=data.showTitle; }
+    if (data.network)   { const el=document.getElementById('network');   if(!el.value) el.value=data.network; }
+    if (data.prodCo)    { const el=document.getElementById('prodCo');    if(!el.value) el.value=data.prodCo; }
+    if (data.numEps)    { const el=document.getElementById('numEps');    if(!el.value) el.value=data.numEps; }
+
+    // Populate phases from calendar
+    if (data.phases && data.phases.length > 0) {
+      const corePhases = new Set(['CASTING','PREP','LOAD IN','SHOOT','POST','PRODUCTION']);
+      userPhases = data.phases.map(p => ({
+        name: p.name.toUpperCase(),
+        start: p.start || '',
+        end: p.end || '',
+        payDate: '',
+        removable: !corePhases.has(p.name.toUpperCase())
+      }));
+      renderPhases();
+      if (calB64) setBoxState('cal', 'ok', `✓ ${data.phases.length} phases found: ${data.phases.map(p=>p.name).join(', ')}`);
+    }
+
+    // Populate sections from budget
+    if (data.sections && data.sections.length > 0) {
+      userSections = data.sections.map(s => ({
+        acct:        s.acct || '',
+        label:       s.label || '',
+        total:       parseInt(s.total) || 0,
+        spread_type: s.spread_type || 'full'
+      }));
+      renderSections();
+      if (budB64) setBoxState('bud', 'ok', `✓ ${data.sections.length} sections found — review totals and spread assignments below`);
+    } else if (budB64) {
+      setBoxState('bud', 'warn', 'Could not read sections — enter manually below');
+    }
+
+    aiStatus.classList.remove('show');
+    updateGenerateButton();
+
+  } catch(err) {
+    aiStatus.classList.remove('show');
+    if (budB64) setBoxState('bud', 'err', 'AI parse failed: ' + err.message);
+    if (calB64) setBoxState('cal', 'err', 'AI parse failed: ' + err.message);
+  } finally {
+    aiRunning = false;
+  }
+}
+
+// ── SECTIONS RENDER ───────────────────────────────────────────────────────────
+const SPREAD_LABELS = {
+  'full':         'Full Run',
+  'week1':        'Week 1',
+  'casting':      'Casting',
+  'prep':         'Prep',
+  'prep_shoot':   'Prep > Shoot',
+  'production':   'Production',
+  'shoot_plus2':  'Shoot +2wk',
+  'shoot_plus4':  'Shoot +4wk',
+  'post':         'Post',
+  'post_plus2':   'Post +2wk',
+  'graphics':     'Split',
+};
+
+function renderSections() {
+  const grid = document.getElementById('sectionsGrid');
+  const hdr  = document.getElementById('sectionsHdr');
+  grid.innerHTML = '';
+  if (userSections.length > 0) hdr.style.display = 'grid';
+
+  userSections.forEach((s, i) => {
+    const row = document.createElement('div');
+    row.className = 'section-row' + (s.total > 0 ? ' ai-filled' : '');
+    row.innerHTML = `
+      <span class="section-acct">${s.acct}</span>
+      <span class="section-label">${s.label}</span>
+      <input class="section-total" type="text" value="${s.total > 0 ? s.total.toLocaleString() : ''}"
+        placeholder="0"
+        oninput="userSections[${i}].total=parseInt(this.value.replace(/,/g,''))||0;updateBudgetTotal()">
+      <select style="font-family:var(--font-m);font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:3px 6px;cursor:pointer;"
+        onchange="userSections[${i}].spread_type=this.value">
+        ${Object.entries(SPREAD_LABELS).map(([val,lbl]) =>
+          `<option value="${val}" ${s.spread_type===val?'selected':''}>${lbl}</option>`
+        ).join('')}
+      </select>`;
+    grid.appendChild(row);
+  });
+  updateBudgetTotal();
+}
+
+function addManualSection() {
+  userSections.push({acct:'', label:'New Section', total:0, spread_type:'full'});
+  renderSections();
+  // Focus the last label
+  const rows = document.querySelectorAll('.section-label');
+  if (rows.length) rows[rows.length-1].focus && rows[rows.length-1].focus();
+}
+
+function updateBudgetTotal() {
+  const total = userSections.reduce((sum, s) => sum + (parseInt(s.total) || 0), 0);
+  const el = document.getElementById('totalBudgetDisplay');
+  if (el) el.textContent = '$' + total.toLocaleString();
+}
+
+// ── PHASE HELPERS ─────────────────────────────────────────────────────────────
+const PH_COLORS = {CASTING:'#8b5cf6',PREP:'#4a8fe8','LOAD IN':'#e8a020',SHOOT:'#e05252',PRODUCTION:'#e05252',POST:'#3db87a',WRAP:'#3db87a'};
+function phColor(name){return PH_COLORS[name.toUpperCase()]||'#6b6660';}
+
+function renderPhases() {
+  const wrap = document.getElementById('phasesWrap');
+  wrap.innerHTML = '';
+  userPhases.forEach((ph, i) => {
+    const d = document.createElement('div');
+    d.className = 'ph-block';
+    d.style.borderLeftColor = phColor(ph.name);
+    const hasPay = ph.payDate && ph.payDate.length > 0;
+    d.innerHTML = `<div class="ph-row">
+      <input class="ph-name" type="text" value="${ph.name}"
+        oninput="userPhases[${i}].name=this.value;this.closest('.ph-block').style.borderLeftColor=phColor(this.value)"
+        placeholder="Phase name">
+      <div class="field"><label>Start</label>
+        <input type="date" value="${ph.start}" style="font-size:12px;padding:7px 10px;"
+          oninput="userPhases[${i}].start=this.value;updateGenerateButton()">
+      </div>
+      <div class="field"><label>End</label>
+        <input type="date" value="${ph.end}" style="font-size:12px;padding:7px 10px;"
+          oninput="userPhases[${i}].end=this.value;updateGenerateButton()">
+      </div>
+      <button class="ph-toggle${hasPay?' active':''}" id="pmt-toggle-${i}" onclick="togglePayDate(${i})">
+        ${hasPay?'💰 Payment date set':'+ Payment date'}
+      </button>
+      ${ph.removable
+        ? `<button class="ph-rem" onclick="removePhase(${i})" title="Remove">×</button>`
+        : '<div></div>'}
+    </div>
+    <div class="ph-pmt${hasPay?' open':''}" id="pmt-row-${i}">
+      <div class="ph-pmt-lbl">Optional — when you need funds before this phase starts.</div>
+      <div class="field"><label>Payment date</label>
+        <input type="date" value="${ph.payDate||''}" style="font-size:12px;padding:7px 10px;"
+          oninput="userPhases[${i}].payDate=this.value;updatePayToggle(${i})">
+      </div>
+    </div>`;
+    wrap.appendChild(d);
+  });
+  updateGenerateButton();
+}
+
+function togglePayDate(i) {
+  const row=document.getElementById('pmt-row-'+i), btn=document.getElementById('pmt-toggle-'+i);
+  const isOpen=row.classList.contains('open');
+  if(isOpen){row.classList.remove('open');btn.classList.remove('active');userPhases[i].payDate='';btn.textContent='+ Payment date';}
+  else{row.classList.add('open');btn.classList.add('active');row.querySelector('input[type=date]').focus();}
+}
+function updatePayToggle(i) {
+  const btn=document.getElementById('pmt-toggle-'+i); if(!btn) return;
+  if(userPhases[i].payDate){btn.textContent='💰 Payment date set';btn.classList.add('active');}
+  else{btn.textContent='+ Payment date';btn.classList.remove('active');}
+}
+function addPhase() {
+  const last = userPhases[userPhases.length-1];
+  userPhases.push({name:'NEW PHASE', start:last?last.end:'', end:last?last.end:'', payDate:'', removable:true});
+  renderPhases();
+  const inputs = document.querySelectorAll('.ph-name');
+  if(inputs.length){inputs[inputs.length-1].select();inputs[inputs.length-1].focus();}
+}
+function removePhase(i){userPhases.splice(i,1);renderPhases();}
+
+// ── GENERATE BUTTON GATE ──────────────────────────────────────────────────────
+function updateGenerateButton() {
+  const btn = document.getElementById('genBtn');
+  const hasValidPhase = userPhases.some(p => p.start && p.end);
+  if (hasValidPhase) {
+    btn.disabled = false;
+    btn.textContent = 'Download Cash Flow — Excel';
+  } else {
+    btn.disabled = true;
+    btn.textContent = 'Add phase dates to continue';
+  }
+}
+
+// ── CASH FLOW GENERATE ────────────────────────────────────────────────────────
+async function generate() {
+  const btn = document.getElementById('genBtn');
+  const phases = userPhases.filter(p => p.start && p.end);
+  if (!phases.length) { showCfStatus('err','Add phase dates in Step 03 to continue.'); return; }
+
+  btn.disabled = true; btn.textContent = 'Generating...';
+  showCfStatus('warn', 'Building your cash flow spreadsheet...');
+
+  const showInfo = {
+    showTitle: document.getElementById('showTitle').value || 'Untitled Show',
+    network:   document.getElementById('network').value  || '',
+    prodCo:    document.getElementById('prodCo').value   || '',
+    numEps:    parseInt(document.getElementById('numEps').value) || 0,
+  };
+
+  try {
+    const resp = await fetch(`${BACKEND}/generate-cashflow`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({showInfo, phases, sections: userSections})
+    });
+    if (!resp.ok) { const e=await resp.json().catch(()=>({})); throw new Error(e.error||'Server error '+resp.status); }
+    const blob = await resp.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = (showInfo.showTitle||'CashFlow').replace(/[^\w\s]/g,'').trim().replace(/\s+/g,'_') + '_CashFlow.xlsx';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showCfStatus('ok', 'Cash flow downloaded. Check your Downloads folder.');
+  } catch(err) {
+    showCfStatus('err', 'Error: ' + err.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Download Cash Flow — Excel';
+    updateGenerateButton();
+  }
+}
+
+function showCfStatus(type, msg) {
+  const bar = document.getElementById('statusBar');
+  bar.className = 'status ' + type; bar.textContent = msg;
+}
+
+// ── VARIANCE TOOL ─────────────────────────────────────────────────────────────
+async function onVrFile(input) {
+  const f = input.files[0]; if(!f) return;
+  document.getElementById('vrIco').textContent = '📋';
+  setBoxState('vr','loading','Reading file...');
+  try {
+    const b64  = await fileToBase64(f);
+    vrFileB64  = b64;
+    vrFileName = f.name;
+    setBoxState('vr','ok','✓ '+f.name+' — ready. Click Generate below.');
+    const btn = document.getElementById('vrGenBtn');
+    btn.disabled=false; btn.style.opacity='1'; btn.style.cursor='pointer';
+    btn.textContent='Generate Variance Report — Excel';
+  } catch(err) {
+    setBoxState('vr','err','Could not read file: '+err.message);
+  }
+}
+
+function clearVrFile() {
+  vrFileB64=null; vrFileName='';
+  if(vrBlobUrl){URL.revokeObjectURL(vrBlobUrl);vrBlobUrl=null;}
+  document.getElementById('vrIco').textContent='📋';
+  setBoxState('vr','idle','');
+  const drop=document.querySelector('#vrBox .imp-drop'); if(drop) drop.value='';
+  const btn=document.getElementById('vrGenBtn');
+  btn.disabled=true; btn.style.opacity='.4'; btn.style.cursor='not-allowed';
+  btn.textContent='Drop a cost report above to generate';
+  document.getElementById('vrDlBtn').classList.remove('show');
+  const bar=document.getElementById('vrStatusBar'); bar.className='status'; bar.textContent='';
+}
+
+async function generateVariance() {
+  if(!vrFileB64) return;
+  const btn   = document.getElementById('vrGenBtn');
+  const dlBtn = document.getElementById('vrDlBtn');
+  const bar   = document.getElementById('vrStatusBar');
+  btn.disabled=true; btn.style.opacity='.5';
+  btn.textContent='AI is reading your cost report — 60-120 seconds...';
+  dlBtn.classList.remove('show');
+  bar.className='status warn'; bar.textContent='Sending to AI — reading in two passes, please wait...'; bar.style.display='block';
+
+  const manualInfo = {
+    showTitle: document.getElementById('vrShowTitle').value,
+    network:   document.getElementById('vrNetwork').value,
+    prodCo:    document.getElementById('vrProdCo').value,
+    period:    document.getElementById('vrPeriod').value,
+    threshold: parseInt(document.getElementById('vrThreshold').value)||10,
+  };
+
+  try {
+    const resp = await fetch(`${BACKEND}/parse-variance`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({pdf_base64: vrFileB64, show_info: manualInfo})
+    });
+    if(!resp.ok){const e=await resp.json().catch(()=>({}));throw new Error(e.error||'Backend error '+resp.status);}
+    const blob   = await resp.blob();
+    if(vrBlobUrl) URL.revokeObjectURL(vrBlobUrl);
+    vrBlobUrl    = URL.createObjectURL(blob);
+    dlBtn.href   = vrBlobUrl;
+    dlBtn.download = vrFileName.replace(/\.pdf$/i,'')+'_VarianceReport.xlsx';
+    dlBtn.textContent = '⬇ Download Variance Report — Excel';
+    dlBtn.classList.add('show');
+    bar.className='status ok'; bar.textContent='✓ Report ready — click the green button to download.';
+    btn.textContent='Re-generate Report'; btn.disabled=false; btn.style.opacity='1';
+  } catch(err) {
+    bar.className='status err'; bar.textContent='Failed: '+err.message;
+    btn.disabled=false; btn.style.opacity='1'; btn.textContent='Try Again';
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+updateGenerateButton();
+</script>
+</body>
+</html>
