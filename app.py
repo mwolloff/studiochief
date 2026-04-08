@@ -311,18 +311,19 @@ def build_excel(show_info, phases, sections):
     ap(ws.cell(R_SUB, CA), font=BOLD12, align=LFT)
     ws.row_dimensions[R_TITLE].height = 22
 
-    ap(ws.cell(R_WKN, CC, 'BUDGET TOTAL'), font=BOLD12, align=CTR)
+    # No BUDGET TOTAL label in C4 — it appears in the header row below
     for i in range(nw):
         ap(ws.cell(R_WKN, CW1+i, f'WK {i+1}'), font=BOLD12, align=CTR)
     ap(ws.cell(R_WKN, CTT, 'TOTAL'), font=BOLD12, align=CTR)
     for i in range(nw):
         ap(ws.cell(R_DAT, CW1+i, wk_date(i).strftime('%m/%d/%y')), font=BOLD12, align=CTR)
 
-    WRAP_CTR = Alignment(horizontal='center', vertical='center', wrap_text=True)
     for pi, ph in enumerate(display_phases):
         r = R_PH0 + pi
-        ap(ws.cell(r, CB, ph['name']), font=BOLD12, align=CTR)
-        ws.row_dimensions[r].height = 18
+        # Phase label in col C with colon, centered
+        label = ph['name'].title() + ':'
+        ap(ws.cell(r, CC, label), font=BOLD12, align=CTR)
+        ws.row_dimensions[r].height = 16
         s_date = parse_date(ph['start']); e_date = parse_date(ph['end'])
         if s_date and e_date:
             ph_s = max(0, wk_idx(s_date, wk1))
@@ -330,7 +331,8 @@ def build_excel(show_info, phases, sections):
             for i in range(nw):
                 c = ws.cell(r, CW1+i)
                 if ph_s <= i <= ph_e:
-                    c.value = ph['name']; ap(c, font=BOLD12, fill=GRAY, align=WRAP_CTR)
+                    # Gray bar only — no text inside
+                    ap(c, fill=GRAY)
                 else:
                     ap(c, fill=NOFILL)
 
