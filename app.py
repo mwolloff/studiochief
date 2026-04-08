@@ -14,6 +14,7 @@ CORS(app)
 ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 
 # ── BUDGET LINE DEFINITIONS ───────────────────────────────────────────────────
+
 BUDGET_LINES = [
     ('100000','Producers','full'),
     ('120000','Rights & Clearances','prep_only'),
@@ -58,23 +59,6 @@ BUDGET_LINES = [
 ]
 
 # ── PHASE NAME NORMALIZATION ──────────────────────────────────────────────────
-# Maps any variant phase name to its canonical spread category.
-# Display names on the staircase are consolidated to the canonical name —
-# so "LOAD", "ESU", "SHOOT PITCHES" etc. all display as "PRODUCTION".
-#
-# CORE RULE: Cash flow spreads continuously across each phase window.
-# No breaks for holidays, dark weeks, hiatuses, or Thanksgiving/Christmas.
-# The outer boundary (first day to last day) is what matters.
-#
-# FOUR CANONICAL PHASES:
-#   CASTING    — talent search through last callback/round
-#   PREP       — office open through last prep day before production
-#   PRODUCTION — first truck roll through last strike day (no gaps)
-#   POST       — edit start through final delivery
-#
-# HIATUS rule: always PRODUCTION (crew costs continue mid-shoot)
-# WRAP rule: always POST (refers to wrapping the show, not a shoot day)
-# HOLIDAY/DARK weeks: ignored — spread continues through them
 
 PHASE_ALIASES = {
     'CASTING': [
@@ -89,11 +73,9 @@ PHASE_ALIASES = {
         'READ THROUGH', 'TABLE READ',
     ],
     'PRODUCTION': [
-        # Load / Setup
         'LOAD', 'LOAD IN', 'LOAD-IN', 'LOADIN', 'LOAD OUT', 'LOAD-OUT',
         'LOADOUT', 'ESU', 'EQUIPMENT SET UP', 'EQUIPMENT SETUP',
         'SET UP', 'SETUP', 'TECH SET UP', 'TECH SETUP', 'RIG',
-        # Shoot variants
         'SHOOT', 'SHOOT DAY', 'SHOOTING', 'PRODUCTION',
         'SHOOT PITCHES', 'SHOOT PRANKS', 'SHOOT EPISODES',
         'SHOOT PRANK', 'SHOOT PITCH', 'SHOOT EPISODE',
@@ -101,17 +83,14 @@ PHASE_ALIASES = {
         'PRANK STAGE', 'PITCH STAGE', 'STUDIO STAGE',
         'TAPING', 'TAPE', 'FILMING', 'FILM DAY',
         'PRINCIPAL PHOTOGRAPHY', 'RECORD', 'RECORDING', 'RECORDING DAY',
-        # Rehearsal variants
         'REHEARSE', 'REHEARSAL', 'REHEARSALS', 'TECH REHEARSE',
         'TECH REHEARSAL', 'DRY RUN', 'RUN THROUGH', 'RUN-THROUGH',
         'CAMERA REHEARSAL', 'DRESS REHEARSAL', 'BLOCKING',
-        # Production support days
         'VTR', 'PLAYBACK', 'PLAYBACK DAY',
         'TRAVEL', 'TRAVEL DAY', 'TRAVEL DAYS',
         'DARK', 'DARK DAY', 'DARK WEEK', 'DOWN DAY',
         'STRIKE', 'STRIKE DAY', 'WRAP DAY', 'SET STRIKE',
         'HIATUS', 'BREAK', 'HOLIDAY BREAK', 'CHRISTMAS', 'THANKSGIVING',
-        # Field/location specific
         'FIELD PRANKS X', 'FIELD PRANKS WEEK', 'BTS', 'BEHIND THE SCENES',
         'LOCATION SHOOT', 'ON LOCATION', 'REMOTE SHOOT',
     ],
@@ -129,49 +108,28 @@ PHASE_ALIASES = {
     ],
 }
 
-# Keywords that contain these strings anywhere map to PRODUCTION
-# (catches things like "PREP FIELD PRANKS X (3) TEAMS")
 PRODUCTION_CONTAINS = [
     'SHOOT', 'LOAD', 'ESU', 'FIELD PRANK', 'PRANK STAGE', 'PITCH STAGE',
     'REHEARS', 'DRY RUN', 'RUN THROUGH', 'STRIKE', 'HIATUS', 'DARK',
     'TRAVEL', 'TAPING', 'FILMING', 'VTR', 'PLAYBACK', 'BTS',
 ]
-
-PREP_CONTAINS = [
-    'PREP', 'SCOUT', 'PRE-PROD', 'PRE PROD',
-]
-
-CASTING_CONTAINS = [
-    'CASTING', 'AUDITION', 'CALLBACK',
-]
-
-POST_CONTAINS = [
-    'POST', 'EDIT', 'COLOR', 'MIX', 'DELIVER', 'QC', 'CAPTIO',
-]
+PREP_CONTAINS     = ['PREP', 'SCOUT', 'PRE-PROD', 'PRE PROD']
+CASTING_CONTAINS  = ['CASTING', 'AUDITION', 'CALLBACK']
+POST_CONTAINS     = ['POST', 'EDIT', 'COLOR', 'MIX', 'DELIVER', 'QC', 'CAPTIO']
 
 def canonical_phase(name):
-    """Return canonical phase category for any phase name."""
     upper = name.upper().strip()
-
-    # Exact match first
     for canon, aliases in PHASE_ALIASES.items():
         if upper in aliases:
             return canon
-
-    # Substring match — order matters (PRODUCTION before PREP to avoid
-    # "FIELD PRANKS PREP" matching PREP instead of PRODUCTION)
-    if any(kw in upper for kw in PRODUCTION_CONTAINS):
-        return 'PRODUCTION'
-    if any(kw in upper for kw in CASTING_CONTAINS):
-        return 'CASTING'
-    if any(kw in upper for kw in POST_CONTAINS):
-        return 'POST'
-    if any(kw in upper for kw in PREP_CONTAINS):
-        return 'PREP'
-
+    if any(kw in upper for kw in PRODUCTION_CONTAINS): return 'PRODUCTION'
+    if any(kw in upper for kw in CASTING_CONTAINS):    return 'CASTING'
+    if any(kw in upper for kw in POST_CONTAINS):       return 'POST'
+    if any(kw in upper for kw in PREP_CONTAINS):       return 'PREP'
     return None
 
 # ── CALENDAR HELPERS ──────────────────────────────────────────────────────────
+
 def get_monday(d):
     return d - timedelta(days=d.weekday())
 
@@ -187,13 +145,8 @@ def parse_date(s):
     return None
 
 # ── SPREAD ENGINE ─────────────────────────────────────────────────────────────
+
 def build_phase_ranges(phases, wk1, nw):
-    """
-    Build canonical-category -> (start_wk, end_wk) mapping.
-    Merges ALL phases of the same canonical category into one continuous span.
-    This means every load-in, ESU, shoot block, strike etc. collapses into
-    one PRODUCTION range spanning first load to last shoot/strike.
-    """
     ranges = {}
     for ph in phases:
         canon = canonical_phase(ph['name'])
@@ -212,89 +165,69 @@ def build_phase_ranges(phases, wk1, nw):
     return ranges
 
 def spread(spread_type, amt, nw, pr):
-    """pr = phase ranges dict from build_phase_ranges"""
     w = [0.0] * nw
     if not amt:
         return w
 
     def fill(s, e, a):
-        s = max(0, s)
-        e = min(nw-1, e)
-        if s > e:
-            return
+        s = max(0, s); e = min(nw-1, e)
+        if s > e: return
         pw = a / (e - s + 1)
         for i in range(s, e+1):
             w[i] += pw
 
     cs, ce   = pr.get('CASTING',    (0, 0))
     ps, pe   = pr.get('PREP',       (0, 0))
-    ss, se   = pr.get('PRODUCTION', (0, 0))   # PRODUCTION = full load-to-strike window
+    ss, se   = pr.get('PRODUCTION', (0, 0))
     pos, poe = pr.get('POST',       (0, nw-1))
 
-    if spread_type == 'full':               fill(0, nw-1, amt)
-    elif spread_type == 'casting':          fill(cs, ce, amt)
-    elif spread_type == 'prep_only':        fill(ps, pe, amt)
-    elif spread_type == 'prep_shoot':       fill(ps, se, amt)
-    elif spread_type == 'prep_shoot_plus4': fill(ps, se+4, amt)
-    elif spread_type == 'talent_fees':      fill(max(0, ss-3), se, amt)
-    elif spread_type == 'shoot_only':       fill(ss, se, amt)
-    elif spread_type == 'shoot_plus2':      fill(max(0, ss-2), se, amt)
-    elif spread_type == 'shoot_plus4':      fill(max(0, ss-4), se, amt)
-    elif spread_type == 'post':             fill(pos, poe, amt)
-    elif spread_type == 'post_plus2':       fill(max(0, pos-2), poe, amt)
+    if   spread_type == 'full':              fill(0, nw-1, amt)
+    elif spread_type == 'casting':           fill(cs, ce, amt)
+    elif spread_type == 'prep_only':         fill(ps, pe, amt)
+    elif spread_type == 'prep_shoot':        fill(ps, se, amt)
+    elif spread_type == 'prep_shoot_plus4':  fill(ps, se+4, amt)
+    elif spread_type == 'talent_fees':       fill(max(0, ss-3), se, amt)
+    elif spread_type == 'shoot_only':        fill(ss, se, amt)
+    elif spread_type == 'shoot_plus2':       fill(max(0, ss-2), se, amt)
+    elif spread_type == 'shoot_plus4':       fill(max(0, ss-4), se, amt)
+    elif spread_type == 'post':              fill(pos, poe, amt)
+    elif spread_type == 'post_plus2':        fill(max(0, pos-2), poe, amt)
     elif spread_type == 'graphics':
         fill(max(0, ss-4), pos-1, amt/2)
         fill(pos, poe, amt/2)
-    elif spread_type == 'week1':            w[0] += amt
-    else:                                   fill(0, nw-1, amt)
+    elif spread_type == 'week1':             w[0] += amt
+    else:                                    fill(0, nw-1, amt)
     return w
 
 # ── PAYMENT ENGINE ────────────────────────────────────────────────────────────
+
 def compute_payments(wk_totals, nw, pr, phases):
     cs, ce   = pr.get('CASTING',    (0, 0))
     ps, pe   = pr.get('PREP',       (0, 0))
     ss, se   = pr.get('PRODUCTION', (0, 0))
     pos, poe = pr.get('POST',       (0, nw-1))
-
     mid_prep = (ps + pe) // 2
     mid_post = (pos + poe) // 2
 
-    ms = []
-    labels = []
-
-    # P1 — start of casting / first phase
+    ms = []; labels = []
     ms.append(cs if 'CASTING' in pr else min(v[0] for v in pr.values()))
     labels.append('Start of Casting' if 'CASTING' in pr else 'Start of Production')
-
-    # P2 — mid prep
     if 'PREP' in pr:
-        ms.append(mid_prep)
-        labels.append('Mid Prep')
+        ms.append(mid_prep); labels.append('Mid Prep')
     else:
-        ms.append(min(v[0] for v in pr.values()) + nw//4)
-        labels.append('Mid Pre-Production')
-
-    # P3 — start of production / P4 — end of production
+        ms.append(min(v[0] for v in pr.values()) + nw//4); labels.append('Mid Pre-Production')
     if 'PRODUCTION' in pr:
         ms.append(ss); labels.append('Start of Production')
         ms.append(se); labels.append('End of Production')
     else:
         ms.append(nw//2); labels.append('Mid Production')
-
-    # P5 — mid post
     if 'POST' in pr:
         ms.append(mid_post); labels.append('Mid Post')
-
-    # P6 — final delivery
     last = max(v[1] for v in pr.values())
-    ms.append(last)
-    labels.append('Final Delivery')
+    ms.append(last); labels.append('Final Delivery')
 
-    # Deduplicate and sort
     combined = sorted(set(zip(ms, labels)), key=lambda x: x[0])
-    ms     = [x[0] for x in combined]
-    labels = [x[1] for x in combined]
-
+    ms = [x[0] for x in combined]; labels = [x[1] for x in combined]
     ranges = []
     for i in range(len(ms)-1):
         ranges.append((ms[i], ms[i+1]-1))
@@ -303,32 +236,27 @@ def compute_payments(wk_totals, nw, pr, phases):
     result = []
     for i, (s, e) in enumerate(ranges):
         total = sum(wk_totals[max(0,s):min(nw,e+1)])
-        result.append({
-            'label':     f'Payment {i+1}',
-            'milestone': labels[i] if i < len(labels) else f'Payment {i+1}',
-            'start': s, 'end': e, 'amount': total
-        })
+        result.append({'label': f'Payment {i+1}', 'milestone': labels[i] if i < len(labels) else f'Payment {i+1}', 'start': s, 'end': e, 'amount': total})
     return result
 
-# ── EXCEL BUILDER ─────────────────────────────────────────────────────────────
-def build_excel(show_info, phases, budget_vals):
-    title  = show_info.get('showTitle','Untitled Show')
-    network= show_info.get('network','')
-    prod_co= show_info.get('prodCo','')
+# ── CASH FLOW EXCEL BUILDER ───────────────────────────────────────────────────
 
-    # Sort phases chronologically
+def build_excel(show_info, phases, budget_vals):
+    title   = show_info.get('showTitle','Untitled Show')
+    network = show_info.get('network','')
+    prod_co = show_info.get('prodCo','')
+
     def phase_start(p):
         d = parse_date(p['start'])
         return d if d else datetime(2099,1,1)
     phases = sorted(phases, key=phase_start)
 
-    # Calendar
     starts = [parse_date(p['start']) for p in phases if parse_date(p['start'])]
     ends   = [parse_date(p['end'])   for p in phases if parse_date(p['end'])]
     if not starts or not ends:
         raise ValueError('No valid phase dates found')
 
-    wk1 = get_monday(min(starts))
+    wk1  = get_monday(min(starts))
     last = get_monday(max(ends))
     nw   = round((last - wk1).days / 7) + 1
 
@@ -337,14 +265,8 @@ def build_excel(show_info, phases, budget_vals):
 
     pr = build_phase_ranges(phases, wk1, nw)
 
-    # ── STAIRCASE DISPLAY PHASES ─────────────────────────────────────────────
-    # Consolidate all AI-returned phases into the four clean canonical bars
-    # for display. The full sub-phase detail informed the date ranges above;
-    # the staircase shows CASTING / PREP / PRODUCTION / POST only.
-    # This prevents confusing displays like "LOAD...LOAD...LOAD" for 12 weeks.
     display_phases = []
-    canon_order = ['CASTING', 'PREP', 'PRODUCTION', 'POST']
-    for canon in canon_order:
+    for canon in ['CASTING','PREP','PRODUCTION','POST']:
         if canon in pr:
             display_phases.append({
                 'name':  canon,
@@ -352,7 +274,6 @@ def build_excel(show_info, phases, budget_vals):
                 'end':   (wk1 + timedelta(weeks=pr[canon][1])).strftime('%Y-%m-%d'),
             })
 
-    # Spread each budget line
     line_data = []
     for acct, label, stype in BUDGET_LINES:
         amt = budget_vals.get(acct, 0) or 0
@@ -362,20 +283,19 @@ def build_excel(show_info, phases, budget_vals):
     wk_totals = [sum(ld[3][i] for ld in line_data) for i in range(nw)]
     payments  = compute_payments(wk_totals, nw, pr, phases)
 
-    # ── STYLES ────────────────────────────────────────────────────────────────
-    BOLD12  = Font(name='Arial', size=12, bold=True)
-    REG12   = Font(name='Arial', size=12, bold=False)
-    BOLD14  = Font(name='Arial', size=14, bold=True)
-    GRAY    = PatternFill('solid', fgColor='C0C0C0')
-    NOFILL  = PatternFill(fill_type=None)
-    CTR     = Alignment(horizontal='center', vertical='center')
-    LFT     = Alignment(horizontal='left',   vertical='center')
-    FMT     = '#,##0'
+    BOLD12 = Font(name='Arial', size=12, bold=True)
+    REG12  = Font(name='Arial', size=12, bold=False)
+    BOLD14 = Font(name='Arial', size=14, bold=True)
+    GRAY   = PatternFill('solid', fgColor='C0C0C0')
+    NOFILL = PatternFill(fill_type=None)
+    CTR    = Alignment(horizontal='center', vertical='center')
+    LFT    = Alignment(horizontal='left',   vertical='center')
+    FMT    = '#,##0'
 
     def ap(cell, font=None, fill=None, align=None, fmt=None):
-        if font:  cell.font = font
-        if fill:  cell.fill = fill
-        if align: cell.alignment = align
+        if font:  cell.font          = font
+        if fill:  cell.fill          = fill
+        if align: cell.alignment     = align
         if fmt:   cell.number_format = fmt
 
     wb = openpyxl.Workbook()
@@ -391,33 +311,27 @@ def build_excel(show_info, phases, budget_vals):
 
     def cl(c): return get_column_letter(c)
 
-    # Row layout
-    R_TITLE = 1
-    R_SUB   = 2
-    R_WKN   = 4
-    R_DAT   = 5
-    R_PH0   = 7                    # phase staircase starts here
+    R_TITLE = 1; R_SUB = 2; R_WKN = 4; R_DAT = 5
+    R_PH0   = 7
     R_HDR   = R_PH0 + NP + 1
     R_DS    = R_HDR + 2
-    R_DE    = R_DS + NL - 1
-    R_TOT   = R_DE + 2
+    R_DE    = R_DS  + NL - 1
+    R_TOT   = R_DE  + 2
     R_PS    = R_TOT + 3
-    R_PE    = R_PS + NPM - 1
-    R_PSUM  = R_PE + 2
+    R_PE    = R_PS  + NPM - 1
+    R_PSUM  = R_PE  + 2
     R_SHDR  = R_PSUM + 4
     R_SDAT  = R_SHDR + 2
     R_SEND  = R_SDAT + NPM - 1
     R_GRAND = R_SEND + 2
 
-    # Title & subtitle
     run_date = datetime.now().strftime('%m/%d/%Y')
     ws.cell(R_TITLE, CA, 'CASH FLOW')
     ap(ws.cell(R_TITLE, CA), font=BOLD14, align=LFT)
-    ws.cell(R_SUB, CA, '   |   '.join(filter(None,[title,network,prod_co])) + f'   |   Generated {run_date}')
+    ws.cell(R_SUB, CA, ' | '.join(filter(None,[title,network,prod_co])) + f' | Generated {run_date}')
     ap(ws.cell(R_SUB, CA), font=BOLD12, align=LFT)
     ws.row_dimensions[R_TITLE].height = 22
 
-    # Week number & date rows
     ap(ws.cell(R_WKN, CC, 'BUDGET TOTAL'), font=BOLD12, align=CTR)
     for i in range(nw):
         ap(ws.cell(R_WKN, CW1+i, f'WK {i+1}'), font=BOLD12, align=CTR)
@@ -425,24 +339,20 @@ def build_excel(show_info, phases, budget_vals):
     for i in range(nw):
         ap(ws.cell(R_DAT, CW1+i, wk_date(i).strftime('%m/%d/%y')), font=BOLD12, align=CTR)
 
-    # Phase staircase — gray bars, one row per canonical phase
     for pi, ph in enumerate(display_phases):
         r = R_PH0 + pi
         ap(ws.cell(r, CB, ph['name']), font=BOLD12, align=CTR)
-        s_date = parse_date(ph['start'])
-        e_date = parse_date(ph['end'])
+        s_date = parse_date(ph['start']); e_date = parse_date(ph['end'])
         if s_date and e_date:
             ph_s = max(0, wk_idx(s_date, wk1))
             ph_e = min(nw-1, wk_idx(e_date, wk1))
             for i in range(nw):
                 c = ws.cell(r, CW1+i)
                 if ph_s <= i <= ph_e:
-                    c.value = ph['name']
-                    ap(c, font=BOLD12, fill=GRAY, align=CTR)
+                    c.value = ph['name']; ap(c, font=BOLD12, fill=GRAY, align=CTR)
                 else:
                     ap(c, fill=NOFILL)
 
-    # Column headers
     for col, txt in [(CA,'ACCT#'),(CB,'DESCRIPTION'),(CC,'BUDGET TOTAL')]:
         ap(ws.cell(R_HDR, col, txt), font=BOLD12, align=CTR)
     for i in range(nw):
@@ -451,8 +361,6 @@ def build_excel(show_info, phases, budget_vals):
     ws.row_dimensions[R_HDR].height = 18
 
     wkf = cl(CW1); wkl = cl(CWL)
-
-    # Data rows
     for idx, (acct, label, budget, wks) in enumerate(line_data):
         r = R_DS + idx
         ap(ws.cell(r, CA, acct),   font=REG12, align=CTR)
@@ -466,207 +374,176 @@ def build_excel(show_info, phases, budget_vals):
         c.value = f'=SUM({wkf}{r}:{wkl}{r})'
         ap(c, font=REG12, align=CTR, fmt=FMT)
 
-    # Totals row
     r = R_TOT; bc = cl(CC)
     ap(ws.cell(r, CB, 'TOTAL'), font=BOLD12, align=CTR)
-    c = ws.cell(r, CC)
-    c.value = f'=SUM({bc}{R_DS}:{bc}{R_DE})'
+    c = ws.cell(r, CC); c.value = f'=SUM({bc}{R_DS}:{bc}{R_DE})'
     ap(c, font=BOLD12, align=CTR, fmt=FMT)
     for i in range(nw):
-        wc = cl(CW1+i)
-        c = ws.cell(r, CW1+i)
+        wc = cl(CW1+i); c = ws.cell(r, CW1+i)
         c.value = f'=SUM({wc}{R_DS}:{wc}{R_DE})'
         ap(c, font=REG12, align=CTR, fmt=FMT)
-    c = ws.cell(r, CTT)
-    c.value = f'=SUM({wkf}{r}:{wkl}{r})'
+    c = ws.cell(r, CTT); c.value = f'=SUM({wkf}{r}:{wkl}{r})'
     ap(c, font=BOLD12, align=CTR, fmt=FMT)
     ws.row_dimensions[r].height = 18
 
-    # Payment staircase
     for pi, pmt in enumerate(payments):
         r = R_PS + pi
         ap(ws.cell(r, CB, pmt['label']), font=REG12, align=CTR)
         for i in range(nw):
             c = ws.cell(r, CW1+i)
-            if pmt['start'] <= i <= pmt['end']:
-                ap(c, fill=GRAY)
-            else:
-                ap(c, fill=NOFILL)
+            if pmt['start'] <= i <= pmt['end']: ap(c, fill=GRAY)
+            else:                                ap(c, fill=NOFILL)
         fc = cl(CW1+pmt['start']); lc = cl(CW1+pmt['end'])
         tot_row = R_TOT
-        if pmt['start'] == pmt['end']:
-            formula = f'={lc}{tot_row}'
-        else:
-            formula = f'=+SUM({fc}{tot_row}:{lc}{tot_row})'
-        c = ws.cell(r, CW1+pmt['end'])
-        c.value = formula
+        formula = f'={lc}{tot_row}' if pmt['start'] == pmt['end'] else f'=+SUM({fc}{tot_row}:{lc}{tot_row})'
+        c = ws.cell(r, CW1+pmt['end']); c.value = formula
         ap(c, font=REG12, align=CTR, fmt=FMT, fill=GRAY)
-        c = ws.cell(r, CC)
-        c.value = f'={lc}{r}'
-        ap(c, font=REG12, align=CTR, fmt=FMT)
-        c = ws.cell(r, CTT)
-        c.value = f'=SUM({wkf}{r}:{wkl}{r})'
-        ap(c, font=REG12, align=CTR, fmt=FMT)
+        c = ws.cell(r, CC);  c.value = f'={lc}{r}';                  ap(c, font=REG12, align=CTR, fmt=FMT)
+        c = ws.cell(r, CTT); c.value = f'=SUM({wkf}{r}:{wkl}{r})'; ap(c, font=REG12, align=CTR, fmt=FMT)
 
-    # Payment total validation
     r = R_PSUM; bc = cl(CC); tc = cl(CTT)
     ap(ws.cell(r, CB, 'Payment Total'), font=REG12, align=CTR)
-    c = ws.cell(r, CC)
-    c.value = f'=SUM({bc}{R_PS}:{bc}{R_PE})'
-    ap(c, font=REG12, align=CTR, fmt=FMT)
-    c = ws.cell(r, CTT)
-    c.value = f'=SUM({tc}{R_PS}:{tc}{R_PE})'
-    ap(c, font=REG12, align=CTR, fmt=FMT)
+    c = ws.cell(r, CC);  c.value = f'=SUM({bc}{R_PS}:{bc}{R_PE})'; ap(c, font=REG12, align=CTR, fmt=FMT)
+    c = ws.cell(r, CTT); c.value = f'=SUM({tc}{R_PS}:{tc}{R_PE})'; ap(c, font=REG12, align=CTR, fmt=FMT)
 
-    # Payment schedule
     ap(ws.cell(R_SHDR, CB, 'Payment Schedule'), font=BOLD12, align=CTR)
     ap(ws.cell(R_SHDR, CC, 'Milestone'),        font=BOLD12, align=CTR)
-    ap(ws.cell(R_SHDR, CW1, 'Date'),            font=BOLD12, align=CTR)
-    ap(ws.cell(R_SHDR, CW1+1, 'Amount'),        font=BOLD12, align=CTR)
-
+    ap(ws.cell(R_SHDR, CW1,   'Date'),   font=BOLD12, align=CTR)
+    ap(ws.cell(R_SHDR, CW1+1, 'Amount'), font=BOLD12, align=CTR)
     for pi, pmt in enumerate(payments):
         r = R_SDAT + pi
-        ap(ws.cell(r, CB, pmt['label']),     font=REG12, align=CTR)
-        ap(ws.cell(r, CC, pmt['milestone']), font=REG12, align=CTR)
+        ap(ws.cell(r, CB, pmt['label']),    font=REG12, align=CTR)
+        ap(ws.cell(r, CC, pmt['milestone']),font=REG12, align=CTR)
         ap(ws.cell(r, CW1, wk_date(min(pmt['start'], nw-1)).strftime('%m/%d/%y')), font=REG12, align=CTR)
         pr_row = R_PS + pi
-        c = ws.cell(r, CW1+1)
-        c.value = f'={cl(CC)}{pr_row}'
-        ap(c, font=REG12, align=CTR, fmt=FMT)
+        c = ws.cell(r, CW1+1); c.value = f'={cl(CC)}{pr_row}'; ap(c, font=REG12, align=CTR, fmt=FMT)
 
-    # Grand total
     r = R_GRAND; ac = cl(CW1+1)
     ap(ws.cell(r, CC, 'Total:'), font=BOLD12, align=CTR)
-    c = ws.cell(r, CW1+1)
-    c.value = f'=SUM({ac}{R_SDAT}:{ac}{R_SEND})'
-    ap(c, font=BOLD12, align=CTR, fmt=FMT)
+    c = ws.cell(r, CW1+1); c.value = f'=SUM({ac}{R_SDAT}:{ac}{R_SEND})'; ap(c, font=BOLD12, align=CTR, fmt=FMT)
 
-    # Column widths
     ws.column_dimensions[cl(CA)].width = 10
     ws.column_dimensions[cl(CB)].width = 32
     ws.column_dimensions[cl(CC)].width = 17
     for i in range(nw):
         ws.column_dimensions[cl(CW1+i)].width = 13
     ws.column_dimensions[cl(CTT)].width = 17
-
     ws.freeze_panes = ws.cell(R_DS, CW1)
 
     buf = io.BytesIO()
-    wb.save(buf)
-    buf.seek(0)
+    wb.save(buf); buf.seek(0)
     return buf, title
 
 # ── AI PARSERS ────────────────────────────────────────────────────────────────
+
 def parse_budget_pdf(pdf_b64):
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     account_list = '\n'.join(f"{a}: {l}" for a,l,_ in BUDGET_LINES)
     prompt = f"""You are reading a production budget top sheet PDF.
-
 Extract the dollar total for each account number listed below.
 Return ONLY valid JSON — no markdown, no explanation, no code fences.
-
 Format: {{"100000": 1234567, "140000": 456789, ...}}
-
 Also extract show metadata if visible, adding these keys:
 "_showTitle": "show name",
 "_network": "network name",
 "_prodCo": "production company",
 "_numEps": number of episodes as integer
-
 Only include accounts where you find a clear dollar total.
 Use integers only — no decimals, commas, or $ signs.
-
 Accounts to find:
 {account_list}"""
-
     response = client.messages.create(
         model='claude-opus-4-5',
         max_tokens=1500,
-        messages=[{
-            'role': 'user',
-            'content': [
-                {'type':'document','source':{'type':'base64','media_type':'application/pdf','data':pdf_b64}},
-                {'type':'text','text':prompt}
-            ]
-        }]
+        messages=[{'role':'user','content':[
+            {'type':'document','source':{'type':'base64','media_type':'application/pdf','data':pdf_b64}},
+            {'type':'text','text':prompt}
+        ]}]
     )
-    raw = response.content[0].text.strip()
+    raw   = response.content[0].text.strip()
     clean = re.sub(r'^```[a-z]*\n?','',raw).replace('```','').strip()
     return json.loads(clean)
 
 def parse_calendar_pdf(pdf_b64):
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     prompt = """You are reading a TV production calendar PDF.
-
 Extract ALL named production phases and their date ranges.
 Include every phase you see — there may be more or fewer than five.
-
 Rules:
 - If a phase label shows "Week 10" as the first visible occurrence, count backward to find Week 1 start date
 - Use Monday of the first active week as start date
 - Use Friday of the last active week as end date
 - Phases can and do overlap — that is correct
-- Include ALL phases: CASTING, PREP, LOAD IN, SHOOT, POST and any variants like
-  SHOOT PITCHES, SHOOT PRANKS, SHOOT EPISODES, FIELD PRANKS, FIELD PRANKS PREP,
-  DELIVERY, WRAP, PICKUPS, HIATUS, etc.
+- Include ALL phases: CASTING, PREP, LOAD IN, SHOOT, POST and any variants
 - Use the exact phase name as it appears on the calendar
-
 Return ONLY valid JSON array, no markdown, no explanation:
 [
-  {"name": "CASTING",       "start": "YYYY-MM-DD", "end": "YYYY-MM-DD"},
-  {"name": "PREP",          "start": "YYYY-MM-DD", "end": "YYYY-MM-DD"},
-  {"name": "SHOOT PITCHES", "start": "YYYY-MM-DD", "end": "YYYY-MM-DD"}
+  {"name": "CASTING", "start": "YYYY-MM-DD", "end": "YYYY-MM-DD"},
+  {"name": "PREP",    "start": "YYYY-MM-DD", "end": "YYYY-MM-DD"}
 ]
 Sort by start date. Only include phases you can confidently identify."""
-
     response = client.messages.create(
         model='claude-opus-4-5',
         max_tokens=1200,
-        messages=[{
-            'role': 'user',
-            'content': [
-                {'type':'document','source':{'type':'base64','media_type':'application/pdf','data':pdf_b64}},
-                {'type':'text','text':prompt}
-            ]
-        }]
+        messages=[{'role':'user','content':[
+            {'type':'document','source':{'type':'base64','media_type':'application/pdf','data':pdf_b64}},
+            {'type':'text','text':prompt}
+        ]}]
     )
-    raw = response.content[0].text.strip()
-    clean = re.sub(r'^```[a-z]*\n?','',raw).replace('```','').strip()
+    raw    = response.content[0].text.strip()
+    clean  = re.sub(r'^```[a-z]*\n?','',raw).replace('```','').strip()
     parsed = json.loads(clean)
-
-    # Handle both array and legacy object format
     if isinstance(parsed, dict):
-        parsed = [{'name':k,'start':v['start'],'end':v['end']}
-                  for k,v in parsed.items() if isinstance(v,dict) and 'start' in v]
-
-    # Sort by start date
+        parsed = [{'name':k,'start':v['start'],'end':v['end']} for k,v in parsed.items() if isinstance(v,dict) and 'start' in v]
     def sort_key(p):
         d = parse_date(p.get('start',''))
         return d if d else datetime(2099,1,1)
-
     return sorted(parsed, key=sort_key)
 
-# ── COST REPORT PARSER ───────────────────────────────────────────────────────
+# ── COST REPORT PARSER (CHUNKED — fixes timeout/truncation) ──────────────────
+#
+# Two Claude calls instead of one: above-the-line first, then below-the-line.
+# Each call stays well under token limits. Results are merged before Excel build.
+
+def _safe_json_parse(raw):
+    clean = re.sub(r'^```[a-z]*\n?', '', raw.strip()).replace('```', '').strip()
+    try:
+        return json.loads(clean)
+    except json.JSONDecodeError:
+        last_brace = clean.rfind('}')
+        if last_brace > 0:
+            trimmed = clean[:last_brace + 1]
+            open_brackets = trimmed.count('[') - trimmed.count(']')
+            open_braces   = trimmed.count('{') - trimmed.count('}')
+            for _ in range(open_brackets): trimmed += ']'
+            for _ in range(open_braces):   trimmed += '}'
+            try:
+                return json.loads(trimmed)
+            except Exception:
+                pass
+        raise ValueError(f'JSON parse failed. Raw length: {len(raw)} chars. Preview: {raw[:300]}')
+
 def parse_cost_report_pdf(pdf_b64):
-    client = anthropic.Anthropic(
-        api_key=ANTHROPIC_API_KEY,
-        timeout=300.0,  # 5 minute timeout for large cost reports
-    )
-    prompt = """You are reading a TV/film production cost report PDF.
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY, timeout=300.0)
 
-Extract every line item you can find. For each line return:
-- acct: account number (e.g. "100408")
-- dept: department/account group name (e.g. "PRODUCERS")
-- description: line item description (e.g. "Co-Executive Producer")
-- is_total: true if this is a department total row, false for detail lines
-- actuals: actual spend to date (number, 0 if blank)
-- pos: purchase orders / commitments (number, 0 if blank)
-- efc: estimate at final cost — use the EFC column if present, otherwise Total Cost (number, 0 if blank)
-- budget: approved budget amount (number, 0 if blank)
-- variance: variance amount if shown (number, null if not shown) — NOTE: some reports show overages as negative
+    # Call 1: metadata + above-the-line (EA section, accounts 1xxxxx-2xxxxx)
+    prompt_atl = """You are reading a TV/film production cost report PDF.
 
-Also extract show metadata if visible:
-- showTitle, network, prodCo, period (cost report period number or date)
+EXTRACT: Show metadata AND all Above the Line (EA section) line items only.
+EA accounts start with: 100000, 120000, 140000, 160000, 170000, 180000, 200000.
+
+For each line item return:
+- acct: account number string (e.g. "100408")
+- dept: department name (e.g. "PRODUCERS")
+- description: line item label
+- is_total: true if department subtotal row, false for detail lines
+- actuals: actual spend integer (0 if blank)
+- pos: purchase orders integer (0 if blank)
+- efc: estimate at final cost integer — use EFC column, or Total Cost if no EFC (0 if blank)
+- budget: approved budget integer (0 if blank)
+- variance: variance integer if shown (null if not shown)
+
+NOTE: overages may be shown as NEGATIVE variance values.
 
 Return ONLY valid JSON, no markdown:
 {
@@ -675,66 +552,77 @@ Return ONLY valid JSON, no markdown:
   "prodCo": "Production Co",
   "period": "6",
   "lines": [
-    {
-      "acct": "100408",
-      "dept": "PRODUCERS",
-      "description": "Co-Executive Producer",
-      "is_total": false,
-      "actuals": 349711,
-      "pos": 0,
-      "efc": 349711,
-      "budget": 370880,
-      "variance": 21169
-    }
+    {"acct":"100408","dept":"PRODUCERS","description":"Co-Executive Producer","is_total":false,"actuals":349711,"pos":0,"efc":349711,"budget":370880,"variance":21169}
   ]
 }
+Use integers only. Include ALL EA lines including department subtotals."""
 
-Use integers only. If a value is blank or dash, use 0. Include ALL lines including totals and grand total."""
+    # Call 2: below-the-line, other expenses, completion costs (EB/ED/EE)
+    prompt_btl = """You are reading a TV/film production cost report PDF.
 
-    response = client.messages.create(
-        model='claude-opus-4-5',
-        max_tokens=16000,
-        messages=[{
-            'role': 'user',
-            'content': [
-                {'type':'document','source':{'type':'base64','media_type':'application/pdf','data':pdf_b64}},
-                {'type':'text','text':prompt}
-            ]
-        }]
+EXTRACT: All Below the Line (EB), Other Expenses (ED), and Completion Costs (EE) line items.
+These include accounts starting with: 220000, 250000, 270000, 340000, 380000, 390000,
+440000, 450000, 480000, 500000, 540000, 560000, 570000, 600000, 640000, 660000,
+680000, 700000, 720000, 740000, 750000, 760000, 780000, 800000, 820000, 840000,
+860000, 880000, and any other EB/ED/EE accounts. Also include Grand Total if present.
+
+For each line item return:
+- acct: account number string
+- dept: department name
+- description: line item label
+- is_total: true if subtotal or grand total row
+- actuals: actual spend integer (0 if blank)
+- pos: purchase orders integer (0 if blank)
+- efc: estimate at final cost integer (0 if blank)
+- budget: approved budget integer (0 if blank)
+- variance: variance integer if shown (null if not shown)
+
+NOTE: overages may be shown as NEGATIVE variance values.
+
+Return ONLY a valid JSON array, no markdown, no wrapper object:
+[
+  {"acct":"480432","dept":"GRIP/ELECTRIC","description":"Electrician","is_total":false,"actuals":143565,"pos":0,"efc":143565,"budget":211988,"variance":68423}
+]
+Use integers only. Include ALL EB/ED/EE lines including subtotals and grand total."""
+
+    resp1    = client.messages.create(
+        model='claude-opus-4-5', max_tokens=8000,
+        messages=[{'role':'user','content':[
+            {'type':'document','source':{'type':'base64','media_type':'application/pdf','data':pdf_b64}},
+            {'type':'text','text':prompt_atl}
+        ]}]
     )
-    raw = response.content[0].text.strip()
-    clean = re.sub(r'^```[a-z]*\n?','',raw).replace('```','').strip()
-    try:
-        return json.loads(clean)
-    except json.JSONDecodeError:
-        # Claude truncated the JSON — recover by closing open structures
-        last_brace = clean.rfind('}')
-        if last_brace > 0:
-            trimmed = clean[:last_brace+1]
-            open_brackets = trimmed.count('[') - trimmed.count(']')
-            open_braces   = trimmed.count('{') - trimmed.count('}')
-            for _ in range(open_brackets): trimmed += ']'
-            for _ in range(open_braces):   trimmed += '}'
-            try:
-                return json.loads(trimmed)
-            except Exception as e2:
-                raise ValueError(f'JSON recovery failed: {e2}. Raw length: {len(raw)} chars')
-        raise ValueError(f'No valid JSON found in response. Raw length: {len(raw)} chars')
+    atl_data = _safe_json_parse(resp1.content[0].text)
+
+    resp2    = client.messages.create(
+        model='claude-opus-4-5', max_tokens=8000,
+        messages=[{'role':'user','content':[
+            {'type':'document','source':{'type':'base64','media_type':'application/pdf','data':pdf_b64}},
+            {'type':'text','text':prompt_btl}
+        ]}]
+    )
+    btl_raw  = _safe_json_parse(resp2.content[0].text)
+    btl_lines = btl_raw if isinstance(btl_raw, list) else btl_raw.get('lines', [])
+
+    return {
+        'showTitle': atl_data.get('showTitle', ''),
+        'network':   atl_data.get('network', ''),
+        'prodCo':    atl_data.get('prodCo', ''),
+        'period':    atl_data.get('period', ''),
+        'lines':     atl_data.get('lines', []) + btl_lines
+    }
 
 # ── VARIANCE EXCEL BUILDER ────────────────────────────────────────────────────
+
 def build_variance_excel(show_info, lines, threshold=10):
     title   = show_info.get('showTitle','Untitled Show')
     network = show_info.get('network','')
     prod_co = show_info.get('prodCo','')
     period  = show_info.get('period','')
 
-    wb = openpyxl.Workbook()
+    wb  = openpyxl.Workbook()
 
-    # ── SHEET 1: HOT SHEET (line producer view) ───────────────────────────────
-    ws1 = wb.active
-    ws1.title = 'Hot Sheet'
-
-    # Color fills
+    # Colors
     RED        = PatternFill('solid', fgColor='FF4444')
     RED_ORANGE = PatternFill('solid', fgColor='FF7733')
     ORANGE     = PatternFill('solid', fgColor='FFB300')
@@ -744,51 +632,50 @@ def build_variance_excel(show_info, lines, threshold=10):
     GRAY_DEPT  = PatternFill('solid', fgColor='E8E8E8')
     NOFILL     = PatternFill(fill_type=None)
 
-    BOLD12  = Font(name='Arial', size=11, bold=True)
-    REG11   = Font(name='Arial', size=11)
-    BOLD11  = Font(name='Arial', size=11, bold=True)
-    BOLD14  = Font(name='Arial', size=13, bold=True)
-    CTR     = Alignment(horizontal='center', vertical='center')
-    LFT     = Alignment(horizontal='left',   vertical='center')
-    RGT     = Alignment(horizontal='right',  vertical='center')
-    FMT     = '#,##0'
-    PCTFMT  = '0.0%'
+    BOLD14 = Font(name='Arial', size=13, bold=True)
+    BOLD12 = Font(name='Arial', size=11, bold=True)
+    BOLD11 = Font(name='Arial', size=11, bold=True)
+    REG11  = Font(name='Arial', size=11)
+
+    CTR = Alignment(horizontal='center', vertical='center')
+    LFT = Alignment(horizontal='left',   vertical='center')
+    RGT = Alignment(horizontal='right',  vertical='center')
+    FMT = '#,##0'
+    PCTFMT = '0.0%'
 
     def ap(cell, font=None, fill=None, align=None, fmt=None):
-        if font:  cell.font  = font
-        if fill:  cell.fill  = fill
-        if align: cell.alignment = align
+        if font:  cell.font          = font
+        if fill:  cell.fill          = fill
+        if align: cell.alignment     = align
         if fmt:   cell.number_format = fmt
 
-    run_date = datetime.now().strftime('%m/%d/%Y')
+    run_date   = datetime.now().strftime('%m/%d/%Y')
     period_str = f'Period {period}' if period else ''
 
-    # Title rows
+    # ── SHEET 1: HOT SHEET ────────────────────────────────────────────────────
+    ws1 = wb.active
+    ws1.title = 'Hot Sheet'
+
     ws1.cell(1,1,'HOT SHEET — VARIANCE ANALYSIS')
     ap(ws1.cell(1,1), font=BOLD14, align=LFT)
-    subtitle = '   |   '.join(filter(None,[title,network,prod_co,period_str])) + f'   |   Generated {run_date}'
+    subtitle = ' | '.join(filter(None,[title,network,prod_co,period_str])) + f' | Generated {run_date}'
     ws1.cell(2,1, subtitle)
     ap(ws1.cell(2,1), font=BOLD11, align=LFT)
 
-    # Color key (top right, columns 7-8)
     key_data = [
-        ('31%+ over budget',    RED),
-        ('21-30% over budget',  RED_ORANGE),
-        ('11-20% over budget',  ORANGE),
-        ('1-10% over budget',   YELLOW),
-        ('10%+ under budget',   BLUE),
-        ('Within 10% (either)', NOFILL),
+        ('31%+ over budget',      RED),
+        ('21-30% over budget',    RED_ORANGE),
+        ('11-20% over budget',    ORANGE),
+        ('1-10% over budget',     YELLOW),
+        ('10%+ under budget',     BLUE),
+        ('Within 10% (either)',   NOFILL),
     ]
-    ws1.cell(1,7,'COLOR KEY')
-    ap(ws1.cell(1,7), font=BOLD11, align=LFT)
+    ws1.cell(1,7,'COLOR KEY'); ap(ws1.cell(1,7), font=BOLD11, align=LFT)
     for i,(label,fill) in enumerate(key_data):
         r = 2+i
-        ws1.cell(r,7,'')
         ap(ws1.cell(r,7), fill=fill)
-        ws1.cell(r,8, label)
-        ap(ws1.cell(r,8), font=REG11, align=LFT)
+        ws1.cell(r,8, label); ap(ws1.cell(r,8), font=REG11, align=LFT)
 
-    # Column headers row 4
     HDR_ROW = 4
     headers = ['ACCT','DESCRIPTION','ACTUALS','POs','EFC','BUDGET','VARIANCE','VAR %','OVER/UNDER']
     for i,h in enumerate(headers):
@@ -796,61 +683,55 @@ def build_variance_excel(show_info, lines, threshold=10):
         ap(c, font=BOLD12, fill=GRAY_HDR, align=CTR)
     ws1.row_dimensions[HDR_ROW].height = 18
 
-    # Column widths
     widths = [10, 38, 16, 14, 16, 16, 16, 10, 14]
     for i,w in enumerate(widths):
         ws1.column_dimensions[get_column_letter(i+1)].width = w
 
-    # Data rows
+    def color_for_row(budget, efc):
+        if not budget or budget == 0:
+            return NOFILL
+        pct = (efc - budget) / abs(budget)
+        if pct > 0.31:   return RED
+        if pct > 0.21:   return RED_ORANGE
+        if pct > 0.11:   return ORANGE
+        if pct > 0.01:   return YELLOW
+        if pct < -0.10:  return BLUE
+        return NOFILL
+
     r = HDR_ROW + 1
     for line in lines:
-        acct    = line.get('acct','')
-        desc    = line.get('description','')
-        actuals = line.get('actuals',0) or 0
-        pos     = line.get('pos',0) or 0
-        efc     = line.get('efc',0) or 0
-        budget  = line.get('budget',0) or 0
-        is_tot  = line.get('is_total', False)
+        acct        = str(line.get('acct',''))
+        dept        = str(line.get('dept',''))
+        description = str(line.get('description',''))
+        is_total    = line.get('is_total', False)
+        actuals     = int(line.get('actuals') or 0)
+        pos         = int(line.get('pos') or 0)
+        efc         = int(line.get('efc') or 0)
+        budget      = int(line.get('budget') or 0)
+        variance    = line.get('variance')
+        if variance is not None:
+            variance = int(variance)
 
-        # Compute variance — positive = under budget (good), negative = over
-        if budget != 0:
-            var_amt = budget - efc
-            var_pct = var_amt / budget
-        else:
-            var_amt = 0
-            var_pct = 0
+        font = BOLD11 if is_total else REG11
+        fill = GRAY_DEPT if is_total else color_for_row(budget, efc)
 
-        over_under = 'OVER' if var_amt < 0 else ('UNDER' if var_amt > 0 else '')
+        over_under = ''
+        var_pct    = None
+        if budget and budget != 0:
+            var_pct    = (efc - budget) / abs(budget)
+            over_under = 'OVER' if efc > budget else ('UNDER' if efc < budget else '')
 
-        # Pick fill color based on variance %
-        pct = var_pct * 100  # negative = over
-        if pct < -30:            fill = RED
-        elif pct < -21:          fill = RED_ORANGE
-        elif pct < -11:          fill = ORANGE
-        elif pct < -1:           fill = YELLOW
-        elif pct <= -0.5:        fill = YELLOW
-        elif pct >= 10:          fill = BLUE
-        else:                    fill = NOFILL
+        row_data = [acct, description if not is_total else f'{dept} TOTAL', actuals, pos, efc, budget,
+                    variance if variance is not None else (efc - budget), var_pct, over_under]
 
-        font  = BOLD11 if is_tot else REG11
-        dfill = GRAY_DEPT if is_tot else fill
+        for ci, val in enumerate(row_data, 1):
+            c = ws1.cell(r, ci, val)
+            fmt_use = PCTFMT if ci == 8 else (FMT if ci in [3,4,5,6,7] else None)
+            ap(c, font=font, fill=fill, align=(LFT if ci == 2 else CTR), fmt=fmt_use)
 
-        vals = [acct, desc, actuals, pos, efc, budget, var_amt, var_pct, over_under]
-        fmts = [None, None, FMT, FMT, FMT, FMT, FMT, PCTFMT, None]
-        alns = [CTR, LFT, RGT, RGT, RGT, RGT, RGT, CTR, CTR]
-
-        for i,(v,f,a) in enumerate(zip(vals,fmts,alns)):
-            cell = ws1.cell(r, i+1, v)
-            cell_fill = GRAY_DEPT if is_tot else (fill if i >= 2 else NOFILL)
-            ap(cell, font=font, fill=cell_fill, align=a, fmt=f)
-
-        if is_tot:
-            ws1.row_dimensions[r].height = 16
         r += 1
 
-    ws1.freeze_panes = ws1.cell(HDR_ROW+1, 1)
-
-    # ── SHEET 2: VARIANCE REPORT (network view) ───────────────────────────────
+    # ── SHEET 2: NETWORK VARIANCE REPORT ─────────────────────────────────────
     ws2 = wb.create_sheet('Variance Report')
 
     ws2.cell(1,1,'VARIANCE REPORT')
@@ -858,148 +739,126 @@ def build_variance_excel(show_info, lines, threshold=10):
     ws2.cell(2,1, subtitle)
     ap(ws2.cell(2,1), font=BOLD11, align=LFT)
 
-    HDR2 = 4
-    hdrs2 = ['ACCT','DESCRIPTION','BUDGET','EFC','VARIANCE','EXPLANATION']
-    for i,h in enumerate(hdrs2):
-        c = ws2.cell(HDR2, i+1, h)
+    hdr2 = ['ACCT','DESCRIPTION','BUDGET','EFC','VARIANCE','VAR %','EXPLANATION']
+    for i,h in enumerate(hdr2):
+        c = ws2.cell(4, i+1, h)
         ap(c, font=BOLD12, fill=GRAY_HDR, align=CTR)
-    ws2.row_dimensions[HDR2].height = 18
+    ws2.row_dimensions[4].height = 18
 
-    ws2.column_dimensions['A'].width = 10
-    ws2.column_dimensions['B'].width = 38
-    ws2.column_dimensions['C'].width = 16
-    ws2.column_dimensions['D'].width = 16
-    ws2.column_dimensions['E'].width = 16
-    ws2.column_dimensions['F'].width = 52
+    widths2 = [10, 38, 16, 16, 16, 10, 45]
+    for i,w in enumerate(widths2):
+        ws2.column_dimensions[get_column_letter(i+1)].width = w
 
-    r2 = HDR2 + 1
-    # Variance report shows department totals only (not sub-lines)
+    r2 = 5
     for line in lines:
-        if not line.get('is_total', False):
-            continue
-        acct   = line.get('acct','')
-        desc   = line.get('description','')
-        budget = line.get('budget',0) or 0
-        efc    = line.get('efc',0) or 0
-        var    = budget - efc
+        acct        = str(line.get('acct',''))
+        dept        = str(line.get('dept',''))
+        description = str(line.get('description',''))
+        is_total    = line.get('is_total', False)
+        efc         = int(line.get('efc') or 0)
+        budget      = int(line.get('budget') or 0)
+        variance    = line.get('variance')
+        if variance is not None:
+            variance = int(variance)
+        else:
+            variance = efc - budget
 
-        is_grand = 'grand' in desc.lower() or 'total' in acct.lower()
-        font = BOLD11 if is_grand else REG11
-        fill = GRAY_DEPT if is_grand else NOFILL
+        font = BOLD11 if is_total else REG11
+        fill = GRAY_DEPT if is_total else NOFILL
 
-        for i,(v,f,a) in enumerate(zip(
-            [acct, desc, budget, efc, var, ''],
-            [None, None, FMT, FMT, FMT, None],
-            [CTR, LFT, RGT, RGT, RGT, LFT]
-        )):
-            cell = ws2.cell(r2, i+1, v)
-            ap(cell, font=font, fill=fill, align=a, fmt=f)
+        var_pct = None
+        if budget and budget != 0:
+            var_pct = (efc - budget) / abs(budget)
 
-        ws2.row_dimensions[r2].height = 18
+        row_data2 = [acct, description if not is_total else f'{dept} TOTAL',
+                     budget, efc, variance, var_pct, '']
+        for ci, val in enumerate(row_data2, 1):
+            c = ws2.cell(r2, ci, val)
+            fmt_use = PCTFMT if ci == 6 else (FMT if ci in [3,4,5] else None)
+            ap(c, font=font, fill=fill, align=(LFT if ci in [2,7] else CTR), fmt=fmt_use)
+
         r2 += 1
 
-    ws2.freeze_panes = ws2.cell(HDR2+1, 1)
-
     buf = io.BytesIO()
-    wb.save(buf)
-    buf.seek(0)
+    wb.save(buf); buf.seek(0)
     return buf, title
 
 # ── ROUTES ────────────────────────────────────────────────────────────────────
-@app.route('/health', methods=['GET'])
+
+@app.route('/health')
 def health():
-    return jsonify({'status':'ok','service':'StudioChief'})
+    return jsonify({'status':'ok','service':'StudioChief API'})
 
-@app.route('/parse-budget', methods=['POST'])
-def parse_budget():
+@app.route('/parse-budget', methods=['POST','OPTIONS'])
+def parse_budget_route():
+    if request.method == 'OPTIONS':
+        return '', 200
     try:
-        data = request.get_json()
-        pdf_b64 = data.get('pdf_b64','')
+        data    = request.get_json()
+        pdf_b64 = data.get('pdf_base64','')
         if not pdf_b64:
-            return jsonify({'error':'No PDF data'}), 400
+            return jsonify({'error':'No PDF data provided'}), 400
         result = parse_budget_pdf(pdf_b64)
-        return jsonify({'ok':True,'data':result})
-    except Exception as e:
-        return jsonify({'ok':False,'error':str(e)}), 500
-
-@app.route('/parse-calendar', methods=['POST'])
-def parse_calendar():
-    try:
-        data = request.get_json()
-        pdf_b64 = data.get('pdf_b64','')
-        if not pdf_b64:
-            return jsonify({'error':'No PDF data'}), 400
-        phases = parse_calendar_pdf(pdf_b64)
-        return jsonify({'ok':True,'phases':phases})
-    except Exception as e:
-        return jsonify({'ok':False,'error':str(e)}), 500
-
-@app.route('/generate', methods=['POST'])
-def generate():
-    try:
-        data = request.get_json()
-        show_info   = data.get('showInfo', {})
-        phases      = data.get('phases', [])
-        budget_vals = data.get('budgetVals', {})
-
-        if not phases:
-            return jsonify({'error':'No phases provided'}), 400
-        if not any(budget_vals.values()):
-            return jsonify({'error':'All budget values are zero'}), 400
-
-        buf, title = build_excel(show_info, phases, budget_vals)
-
-        date_stamp = datetime.now().strftime('%Y-%m-%d')
-        safe_title = re.sub(r'[^a-zA-Z0-9_\- ]','',title).strip().replace(' ','_')
-        filename   = f'{safe_title}_CashFlow_{date_stamp}.xlsx'
-
-        return send_file(
-            buf,
-            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            as_attachment=True,
-            download_name=filename
-        )
+        return jsonify({'success':True,'data':result})
     except Exception as e:
         return jsonify({'error':str(e)}), 500
 
-@app.route('/parse-variance', methods=['POST'])
-def parse_variance():
+@app.route('/parse-calendar', methods=['POST','OPTIONS'])
+def parse_calendar_route():
+    if request.method == 'OPTIONS':
+        return '', 200
     try:
-        data = request.get_json()
-        pdf_b64 = data.get('pdf_b64','')
+        data    = request.get_json()
+        pdf_b64 = data.get('pdf_base64','')
         if not pdf_b64:
-            return jsonify({'error':'No PDF data'}), 400
-        result = parse_cost_report_pdf(pdf_b64)
-        return jsonify({'ok':True,'data':result})
+            return jsonify({'error':'No PDF data provided'}), 400
+        result = parse_calendar_pdf(pdf_b64)
+        return jsonify({'success':True,'phases':result})
     except Exception as e:
-        import traceback
-        return jsonify({'ok':False,'error':str(e),'trace':traceback.format_exc()[-500:]}), 500
+        return jsonify({'error':str(e)}), 500
 
-@app.route('/generate-variance', methods=['POST'])
-def generate_variance():
+@app.route('/generate-cashflow', methods=['POST','OPTIONS'])
+def generate_cashflow():
+    if request.method == 'OPTIONS':
+        return '', 200
     try:
-        data      = request.get_json()
-        show_info = data.get('showInfo', {})
-        lines     = data.get('lines', [])
-        threshold = data.get('threshold', 10)
+        data       = request.get_json()
+        show_info  = data.get('showInfo',{})
+        phases     = data.get('phases',[])
+        budget_vals= data.get('budgetValues',{})
+        if not phases:
+            return jsonify({'error':'No phases provided'}), 400
+        buf, title = build_excel(show_info, phases, budget_vals)
+        safe_title = re.sub(r'[^\w\s-]','',title).strip().replace(' ','_')
+        filename   = f'{safe_title}_CashFlow_{datetime.now().strftime("%Y%m%d")}.xlsx'
+        return send_file(buf, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                         as_attachment=True, download_name=filename)
+    except Exception as e:
+        return jsonify({'error':str(e)}), 500
 
-        if not lines:
-            return jsonify({'error':'No line items provided'}), 400
+@app.route('/parse-variance', methods=['POST','OPTIONS'])
+def parse_variance_route():
+    if request.method == 'OPTIONS':
+        return '', 200
+    try:
+        data    = request.get_json()
+        pdf_b64 = data.get('pdf_base64','')
+        if not pdf_b64:
+            return jsonify({'error':'No PDF data provided'}), 400
 
-        buf, title = build_variance_excel(show_info, lines, threshold)
-        date_stamp = datetime.now().strftime('%Y-%m-%d')
-        safe_title = re.sub(r'[^a-zA-Z0-9_\- ]','',title).strip().replace(' ','_')
-        filename   = f'{safe_title}_Variance_{date_stamp}.xlsx'
+        # Parse the cost report (two chunked Claude calls)
+        cost_data = parse_cost_report_pdf(pdf_b64)
+        lines     = cost_data.get('lines', [])
+        show_info = {k: cost_data.get(k,'') for k in ['showTitle','network','prodCo','period']}
 
-        return send_file(
-            buf,
-            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            as_attachment=True,
-            download_name=filename
-        )
+        # Build the Excel file
+        buf, title = build_variance_excel(show_info, lines)
+        safe_title = re.sub(r'[^\w\s-]','',title).strip().replace(' ','_')
+        filename   = f'{safe_title}_VarianceReport_{datetime.now().strftime("%Y%m%d")}.xlsx'
+        return send_file(buf, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                         as_attachment=True, download_name=filename)
     except Exception as e:
         return jsonify({'error':str(e)}), 500
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)), debug=False)
