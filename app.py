@@ -581,30 +581,48 @@ Include ALL sections from the top sheet, even those with a zero total."""
 
     result = _safe_json_parse(response.content[0].text)
 
-    # Snap all phase dates to Monday of their week
+    # Snap all phase dates to Monday/Friday of their week
     def to_monday(date_str):
         if not date_str: return date_str
         try:
             d = parse_date(date_str)
             if d:
-                monday = d - timedelta(days=d.weekday())
-                return monday.strftime('%Y-%m-%d')
+                return (d - timedelta(days=d.weekday())).strftime('%Y-%m-%d')
         except Exception:
             pass
         return date_str
 
-    for ph in result.get('phases', []):
+    def to_friday(date_str):
+        if not date_str: return date_str
+        try:
+            d = parse_date(date_str)
+            if d:
+                return (d + timedelta(days=(4 - d.weekday()) % 7)).strftime('%Y-%m-%d')
+        except Exception:
+            pass
+        return date_str
+
+    phases_out = result.get('phases', [])
+    for ph in phases_out:
         ph['start'] = to_monday(ph.get('start',''))
-        # End date: snap to Friday of that week
-        end = ph.get('end','')
-        if end:
-            try:
-                d = parse_date(end)
-                if d:
-                    friday = d + timedelta(days=(4 - d.weekday()) % 7)
-                    ph['end'] = friday.strftime('%Y-%m-%d')
-            except Exception:
-                pass
+        ph['end']   = to_friday(ph.get('end',''))
+
+    # Business rule: Prep should run right up to Production start (no gap).
+    # Find PREP and PRODUCTION phases and close the gap.
+    def find_phase(name_fragment):
+        for ph in phases_out:
+            if name_fragment.upper() in ph.get('name','').upper():
+                return ph
+        return None
+
+    prep = find_phase('PREP')
+    prod = find_phase('PRODUCTION')
+    if prep and prod and prod.get('start'):
+        prod_start = parse_date(prod['start'])
+        if prod_start:
+            # Prep ends the Friday before Production Monday
+            prep_end = prod_start - timedelta(days=3)  # Friday before Monday
+            prep['end'] = prep_end.strftime('%Y-%m-%d')
 
     return result
 
