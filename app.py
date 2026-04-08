@@ -912,8 +912,420 @@ def build_variance_excel(show_info, lines, threshold=10):
     wb.save(buf); buf.seek(0)
     return buf, title
 
+
+# ── RISK & DILIGENCE SCANNER ──────────────────────────────────────────────────
+
+def parse_risk_document(pdf_b64=None, docx_b64=None):
+    """Parse a script, beat sheet, pitch deck, or treatment for risks."""
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY, timeout=300.0)
+
+    content_blocks = []
+
+    if pdf_b64:
+        content_blocks.append({
+            'type': 'document',
+            'source': {'type': 'base64', 'media_type': 'application/pdf', 'data': pdf_b64}
+        })
+    elif docx_b64:
+        content_blocks.append({
+            'type': 'document',
+            'source': {'type': 'base64', 'media_type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'data': docx_b64}
+        })
+
+    prompt = """You are a TV/film production risk analyst reading a production document.
+This could be a script, beat sheet, pitch deck, treatment, or any production document.
+
+TASK 1 — Extract show metadata if visible:
+- showTitle, network, prodCo
+
+TASK 2 — Flag every potential risk or diligence item you find.
+Be thorough. It is better to over-flag than to miss something.
+
+For each flag return:
+- category: one of these exact values:
+    "IP & Legal" — brand names, logos, songs, shows, movies, real people, real companies,
+                   real locations needing clearance, copyrighted formats, trademarked phrases
+    "Physical Safety" — stunts, heights, water, fire, animals, extreme weather, vehicles,
+                        weapons, crowds, confined spaces, food handling, pyrotechnics
+    "Talent & Casting" — minors, medical conditions, nudity, intimacy, vulnerable participants
+    "Location & Permits" — private property, government buildings, international shooting,
+                           beaches, parks, airports, anything requiring permits
+    "Broadcast Standards" — profanity, adult content, sensitive topics, gambling, alcohol, drugs
+    "Insurance Triggers" — stunts, animals, watercraft, aircraft, pyrotechnics, anything
+                           that would spike insurance or require special riders
+    "Clearance & Research" — factual claims needing verification, historical events,
+                             real crimes or legal cases, statistics or data cited
+
+- severity: "High", "Medium", or "Low"
+    High = legal exposure, serious safety risk, or show-stopper
+    Medium = needs attention, likely requires action
+    Low = worth noting, monitor, low urgency
+
+- location: where in the document this appears — use page number if visible,
+            otherwise scene name, section heading, or description like "Opening sequence"
+
+- description: clear plain-English description of the specific risk, 1-2 sentences.
+               Be specific — name the brand, person, location, or activity exactly as it appears.
+
+- quote: the exact words or phrase from the document that triggered this flag (keep it short, under 20 words)
+
+Also note: if the document appears to be a pitch deck with images, describe what you see visually.
+
+Return ONLY valid JSON, no markdown:
+{
+  "showTitle": "Show Name",
+  "network": "NBC",
+  "prodCo": "Production Co",
+  "flags": [
+    {
+      "category": "IP & Legal",
+      "severity": "High",
+      "location": "Page 3",
+      "description": "The show format directly references and replicates The Amazing Race challenge structure.",
+      "quote": "just like The Amazing Race, teams will race across..."
+    }
+  ]
+}
+
+Include ALL flags you find. Sort by order of appearance in the document."""
+
+    content_blocks.append({'type': 'text', 'text': prompt})
+
+    response = client.messages.create(
+        model='claude-opus-4-5',
+        max_tokens=8000,
+        messages=[{'role': 'user', 'content': content_blocks}]
+    )
+
+    return _safe_json_parse(response.content[0].text)
+
+
+def build_risk_excel(show_info, flags):
+    """Build a two-tab Excel: Document Order + By Category."""
+    title   = show_info.get('showTitle', 'Untitled')
+    network = show_info.get('network', '')
+    prod_co = show_info.get('prodCo', '')
+
+    wb = openpyxl.Workbook()
+
+    # ── STYLES ────────────────────────────────────────────────────────────────
+    BOLD12  = Font(name='Arial', size=11, bold=True)
+    BOLD14  = Font(name='Arial', size=13, bold=True)
+    REG11   = Font(name='Arial', size=11)
+    REG10   = Font(name='Arial', size=10)
+    CTR     = Alignment(horizontal='center', vertical='top', wrap_text=True)
+    LFT     = Alignment(horizontal='left',   vertical='top', wrap_text=True)
+    FMT_PCT = '0%'
+
+    GRAY_HDR = PatternFill('solid', fgColor='D0D0D0')
+    RED      = PatternFill('solid', fgColor='FF4444')
+    ORANGE   = PatternFill('solid', fgColor='FFB300')
+    YELLOW   = PatternFill('solid', fgColor='FFE566')
+    NOFILL   = PatternFill(fill_type=None)
+
+    SEV_FILL = {'High': RED, 'Medium': ORANGE, 'Low': YELLOW}
+    SEV_FONT = {
+        'High':   Font(name='Arial', size=10, bold=True, color='FFFFFF'),
+        'Medium': Font(name='Arial', size=10, bold=True, color='000000'),
+        'Low':    Font(name='Arial', size=10, bold=True, color='000000'),
+    }
+
+    CATEGORY_COLORS = {
+        'IP & Legal':             'C5E0F5',
+        'Physical Safety':        'FFD0D0',
+        'Talent & Casting':       'D5F0D5',
+        'Location & Permits':     'FFF0C0',
+        'Broadcast Standards':    'EDD5F5',
+        'Insurance Triggers':     'FFE0C0',
+        'Clearance & Research':   'D5EEF5',
+    }
+
+    run_date = datetime.now().strftime('%m/%d/%Y')
+    subtitle = ' | '.join(filter(None, [title, network, prod_co])) + f' | Generated {run_date}'
+
+    HEADERS = ['#', 'CATEGORY', 'SEVERITY', 'LOCATION', 'DESCRIPTION', 'QUOTE']
+    COL_WIDTHS = [5, 22, 12, 18, 55, 40]
+
+    def write_sheet(ws, sheet_flags, sheet_title):
+        # Title rows
+        ws.cell(1, 1, sheet_title)
+        ws.cell(1, 1).font = BOLD14
+        ws.cell(2, 1, subtitle)
+        ws.cell(2, 1).font = BOLD12
+
+        # Headers
+        for ci, (h, w) in enumerate(zip(HEADERS, COL_WIDTHS), 1):
+            c = ws.cell(4, ci, h)
+            c.font = BOLD12
+            c.fill = GRAY_HDR
+            c.alignment = CTR
+            ws.column_dimensions[get_column_letter(ci)].width = w
+        ws.row_dimensions[4].height = 20
+
+        # Data rows
+        for ri, flag in enumerate(sheet_flags, 5):
+            cat      = flag.get('category', '')
+            sev      = flag.get('severity', 'Low')
+            loc      = flag.get('location', '')
+            desc     = flag.get('description', '')
+            quote    = flag.get('quote', '')
+            cat_fill = PatternFill('solid', fgColor=CATEGORY_COLORS.get(cat, 'FFFFFF'))
+
+            row_data = [ri - 4, cat, sev, loc, desc, quote]
+            for ci, val in enumerate(row_data, 1):
+                c = ws.cell(ri, ci, val)
+                c.alignment = LFT if ci > 1 else CTR
+
+                if ci == 2:  # Category
+                    c.font = REG10
+                    c.fill = cat_fill
+                elif ci == 3:  # Severity
+                    c.font = SEV_FONT.get(sev, REG10)
+                    c.fill = SEV_FILL.get(sev, NOFILL)
+                    c.alignment = CTR
+                else:
+                    c.font = REG10
+                    c.fill = NOFILL
+
+            ws.row_dimensions[ri].height = 40
+
+        ws.freeze_panes = ws.cell(5, 1)
+
+    # ── TAB 1: DOCUMENT ORDER ─────────────────────────────────────────────────
+    ws1 = wb.active
+    ws1.title = 'Document Order'
+    write_sheet(ws1, flags, 'RISK & DILIGENCE SCAN — Document Order')
+
+    # ── TAB 2: BY CATEGORY ────────────────────────────────────────────────────
+    ws2 = wb.create_sheet('By Category')
+    category_order = [
+        'IP & Legal', 'Physical Safety', 'Insurance Triggers',
+        'Talent & Casting', 'Location & Permits',
+        'Broadcast Standards', 'Clearance & Research'
+    ]
+    # Sort by category order, then severity (High first), then original order
+    sev_order = {'High': 0, 'Medium': 1, 'Low': 2}
+    sorted_flags = sorted(
+        flags,
+        key=lambda f: (
+            category_order.index(f.get('category','')) if f.get('category','') in category_order else 99,
+            sev_order.get(f.get('severity','Low'), 3)
+        )
+    )
+    write_sheet(ws2, sorted_flags, 'RISK & DILIGENCE SCAN — By Category')
+
+    buf = io.BytesIO()
+    wb.save(buf); buf.seek(0)
+    return buf, title
+
 # ── ROUTES ────────────────────────────────────────────────────────────────────
 
+
+
+# ── RISK & DILIGENCE SCANNER ──────────────────────────────────────────────────
+
+def parse_risk_document(pdf_b64=None, docx_b64=None):
+    """Parse a script, beat sheet, pitch deck, or treatment for risks."""
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY, timeout=300.0)
+
+    content_blocks = []
+
+    if pdf_b64:
+        content_blocks.append({
+            'type': 'document',
+            'source': {'type': 'base64', 'media_type': 'application/pdf', 'data': pdf_b64}
+        })
+    elif docx_b64:
+        content_blocks.append({
+            'type': 'document',
+            'source': {'type': 'base64', 'media_type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'data': docx_b64}
+        })
+
+    prompt = """You are a TV/film production risk analyst reading a production document.
+This could be a script, beat sheet, pitch deck, treatment, or any production document.
+
+TASK 1 — Extract show metadata if visible:
+- showTitle, network, prodCo
+
+TASK 2 — Flag every potential risk or diligence item you find.
+Be thorough. It is better to over-flag than to miss something.
+
+For each flag return:
+- category: one of these exact values:
+    "IP & Legal" — brand names, logos, songs, shows, movies, real people, real companies,
+                   real locations needing clearance, copyrighted formats, trademarked phrases
+    "Physical Safety" — stunts, heights, water, fire, animals, extreme weather, vehicles,
+                        weapons, crowds, confined spaces, food handling, pyrotechnics
+    "Talent & Casting" — minors, medical conditions, nudity, intimacy, vulnerable participants
+    "Location & Permits" — private property, government buildings, international shooting,
+                           beaches, parks, airports, anything requiring permits
+    "Broadcast Standards" — profanity, adult content, sensitive topics, gambling, alcohol, drugs
+    "Insurance Triggers" — stunts, animals, watercraft, aircraft, pyrotechnics, anything
+                           that would spike insurance or require special riders
+    "Clearance & Research" — factual claims needing verification, historical events,
+                             real crimes or legal cases, statistics or data cited
+
+- severity: "High", "Medium", or "Low"
+    High = legal exposure, serious safety risk, or show-stopper
+    Medium = needs attention, likely requires action
+    Low = worth noting, monitor, low urgency
+
+- location: where in the document this appears — use page number if visible,
+            otherwise scene name, section heading, or description like "Opening sequence"
+
+- description: clear plain-English description of the specific risk, 1-2 sentences.
+               Be specific — name the brand, person, location, or activity exactly as it appears.
+
+- quote: the exact words or phrase from the document that triggered this flag (keep it short, under 20 words)
+
+Also note: if the document appears to be a pitch deck with images, describe what you see visually.
+
+Return ONLY valid JSON, no markdown:
+{
+  "showTitle": "Show Name",
+  "network": "NBC",
+  "prodCo": "Production Co",
+  "flags": [
+    {
+      "category": "IP & Legal",
+      "severity": "High",
+      "location": "Page 3",
+      "description": "The show format directly references and replicates The Amazing Race challenge structure.",
+      "quote": "just like The Amazing Race, teams will race across..."
+    }
+  ]
+}
+
+Include ALL flags you find. Sort by order of appearance in the document."""
+
+    content_blocks.append({'type': 'text', 'text': prompt})
+
+    response = client.messages.create(
+        model='claude-opus-4-5',
+        max_tokens=8000,
+        messages=[{'role': 'user', 'content': content_blocks}]
+    )
+
+    return _safe_json_parse(response.content[0].text)
+
+
+def build_risk_excel(show_info, flags):
+    """Build a two-tab Excel: Document Order + By Category."""
+    title   = show_info.get('showTitle', 'Untitled')
+    network = show_info.get('network', '')
+    prod_co = show_info.get('prodCo', '')
+
+    wb = openpyxl.Workbook()
+
+    # ── STYLES ────────────────────────────────────────────────────────────────
+    BOLD12  = Font(name='Arial', size=11, bold=True)
+    BOLD14  = Font(name='Arial', size=13, bold=True)
+    REG11   = Font(name='Arial', size=11)
+    REG10   = Font(name='Arial', size=10)
+    CTR     = Alignment(horizontal='center', vertical='top', wrap_text=True)
+    LFT     = Alignment(horizontal='left',   vertical='top', wrap_text=True)
+    FMT_PCT = '0%'
+
+    GRAY_HDR = PatternFill('solid', fgColor='D0D0D0')
+    RED      = PatternFill('solid', fgColor='FF4444')
+    ORANGE   = PatternFill('solid', fgColor='FFB300')
+    YELLOW   = PatternFill('solid', fgColor='FFE566')
+    NOFILL   = PatternFill(fill_type=None)
+
+    SEV_FILL = {'High': RED, 'Medium': ORANGE, 'Low': YELLOW}
+    SEV_FONT = {
+        'High':   Font(name='Arial', size=10, bold=True, color='FFFFFF'),
+        'Medium': Font(name='Arial', size=10, bold=True, color='000000'),
+        'Low':    Font(name='Arial', size=10, bold=True, color='000000'),
+    }
+
+    CATEGORY_COLORS = {
+        'IP & Legal':             'C5E0F5',
+        'Physical Safety':        'FFD0D0',
+        'Talent & Casting':       'D5F0D5',
+        'Location & Permits':     'FFF0C0',
+        'Broadcast Standards':    'EDD5F5',
+        'Insurance Triggers':     'FFE0C0',
+        'Clearance & Research':   'D5EEF5',
+    }
+
+    run_date = datetime.now().strftime('%m/%d/%Y')
+    subtitle = ' | '.join(filter(None, [title, network, prod_co])) + f' | Generated {run_date}'
+
+    HEADERS = ['#', 'CATEGORY', 'SEVERITY', 'LOCATION', 'DESCRIPTION', 'QUOTE']
+    COL_WIDTHS = [5, 22, 12, 18, 55, 40]
+
+    def write_sheet(ws, sheet_flags, sheet_title):
+        # Title rows
+        ws.cell(1, 1, sheet_title)
+        ws.cell(1, 1).font = BOLD14
+        ws.cell(2, 1, subtitle)
+        ws.cell(2, 1).font = BOLD12
+
+        # Headers
+        for ci, (h, w) in enumerate(zip(HEADERS, COL_WIDTHS), 1):
+            c = ws.cell(4, ci, h)
+            c.font = BOLD12
+            c.fill = GRAY_HDR
+            c.alignment = CTR
+            ws.column_dimensions[get_column_letter(ci)].width = w
+        ws.row_dimensions[4].height = 20
+
+        # Data rows
+        for ri, flag in enumerate(sheet_flags, 5):
+            cat      = flag.get('category', '')
+            sev      = flag.get('severity', 'Low')
+            loc      = flag.get('location', '')
+            desc     = flag.get('description', '')
+            quote    = flag.get('quote', '')
+            cat_fill = PatternFill('solid', fgColor=CATEGORY_COLORS.get(cat, 'FFFFFF'))
+
+            row_data = [ri - 4, cat, sev, loc, desc, quote]
+            for ci, val in enumerate(row_data, 1):
+                c = ws.cell(ri, ci, val)
+                c.alignment = LFT if ci > 1 else CTR
+
+                if ci == 2:  # Category
+                    c.font = REG10
+                    c.fill = cat_fill
+                elif ci == 3:  # Severity
+                    c.font = SEV_FONT.get(sev, REG10)
+                    c.fill = SEV_FILL.get(sev, NOFILL)
+                    c.alignment = CTR
+                else:
+                    c.font = REG10
+                    c.fill = NOFILL
+
+            ws.row_dimensions[ri].height = 40
+
+        ws.freeze_panes = ws.cell(5, 1)
+
+    # ── TAB 1: DOCUMENT ORDER ─────────────────────────────────────────────────
+    ws1 = wb.active
+    ws1.title = 'Document Order'
+    write_sheet(ws1, flags, 'RISK & DILIGENCE SCAN — Document Order')
+
+    # ── TAB 2: BY CATEGORY ────────────────────────────────────────────────────
+    ws2 = wb.create_sheet('By Category')
+    category_order = [
+        'IP & Legal', 'Physical Safety', 'Insurance Triggers',
+        'Talent & Casting', 'Location & Permits',
+        'Broadcast Standards', 'Clearance & Research'
+    ]
+    # Sort by category order, then severity (High first), then original order
+    sev_order = {'High': 0, 'Medium': 1, 'Low': 2}
+    sorted_flags = sorted(
+        flags,
+        key=lambda f: (
+            category_order.index(f.get('category','')) if f.get('category','') in category_order else 99,
+            sev_order.get(f.get('severity','Low'), 3)
+        )
+    )
+    write_sheet(ws2, sorted_flags, 'RISK & DILIGENCE SCAN — By Category')
+
+    buf = io.BytesIO()
+    wb.save(buf); buf.seek(0)
+    return buf, title
 
 # ── ROUTES ────────────────────────────────────────────────────────────────────
 
@@ -983,6 +1395,34 @@ def generate_cashflow():
                          as_attachment=True, download_name=filename)
     except Exception as e:
         return jsonify({'error':str(e)}), 500
+
+@app.route('/parse-risk', methods=['POST','OPTIONS'])
+def parse_risk_route():
+    if request.method == 'OPTIONS': return '', 200
+    try:
+        data     = request.get_json()
+        pdf_b64  = data.get('pdf_base64','') or None
+        docx_b64 = data.get('docx_base64','') or None
+        if not pdf_b64 and not docx_b64:
+            return jsonify({'error':'No document provided'}), 400
+
+        result    = parse_risk_document(pdf_b64=pdf_b64, docx_b64=docx_b64)
+        flags     = result.get('flags', [])
+        show_info = {k: result.get(k,'') for k in ['showTitle','network','prodCo']}
+
+        # Apply any manual show info overrides from request
+        manual = data.get('show_info', {})
+        for k in ['showTitle','network','prodCo']:
+            if manual.get(k): show_info[k] = manual[k]
+
+        buf, title = build_risk_excel(show_info, flags)
+        safe_title = re.sub(r'[^\w\s\-]','',title).strip().replace(' ','_')
+        filename   = f'{safe_title}_RiskScan_{datetime.now().strftime("%Y%m%d")}.xlsx'
+        return send_file(buf,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True, download_name=filename)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/parse-variance', methods=['POST','OPTIONS'])
 def parse_variance_route():
