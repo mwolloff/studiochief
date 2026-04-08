@@ -562,7 +562,34 @@ Include ALL sections from the top sheet, even those with a zero total."""
         messages=[{'role': 'user', 'content': content_blocks}]
     )
 
-    return _safe_json_parse(response.content[0].text)
+    result = _safe_json_parse(response.content[0].text)
+
+    # Snap all phase dates to Monday of their week
+    def to_monday(date_str):
+        if not date_str: return date_str
+        try:
+            d = parse_date(date_str)
+            if d:
+                monday = d - timedelta(days=d.weekday())
+                return monday.strftime('%Y-%m-%d')
+        except Exception:
+            pass
+        return date_str
+
+    for ph in result.get('phases', []):
+        ph['start'] = to_monday(ph.get('start',''))
+        # End date: snap to Friday of that week
+        end = ph.get('end','')
+        if end:
+            try:
+                d = parse_date(end)
+                if d:
+                    friday = d + timedelta(days=(4 - d.weekday()) % 7)
+                    ph['end'] = friday.strftime('%Y-%m-%d')
+            except Exception:
+                pass
+
+    return result
 
 
 def parse_budget_pdf(pdf_b64):
