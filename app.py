@@ -1,4 +1,5 @@
 import os, base64, json, re
+import pypdf
 from datetime import datetime, timedelta
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
@@ -915,22 +916,129 @@ def build_variance_excel(show_info, lines, threshold=10):
 
 # ── RISK & DILIGENCE SCANNER ──────────────────────────────────────────────────
 
+RISK_CHUNK_SIZE = 80  # pages per AI call — safely under 100-page API limit
+
+def _split_pdf_chunks(pdf_b64, chunk_size=RISK_CHUNK_SIZE):
+    """Split a base64 PDF into chunks of chunk_size pages. Returns list of base64 strings."""
+    raw = base64.b64decode(pdf_b64)
+    reader = pypdf.PdfReader(io.BytesIO(raw))
+    total = len(reader.pages)
+    chunks = []
+    for start in range(0, total, chunk_size):
+        end = min(start + chunk_size, total)
+        writer = pypdf.PdfWriter()
+        for i in range(start, end):
+            writer.add_page(reader.pages[i])
+        buf = io.BytesIO()
+        writer.write(buf)
+        buf.seek(0)
+        chunks.append({
+            'b64': base64.b64encode(buf.read()).decode(),
+            'start_page': start + 1,
+            'end_page': end,
+            'total': total,
+        })
+    return chunks
+
+
+def _call_risk_ai(client, pdf_b64, chunk_info, show_title=''):
+    """Run one AI risk scan call on a PDF chunk."""
+    page_context = f"(pages {chunk_info['start_page']}-{chunk_info['end_page']} of {chunk_info['total']})" if chunk_info['total'] > chunk_info['end_page'] else ""
+
+    prompt = f"""You are a TV/film production risk analyst reading a production document {page_context}.
+This could be a script, beat sheet, pitch deck, treatment, or any production document.
+
+TASK 1 — Extract show metadata if visible (only return if found):
+- showTitle, network, prodCo
+
+TASK 2 — Flag every potential risk or diligence item you find.
+Be thorough. It is better to over-flag than to miss something.
+
+For each flag return:
+- category: exactly one of:
+    "IP & Legal" — brand names, logos, songs, shows, movies, real people, real companies,
+                   real locations needing clearance, copyrighted formats, trademarked phrases
+    "Physical Safety" — stunts, heights, water, fire, animals, extreme weather, vehicles,
+                        weapons, crowds, confined spaces, food handling, pyrotechnics
+    "Talent & Casting" — minors, medical conditions, nudity, intimacy, vulnerable participants
+    "Location & Permits" — private property, government buildings, international shooting,
+                           beaches, parks, airports, anything requiring permits
+    "Broadcast Standards" — profanity, adult content, sensitive topics, gambling, alcohol, drugs
+    "Insurance Triggers" — stunts, animals, watercraft, aircraft, pyrotechnics, anything
+                           that would spike insurance or require special riders
+    "Clearance & Research" — factual claims needing verification, historical events,
+                             real crimes or legal cases, statistics or data cited
+
+- severity: "High", "Medium", or "Low"
+- location: page number or scene/section reference
+- description: clear 1-2 sentence description of the specific risk
+- quote: exact triggering words from the document (under 20 words)
+
+Return ONLY valid JSON, no markdown:
+{{
+  "showTitle": "",
+  "network": "",
+  "prodCo": "",
+  "flags": [
+    {{
+      "category": "IP & Legal",
+      "severity": "High",
+      "location": "Page 3",
+      "description": "Description here.",
+      "quote": "exact quote here"
+    }}
+  ]
+}}
+
+Include ALL flags. Sort by order of appearance."""
+
+    response = client.messages.create(
+        model='claude-opus-4-5',
+        max_tokens=8000,
+        messages=[{'role': 'user', 'content': [
+            {'type': 'document', 'source': {'type': 'base64', 'media_type': 'application/pdf', 'data': pdf_b64}},
+            {'type': 'text', 'text': prompt}
+        ]}]
+    )
+    return _safe_json_parse(response.content[0].text)
+
+
 def parse_risk_document(pdf_b64=None, docx_b64=None):
-    """Parse a script, beat sheet, pitch deck, or treatment for risks."""
+    """Parse a script, beat sheet, pitch deck, or treatment for risks.
+    Automatically chunks PDFs over 80 pages to stay within API limits."""
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY, timeout=300.0)
 
-    content_blocks = []
+    if not pdf_b64:
+        return {'showTitle': '', 'network': '', 'prodCo': '', 'flags': []}
 
-    if pdf_b64:
-        content_blocks.append({
-            'type': 'document',
-            'source': {'type': 'base64', 'media_type': 'application/pdf', 'data': pdf_b64}
-        })
-    elif docx_b64:
-        content_blocks.append({
-            'type': 'document',
-            'source': {'type': 'base64', 'media_type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'data': docx_b64}
-        })
+    # Check page count and chunk if needed
+    raw = base64.b64decode(pdf_b64)
+    reader = pypdf.PdfReader(io.BytesIO(raw))
+    total_pages = len(reader.pages)
+
+    if total_pages <= RISK_CHUNK_SIZE:
+        # Single call — document fits within limit
+        chunks = [{'b64': pdf_b64, 'start_page': 1, 'end_page': total_pages, 'total': total_pages}]
+    else:
+        # Split into chunks
+        chunks = _split_pdf_chunks(pdf_b64)
+
+    all_flags = []
+    show_info = {'showTitle': '', 'network': '', 'prodCo': ''}
+
+    for chunk in chunks:
+        result = _call_risk_ai(client, chunk['b64'], chunk)
+        # Take show info from first chunk that has it
+        if not show_info['showTitle'] and result.get('showTitle'):
+            show_info['showTitle'] = result['showTitle']
+        if not show_info['network'] and result.get('network'):
+            show_info['network'] = result['network']
+        if not show_info['prodCo'] and result.get('prodCo'):
+            show_info['prodCo'] = result['prodCo']
+        all_flags.extend(result.get('flags', []))
+
+    show_info['flags'] = all_flags
+    return show_info
 
     prompt = """You are a TV/film production risk analyst reading a production document.
 This could be a script, beat sheet, pitch deck, treatment, or any production document.
@@ -1124,22 +1232,129 @@ def build_risk_excel(show_info, flags):
 
 # ── RISK & DILIGENCE SCANNER ──────────────────────────────────────────────────
 
+RISK_CHUNK_SIZE = 80  # pages per AI call — safely under 100-page API limit
+
+def _split_pdf_chunks(pdf_b64, chunk_size=RISK_CHUNK_SIZE):
+    """Split a base64 PDF into chunks of chunk_size pages. Returns list of base64 strings."""
+    raw = base64.b64decode(pdf_b64)
+    reader = pypdf.PdfReader(io.BytesIO(raw))
+    total = len(reader.pages)
+    chunks = []
+    for start in range(0, total, chunk_size):
+        end = min(start + chunk_size, total)
+        writer = pypdf.PdfWriter()
+        for i in range(start, end):
+            writer.add_page(reader.pages[i])
+        buf = io.BytesIO()
+        writer.write(buf)
+        buf.seek(0)
+        chunks.append({
+            'b64': base64.b64encode(buf.read()).decode(),
+            'start_page': start + 1,
+            'end_page': end,
+            'total': total,
+        })
+    return chunks
+
+
+def _call_risk_ai(client, pdf_b64, chunk_info, show_title=''):
+    """Run one AI risk scan call on a PDF chunk."""
+    page_context = f"(pages {chunk_info['start_page']}-{chunk_info['end_page']} of {chunk_info['total']})" if chunk_info['total'] > chunk_info['end_page'] else ""
+
+    prompt = f"""You are a TV/film production risk analyst reading a production document {page_context}.
+This could be a script, beat sheet, pitch deck, treatment, or any production document.
+
+TASK 1 — Extract show metadata if visible (only return if found):
+- showTitle, network, prodCo
+
+TASK 2 — Flag every potential risk or diligence item you find.
+Be thorough. It is better to over-flag than to miss something.
+
+For each flag return:
+- category: exactly one of:
+    "IP & Legal" — brand names, logos, songs, shows, movies, real people, real companies,
+                   real locations needing clearance, copyrighted formats, trademarked phrases
+    "Physical Safety" — stunts, heights, water, fire, animals, extreme weather, vehicles,
+                        weapons, crowds, confined spaces, food handling, pyrotechnics
+    "Talent & Casting" — minors, medical conditions, nudity, intimacy, vulnerable participants
+    "Location & Permits" — private property, government buildings, international shooting,
+                           beaches, parks, airports, anything requiring permits
+    "Broadcast Standards" — profanity, adult content, sensitive topics, gambling, alcohol, drugs
+    "Insurance Triggers" — stunts, animals, watercraft, aircraft, pyrotechnics, anything
+                           that would spike insurance or require special riders
+    "Clearance & Research" — factual claims needing verification, historical events,
+                             real crimes or legal cases, statistics or data cited
+
+- severity: "High", "Medium", or "Low"
+- location: page number or scene/section reference
+- description: clear 1-2 sentence description of the specific risk
+- quote: exact triggering words from the document (under 20 words)
+
+Return ONLY valid JSON, no markdown:
+{{
+  "showTitle": "",
+  "network": "",
+  "prodCo": "",
+  "flags": [
+    {{
+      "category": "IP & Legal",
+      "severity": "High",
+      "location": "Page 3",
+      "description": "Description here.",
+      "quote": "exact quote here"
+    }}
+  ]
+}}
+
+Include ALL flags. Sort by order of appearance."""
+
+    response = client.messages.create(
+        model='claude-opus-4-5',
+        max_tokens=8000,
+        messages=[{'role': 'user', 'content': [
+            {'type': 'document', 'source': {'type': 'base64', 'media_type': 'application/pdf', 'data': pdf_b64}},
+            {'type': 'text', 'text': prompt}
+        ]}]
+    )
+    return _safe_json_parse(response.content[0].text)
+
+
 def parse_risk_document(pdf_b64=None, docx_b64=None):
-    """Parse a script, beat sheet, pitch deck, or treatment for risks."""
+    """Parse a script, beat sheet, pitch deck, or treatment for risks.
+    Automatically chunks PDFs over 80 pages to stay within API limits."""
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY, timeout=300.0)
 
-    content_blocks = []
+    if not pdf_b64:
+        return {'showTitle': '', 'network': '', 'prodCo': '', 'flags': []}
 
-    if pdf_b64:
-        content_blocks.append({
-            'type': 'document',
-            'source': {'type': 'base64', 'media_type': 'application/pdf', 'data': pdf_b64}
-        })
-    elif docx_b64:
-        content_blocks.append({
-            'type': 'document',
-            'source': {'type': 'base64', 'media_type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'data': docx_b64}
-        })
+    # Check page count and chunk if needed
+    raw = base64.b64decode(pdf_b64)
+    reader = pypdf.PdfReader(io.BytesIO(raw))
+    total_pages = len(reader.pages)
+
+    if total_pages <= RISK_CHUNK_SIZE:
+        # Single call — document fits within limit
+        chunks = [{'b64': pdf_b64, 'start_page': 1, 'end_page': total_pages, 'total': total_pages}]
+    else:
+        # Split into chunks
+        chunks = _split_pdf_chunks(pdf_b64)
+
+    all_flags = []
+    show_info = {'showTitle': '', 'network': '', 'prodCo': ''}
+
+    for chunk in chunks:
+        result = _call_risk_ai(client, chunk['b64'], chunk)
+        # Take show info from first chunk that has it
+        if not show_info['showTitle'] and result.get('showTitle'):
+            show_info['showTitle'] = result['showTitle']
+        if not show_info['network'] and result.get('network'):
+            show_info['network'] = result['network']
+        if not show_info['prodCo'] and result.get('prodCo'):
+            show_info['prodCo'] = result['prodCo']
+        all_flags.extend(result.get('flags', []))
+
+    show_info['flags'] = all_flags
+    return show_info
 
     prompt = """You are a TV/film production risk analyst reading a production document.
 This could be a script, beat sheet, pitch deck, treatment, or any production document.
