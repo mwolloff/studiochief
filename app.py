@@ -799,7 +799,7 @@ def parse_budget_route():
         if not pdf_b64:
             return jsonify({'error':'No PDF data provided'}), 400
         result = parse_budget_pdf(pdf_b64)
-        return jsonify({'success':True,'data':result})
+        return jsonify({'ok':True,'data':result})
     except Exception as e:
         return jsonify({'error':str(e)}), 500
 
@@ -813,7 +813,7 @@ def parse_calendar_route():
         if not pdf_b64:
             return jsonify({'error':'No PDF data provided'}), 400
         result = parse_calendar_pdf(pdf_b64)
-        return jsonify({'success':True,'phases':result})
+        return jsonify({'ok':True,'phases':result})
     except Exception as e:
         return jsonify({'error':str(e)}), 500
 
