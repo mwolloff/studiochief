@@ -224,14 +224,26 @@ def build_excel(show_info, phases, sections):
 
     pr = build_phase_ranges(phases, wk1, nw)
 
+    # Build display_phases from the actual phases the user submitted
+    # This makes the staircase dynamic — reflects whatever phases exist,
+    # including custom ones (Run-Through, Development, etc.) and
+    # excluding any the user deleted. Order follows chronological sort above.
     display_phases = []
-    for canon in ['CASTING','PREP','PRODUCTION','POST']:
-        if canon in pr:
-            display_phases.append({
-                'name':  canon,
-                'start': (wk1 + timedelta(weeks=pr[canon][0])).strftime('%Y-%m-%d'),
-                'end':   (wk1 + timedelta(weeks=pr[canon][1])).strftime('%Y-%m-%d'),
-            })
+    seen_names = set()
+    for ph in phases:
+        s_date = parse_date(ph['start'])
+        e_date = parse_date(ph['end'])
+        if not s_date or not e_date:
+            continue
+        name = ph['name'].upper().strip()
+        if name in seen_names:
+            continue
+        seen_names.add(name)
+        display_phases.append({
+            'name':  ph['name'].upper(),
+            'start': ph['start'],
+            'end':   ph['end'],
+        })
 
     line_data = []
     for s in sections:
@@ -306,9 +318,11 @@ def build_excel(show_info, phases, sections):
     for i in range(nw):
         ap(ws.cell(R_DAT, CW1+i, wk_date(i).strftime('%m/%d/%y')), font=BOLD12, align=CTR)
 
+    WRAP_CTR = Alignment(horizontal='center', vertical='center', wrap_text=True)
     for pi, ph in enumerate(display_phases):
         r = R_PH0 + pi
         ap(ws.cell(r, CB, ph['name']), font=BOLD12, align=CTR)
+        ws.row_dimensions[r].height = 18
         s_date = parse_date(ph['start']); e_date = parse_date(ph['end'])
         if s_date and e_date:
             ph_s = max(0, wk_idx(s_date, wk1))
@@ -316,7 +330,7 @@ def build_excel(show_info, phases, sections):
             for i in range(nw):
                 c = ws.cell(r, CW1+i)
                 if ph_s <= i <= ph_e:
-                    c.value = ph['name']; ap(c, font=BOLD12, fill=GRAY, align=CTR)
+                    c.value = ph['name']; ap(c, font=BOLD12, fill=GRAY, align=WRAP_CTR)
                 else:
                     ap(c, fill=NOFILL)
 
@@ -393,7 +407,7 @@ def build_excel(show_info, phases, sections):
     ws.column_dimensions[cl(CB)].width = 32
     ws.column_dimensions[cl(CC)].width = 17
     for i in range(nw):
-        ws.column_dimensions[cl(CW1+i)].width = 13
+        ws.column_dimensions[cl(CW1+i)].width = 14
     ws.column_dimensions[cl(CTT)].width = 17
     ws.freeze_panes = ws.cell(R_DS, CW1)
 
@@ -484,6 +498,9 @@ CRITICAL RULES:
    - POST: any bar labeled "Edit", "Edit - Week N", "Online", "Deliver", "RC", "FC", "LC", "Mix", "Color"
 4. For each phase, the start date is the MONDAY of the first week that phase appears.
    The end date is the FRIDAY of the last week that phase appears.
+5. IMPORTANT for PREP end date: Prep runs until the week BEFORE the first Production activity
+   (Load In, ESU, Rehearse, or Shoot). Do not end Prep early just because Casting is still running.
+   Prep and Casting overlap — that is correct and expected.
 5. Phases can and do overlap — that is correct and expected.
 6. Read ALL pages of the calendar before determining start and end dates.
 
