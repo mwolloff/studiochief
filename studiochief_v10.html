@@ -883,15 +883,50 @@ async function onVrFile(input) {
   try {
     const b64 = await fileToBase64(f);
     vrFileData = {name:f.name, base64:b64};
-    setBoxState('vr','loading','Sending to AI — reading all lines…');
-    const resp = await fetch(`${BACKEND}/parse-variance`, {
+    setBoxState('vr','loading','Sending to AI — this takes 60–90 seconds, please wait…');
+
+    // Start background job
+    const startResp = await fetch(`${BACKEND}/parse-variance`, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({pdf_b64: b64})
     });
-    if (!resp.ok) { const e=await resp.json().catch(()=>({})); throw new Error(e.error||'Backend error '+resp.status); }
-    const result = await resp.json();
-    if (!result.ok) throw new Error(result.error||'Parse failed');
-    vrParsedData = result.data;
+    if (!startResp.ok) { const e=await startResp.json().catch(()=>({})); throw new Error(e.error||'Backend error '+startResp.status); }
+    const startResult = await startResp.json();
+    if (!startResult.ok) throw new Error(startResult.error||'Could not start job');
+
+    const jobId = startResult.job_id;
+    const messages = [
+      'AI is reading your cost report…',
+      'Extracting line items and account numbers…',
+      'Reading budget vs actuals…',
+      'Calculating variances…',
+      'Almost done — finishing up…',
+    ];
+    let msgIdx = 0;
+
+    // Poll until done
+    await new Promise((resolve, reject) => {
+      const interval = setInterval(async () => {
+        try {
+          msgIdx = Math.min(msgIdx+1, messages.length-1);
+          setBoxState('vr','loading', messages[msgIdx]);
+
+          const pollResp = await fetch(`${BACKEND}/job-status/${jobId}`);
+          if (!pollResp.ok) return;
+          const job = await pollResp.json();
+
+          if (job.status === 'done') {
+            clearInterval(interval);
+            vrParsedData = job.result;
+            resolve();
+          } else if (job.status === 'error') {
+            clearInterval(interval);
+            reject(new Error(job.error||'Job failed'));
+          }
+          // still 'pending' — keep polling
+        } catch(e) { /* network blip, keep trying */ }
+      }, 4000); // poll every 4 seconds
+    });
 
     // Auto-fill show info
     if (vrParsedData.showTitle) document.getElementById('vrShowTitle').value = vrParsedData.showTitle;
