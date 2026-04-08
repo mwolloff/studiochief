@@ -1226,6 +1226,86 @@ def build_risk_excel(show_info, flags):
     wb.save(buf); buf.seek(0)
     return buf, title
 
+
+# ── EXCEL SCHEDULE PARSER ─────────────────────────────────────────────────────
+#
+# Parses a production schedule Excel file (any format) and extracts phases.
+# Handles Marc's "Weekly Schedule" format and other common grid layouts.
+# Returns same phase format as parse_calendar_pdf.
+
+def parse_calendar_excel(xlsx_b64):
+    """Parse an Excel production schedule and extract phase date ranges."""
+    raw  = base64.b64decode(xlsx_b64)
+    wb   = openpyxl.load_workbook(io.BytesIO(raw), data_only=True)
+
+    # Try to find the most useful sheet — prefer ones with "schedule" or "weekly" in name
+    sheet_priority = []
+    for name in wb.sheetnames:
+        n = name.lower()
+        if 'weekly' in n or 'schedule' in n or 'calendar' in n:
+            sheet_priority.insert(0, wb[name])
+        else:
+            sheet_priority.append(wb[name])
+
+    ws = sheet_priority[0]
+
+    # Scan all rows for date + phase label pairs
+    # Date must be a datetime object, phase label is any adjacent string cell
+    phase_weeks = {}  # canonical_name -> [list of datetime dates]
+
+    for row in ws.iter_rows(values_only=True):
+        # Find date columns
+        date_val = None
+        phase_labels = []
+
+        for cell_val in row:
+            if isinstance(cell_val, datetime):
+                date_val = cell_val
+            elif isinstance(cell_val, str) and cell_val.strip():
+                phase_labels.append(cell_val.strip())
+
+        if not date_val or not phase_labels:
+            continue
+
+        # Map each label to a canonical phase
+        for label in phase_labels:
+            canon = canonical_phase(label)
+            if canon:
+                if canon not in phase_weeks:
+                    phase_weeks[canon] = []
+                phase_weeks[canon].append(date_val)
+
+    if not phase_weeks:
+        return []
+
+    # Build phase list from date collections
+    phases = []
+    for canon, dates in phase_weeks.items():
+        dates_sorted = sorted(dates)
+        start = dates_sorted[0]
+        end   = dates_sorted[-1]
+        # Snap start to Monday, end to Friday
+        monday = start - timedelta(days=start.weekday())
+        friday = end + timedelta(days=(4 - end.weekday()) % 7)
+        phases.append({
+            'name':  canon,
+            'start': monday.strftime('%Y-%m-%d'),
+            'end':   friday.strftime('%Y-%m-%d'),
+        })
+
+    # Sort by start date
+    phases.sort(key=lambda p: p['start'])
+
+    # Apply Prep end = Friday before Production start
+    prep = next((p for p in phases if 'PREP' in p['name']), None)
+    prod = next((p for p in phases if 'PRODUCTION' in p['name']), None)
+    if prep and prod:
+        prod_start = parse_date(prod['start'])
+        if prod_start:
+            prep['end'] = (prod_start - timedelta(days=3)).strftime('%Y-%m-%d')
+
+    return phases
+
 # ── ROUTES ────────────────────────────────────────────────────────────────────
 
 
@@ -1542,6 +1622,86 @@ def build_risk_excel(show_info, flags):
     wb.save(buf); buf.seek(0)
     return buf, title
 
+
+# ── EXCEL SCHEDULE PARSER ─────────────────────────────────────────────────────
+#
+# Parses a production schedule Excel file (any format) and extracts phases.
+# Handles Marc's "Weekly Schedule" format and other common grid layouts.
+# Returns same phase format as parse_calendar_pdf.
+
+def parse_calendar_excel(xlsx_b64):
+    """Parse an Excel production schedule and extract phase date ranges."""
+    raw  = base64.b64decode(xlsx_b64)
+    wb   = openpyxl.load_workbook(io.BytesIO(raw), data_only=True)
+
+    # Try to find the most useful sheet — prefer ones with "schedule" or "weekly" in name
+    sheet_priority = []
+    for name in wb.sheetnames:
+        n = name.lower()
+        if 'weekly' in n or 'schedule' in n or 'calendar' in n:
+            sheet_priority.insert(0, wb[name])
+        else:
+            sheet_priority.append(wb[name])
+
+    ws = sheet_priority[0]
+
+    # Scan all rows for date + phase label pairs
+    # Date must be a datetime object, phase label is any adjacent string cell
+    phase_weeks = {}  # canonical_name -> [list of datetime dates]
+
+    for row in ws.iter_rows(values_only=True):
+        # Find date columns
+        date_val = None
+        phase_labels = []
+
+        for cell_val in row:
+            if isinstance(cell_val, datetime):
+                date_val = cell_val
+            elif isinstance(cell_val, str) and cell_val.strip():
+                phase_labels.append(cell_val.strip())
+
+        if not date_val or not phase_labels:
+            continue
+
+        # Map each label to a canonical phase
+        for label in phase_labels:
+            canon = canonical_phase(label)
+            if canon:
+                if canon not in phase_weeks:
+                    phase_weeks[canon] = []
+                phase_weeks[canon].append(date_val)
+
+    if not phase_weeks:
+        return []
+
+    # Build phase list from date collections
+    phases = []
+    for canon, dates in phase_weeks.items():
+        dates_sorted = sorted(dates)
+        start = dates_sorted[0]
+        end   = dates_sorted[-1]
+        # Snap start to Monday, end to Friday
+        monday = start - timedelta(days=start.weekday())
+        friday = end + timedelta(days=(4 - end.weekday()) % 7)
+        phases.append({
+            'name':  canon,
+            'start': monday.strftime('%Y-%m-%d'),
+            'end':   friday.strftime('%Y-%m-%d'),
+        })
+
+    # Sort by start date
+    phases.sort(key=lambda p: p['start'])
+
+    # Apply Prep end = Friday before Production start
+    prep = next((p for p in phases if 'PREP' in p['name']), None)
+    prod = next((p for p in phases if 'PRODUCTION' in p['name']), None)
+    if prep and prod:
+        prod_start = parse_date(prod['start'])
+        if prod_start:
+            prep['end'] = (prod_start - timedelta(days=3)).strftime('%Y-%m-%d')
+
+    return phases
+
 # ── ROUTES ────────────────────────────────────────────────────────────────────
 
 @app.route('/health')
@@ -1564,9 +1724,13 @@ def parse_budget_route():
 def parse_calendar_route():
     if request.method == 'OPTIONS': return '', 200
     try:
-        data    = request.get_json()
-        pdf_b64 = data.get('pdf_base64', data.get('pdf_b64',''))
-        if not pdf_b64: return jsonify({'error':'No PDF data provided'}), 400
+        data     = request.get_json()
+        pdf_b64  = data.get('pdf_base64', data.get('pdf_b64',''))
+        xlsx_b64 = data.get('xlsx_base64','')
+        if xlsx_b64:
+            result = parse_calendar_excel(xlsx_b64)
+            return jsonify({'ok':True,'phases':result})
+        if not pdf_b64: return jsonify({'error':'No file data provided'}), 400
         result = parse_calendar_pdf(pdf_b64)
         return jsonify({'ok':True,'phases':result})
     except Exception as e:
