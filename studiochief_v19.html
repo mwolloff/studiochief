@@ -392,21 +392,21 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <button class="back-btn" onclick="showDash()">← All Tools</button>
   </div>
   <div class="tc">
-    <div class="step">01 — Import Document <span class="step-opt">PDF or Word (.docx) — script, beat sheet, pitch deck, treatment</span></div>
+    <div class="step">01 — Import Document <span class="step-opt">PDF only — script, beat sheet, pitch deck, or treatment</span></div>
     <div class="imp-zone">
       <div class="imp-grid single">
         <div class="imp-box" id="riskBox">
-          <input class="imp-drop" type="file" accept=".pdf,.docx" onchange="onRiskFile(this)">
+          <input class="imp-drop" type="file" accept=".pdf" onchange="onRiskFile(this)">
           <div class="imp-ico" id="riskIco">⚠️</div>
           <div class="imp-lbl">Script / Document</div>
-          <div class="imp-hint" id="riskHint">PDF or Word (.docx) — script, beat sheet, pitch deck, or treatment</div>
+          <div class="imp-hint" id="riskHint">PDF only — script, beat sheet, pitch deck, or treatment</div>
           <div class="imp-spinner" id="riskSpinner"></div>
           <div class="imp-stat" id="riskStat"></div>
           <button class="imp-clear" id="riskClear" onclick="clearRiskFile()">✕ Remove</button>
         </div>
       </div>
       <div class="imp-note">
-        <strong>Accepted formats: PDF and Word (.docx) only.</strong><br>
+        <strong>Accepted format: PDF only.</strong> Have a Word doc? Save it as PDF first: File → Save As → PDF.<br>
         Processing takes <strong style="color:var(--amber);">30-60 seconds</strong> depending on document length.
       </div>
     </div>
@@ -855,13 +855,16 @@ let riskBlobUrl  = null;
 
 async function onRiskFile(input) {
   const f = input.files[0]; if(!f) return;
+  if (!f.name.toLowerCase().endsWith('.pdf')) {
+    setBoxState('risk','err','PDF only — please save your document as a PDF and re-upload.');
+    return;
+  }
   document.getElementById('riskIco').textContent = '⚠️';
   setBoxState('risk','loading','Reading file...');
   try {
     const b64 = await fileToBase64(f);
     riskFileB64  = b64;
     riskFileName = f.name;
-    riskIsDocx   = f.name.toLowerCase().endsWith('.docx');
     setBoxState('risk','ok','✓ ' + f.name + ' — ready. Click Generate below.');
     const btn = document.getElementById('riskGenBtn');
     btn.disabled=false; btn.style.opacity='1'; btn.style.cursor='pointer';
@@ -900,9 +903,7 @@ async function generateRisk() {
     prodCo:    document.getElementById('riskProdCo').value,
   };
 
-  const body = {show_info: showInfo};
-  if (riskIsDocx) { body.docx_base64 = riskFileB64; }
-  else            { body.pdf_base64  = riskFileB64; }
+  const body = {show_info: showInfo, pdf_base64: riskFileB64};
 
   try {
     const resp = await fetch(`${BACKEND}/parse-risk`, {
