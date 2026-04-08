@@ -267,10 +267,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           <button class="imp-clear" id="budClear" onclick="clearFile('bud')">✕ Remove</button>
         </div>
         <div class="imp-box" id="calBox">
-          <input class="imp-drop" type="file" accept=".pdf" onchange="onFileDropped('cal', this)">
+          <input class="imp-drop" type="file" accept=".pdf,.xlsx,.xls" onchange="onFileDropped('cal', this)">
           <div class="imp-ico" id="calIco">📅</div>
           <div class="imp-lbl">Production Calendar</div>
-          <div class="imp-hint" id="calHint">PDF — AI extracts all phases and date ranges</div>
+          <div class="imp-hint" id="calHint">PDF calendar or Excel schedule — AI extracts all phases and date ranges</div>
           <div class="imp-spinner" id="calSpinner"></div>
           <div class="imp-stat" id="calStat"></div>
           <button class="imp-clear" id="calClear" onclick="clearFile('cal')">✕ Remove</button>
@@ -551,18 +551,36 @@ async function parseBudget(b64, filename) {
 // ── CALENDAR PARSE ────────────────────────────────────────────────────────────
 async function parseCalendar(b64, filename) {
   const aiStatus = document.getElementById('aiStatus');
-  aiStatus.textContent = 'AI is reading your production calendar — 15-30 seconds...';
+  const isExcel = /\.(xlsx|xls)$/i.test(filename);
+  aiStatus.textContent = isExcel
+    ? 'Reading your Excel schedule — extracting phases...'
+    : 'AI is reading your production calendar — 15-30 seconds...';
   aiStatus.classList.add('show');
   try {
-    const resp = await fetch(`${BACKEND}/parse-both`, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({budget_base64: null, calendar_base64: b64})
-    });
-    if (!resp.ok) { const e=await resp.json().catch(()=>({})); throw new Error(e.error||'Backend error '+resp.status); }
-    const result = await resp.json();
-    if (!result.ok) throw new Error(result.error||'Parse failed');
-    const phases = (result.data || {}).phases || [];
+    let resp, result, phases;
+    if (isExcel) {
+      // Excel schedule — use direct parser, no AI needed
+      resp = await fetch(`${BACKEND}/parse-calendar`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({xlsx_base64: b64})
+      });
+      if (!resp.ok) { const e=await resp.json().catch(()=>({})); throw new Error(e.error||'Backend error '+resp.status); }
+      result = await resp.json();
+      if (!result.ok) throw new Error(result.error||'Parse failed');
+      phases = result.phases || [];
+    } else {
+      // PDF calendar — use AI
+      resp = await fetch(`${BACKEND}/parse-both`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({budget_base64: null, calendar_base64: b64})
+      });
+      if (!resp.ok) { const e=await resp.json().catch(()=>({})); throw new Error(e.error||'Backend error '+resp.status); }
+      result = await resp.json();
+      if (!result.ok) throw new Error(result.error||'Parse failed');
+      phases = (result.data || {}).phases || [];
+    }
 
     if (phases.length > 0) {
       userPhases = phases.map(p => ({
