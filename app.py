@@ -795,7 +795,7 @@ def parse_budget_route():
         return '', 200
     try:
         data    = request.get_json()
-        pdf_b64 = data.get('pdf_base64','')
+        pdf_b64 = data.get('pdf_base64', data.get('pdf_b64',''))
         if not pdf_b64:
             return jsonify({'error':'No PDF data provided'}), 400
         result = parse_budget_pdf(pdf_b64)
@@ -809,7 +809,7 @@ def parse_calendar_route():
         return '', 200
     try:
         data    = request.get_json()
-        pdf_b64 = data.get('pdf_base64','')
+        pdf_b64 = data.get('pdf_base64', data.get('pdf_b64',''))
         if not pdf_b64:
             return jsonify({'error':'No PDF data provided'}), 400
         result = parse_calendar_pdf(pdf_b64)
@@ -842,7 +842,7 @@ def parse_variance_route():
         return '', 200
     try:
         data    = request.get_json()
-        pdf_b64 = data.get('pdf_base64','')
+        pdf_b64 = data.get('pdf_base64', data.get('pdf_b64',''))
         if not pdf_b64:
             return jsonify({'error':'No PDF data provided'}), 400
 
