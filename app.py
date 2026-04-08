@@ -444,8 +444,19 @@ DOCUMENT 1 is a production budget.
 Focus ONLY on the TOP SHEET — the summary page showing one total per department or account group.
 Do NOT read the detail pages below the top sheet.
 
-Extract every section line from the top sheet:
-- acct: account number as string (e.g. "100000"), use "" if none
+Extract ONLY the individual department/account section lines. These are the rows with a specific
+account number and department name, like "100000 PRODUCERS" or "760000 POST PRODUCTION STAFF".
+
+CRITICAL — DO NOT INCLUDE:
+- Any row whose label contains the word "Total", "TOTAL", "Subtotal", or "Grand Total"
+- Section group headers like "Above the Line", "Below the Line", "Post Production", "Other Expenses"
+- Any summary or rollup row — only individual account lines with their own account numbers
+
+Each valid section has its own unique account number. If two rows share or derive from the same
+account numbers, only include the detail rows, not the summary.
+
+For each valid section extract:
+- acct: account number as string (e.g. "100000"), use "" if none visible
 - label: section name exactly as shown (e.g. "PRODUCERS", "FIELD AUDIO", "ANIMALS")
 - total: the dollar total for this section as an integer (0 if blank)
 
