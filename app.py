@@ -465,12 +465,27 @@ Also extract show metadata if visible: showTitle, network, prodCo, numEps (integ
 
     cal_doc_num = "2" if has_budget else "1"
     calendar_instructions = f"""
-DOCUMENT {cal_doc_num} is a production calendar.
-Extract ALL named production phases and their date ranges.
-Include every phase you see: CASTING, PREP, LOAD IN, SHOOT, POST and any variants.
-- name: phase name exactly as it appears
-- start: first day as YYYY-MM-DD
-- end: last day as YYYY-MM-DD
+DOCUMENT {cal_doc_num} is a production calendar showing months across multiple pages.
+Each page is a month. Phase bars appear inside date cells showing what is happening that week.
+
+CRITICAL RULES:
+1. Phase bars repeat week by week across pages — e.g. "Casting - Week 1", "Casting - Week 2" ... "Casting - Week 18"
+   These are ALL the same phase. Collapse them: find the FIRST occurrence (earliest date) and the LAST occurrence (latest date).
+2. Return ONE entry per canonical phase type, not one per week label.
+3. The canonical phase types to look for (and their variants):
+   - CASTING: any bar labeled "Casting", "Casting - Week N", "Talent Search", "Auditions"
+   - PREP: any bar labeled "Prep", "Prep - Week N", "Pre-Production", "Office Open"
+   - PRODUCTION: any bar labeled "Load In", "ESU", "Rehearse", "Shoot", "Shoot 101", "Dark", "Strike", "Hiatus"
+   - POST: any bar labeled "Edit", "Edit - Week N", "Online", "Deliver", "RC", "FC", "LC", "Mix", "Color"
+4. For each phase, the start date is the MONDAY of the first week that phase appears.
+   The end date is the FRIDAY of the last week that phase appears.
+5. Phases can and do overlap — that is correct and expected.
+6. Read ALL pages of the calendar before determining start and end dates.
+
+Return one entry per canonical phase found:
+- name: use the canonical name (CASTING, PREP, PRODUCTION, POST) not the week label
+- start: YYYY-MM-DD
+- end: YYYY-MM-DD
 Sort by start date.
 """ if has_calendar else ""
 
