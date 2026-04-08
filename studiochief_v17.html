@@ -100,7 +100,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .imp-stat.ok{color:var(--green);display:block}
 .imp-stat.warn{color:var(--amber);display:block}
 .imp-stat.err{color:var(--red);display:block}
-.imp-clear{display:none;margin-top:6px;background:transparent;border:1px solid var(--border);color:var(--text3);font-family:var(--font-m);font-size:9px;letter-spacing:1px;padding:3px 10px;border-radius:2px;cursor:pointer;transition:all .15s}
+.imp-clear{display:none;margin-top:6px;background:transparent;border:1px solid var(--border);color:var(--text3);font-family:var(--font-m);font-size:9px;letter-spacing:1px;padding:3px 10px;border-radius:2px;cursor:pointer;transition:all .15s;position:relative;z-index:10}
 .imp-clear:hover{border-color:var(--red);color:var(--red)}
 .imp-clear.show{display:inline-block}
 .imp-spinner{display:none;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--amber);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
@@ -436,7 +436,9 @@ function setBoxState(prefix, state, msg) {
   if (state==='idle')    { if(hint) hint.style.display='block'; }
 }
 
-// ── FILE DROP HANDLER — stores file, triggers combined parse when ready ────────
+// ── FILE DROP HANDLER — stores file, queues combined parse ───────────────────
+let parseQueued = false;
+
 async function onFileDropped(prefix, input) {
   const f = input.files[0]; if(!f) return;
   setBoxState(prefix, 'loading', 'Reading file...');
@@ -445,8 +447,13 @@ async function onFileDropped(prefix, input) {
     if (prefix === 'bud') { budB64 = b64; document.getElementById('budIco').textContent = '📄'; }
     if (prefix === 'cal') { calB64 = b64; document.getElementById('calIco').textContent = '📅'; }
     setBoxState(prefix, 'ok', '✓ ' + f.name + ' — loaded');
-    // If we have at least one file and AI isn't already running, parse
-    if (!aiRunning) await runCombinedParse();
+
+    if (aiRunning) {
+      // AI already running — queue a re-run after it finishes
+      parseQueued = true;
+    } else {
+      await runCombinedParse();
+    }
   } catch(err) {
     setBoxState(prefix, 'err', 'Could not read file: ' + err.message);
   }
@@ -548,6 +555,11 @@ async function runCombinedParse() {
     if (calB64) setBoxState('cal', 'err', 'AI parse failed: ' + err.message);
   } finally {
     aiRunning = false;
+    // If a new file arrived while we were running, parse again now
+    if (parseQueued) {
+      parseQueued = false;
+      await runCombinedParse();
+    }
   }
 }
 
