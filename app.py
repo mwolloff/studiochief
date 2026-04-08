@@ -237,10 +237,15 @@ def build_excel(show_info, phases, sections):
     for s in sections:
         acct  = str(s.get('acct',''))
         label = str(s.get('label',''))
-        amt   = int(s.get('total', 0) or 0)
+        raw   = s.get('total', 0)
+        amt   = int(str(raw).replace(',','').replace('$','').split('.')[0]) if raw else 0
         stype = s.get('spread_type','full')
         wks   = spread(stype, amt, nw, pr)
         line_data.append((acct, label, amt, wks))
+
+    # Guard: need at least one row or SUM formulas break
+    if not line_data:
+        line_data.append(('', 'No budget sections — add manually', 0, [0.0]*nw))
 
     wk_totals = [sum(ld[3][i] for ld in line_data) for i in range(nw)]
     payments  = compute_payments(wk_totals, nw, pr, phases)
