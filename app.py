@@ -15,51 +15,7 @@ ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 
 # ── BUDGET LINE DEFINITIONS ───────────────────────────────────────────────────
 
-BUDGET_LINES = [
-    ('100000','Producers','full'),
-    ('120000','Rights & Clearances','prep_only'),
-    ('140000','Office Production Staff','prep_shoot_plus4'),
-    ('160000','Talent Fees','talent_fees'),
-    ('170000','Talent Travel & Exp','prep_only'),
-    ('180000','Stunts/Extras','shoot_only'),
-    ('200000','Casting','casting'),
-    ('220000','Directors','shoot_plus2'),
-    ('240000','Producers (Field)','shoot_plus2'),
-    ('250000','Field Production Staff','shoot_plus2'),
-    ('270000','Talent Management','casting'),
-    ('340000','Video Tape Production','shoot_plus2'),
-    ('380000','Field Camera','shoot_plus2'),
-    ('390000','Studio Camera','shoot_plus2'),
-    ('440000','Field Audio','shoot_plus2'),
-    ('450000','Studio Audio','shoot_plus2'),
-    ('480000','Grip/Electric','shoot_plus2'),
-    ('500000','Art Department','shoot_plus4'),
-    ('540000','Locations','prep_shoot'),
-    ('560000','Makeup/Hair','shoot_plus2'),
-    ('570000','Costume','shoot_plus4'),
-    ('600000','Transportation','shoot_plus2'),
-    ('640000','Field Equipment','shoot_plus4'),
-    ('660000','Studio Equipment','shoot_plus4'),
-    ('680000','Production Travel','shoot_plus4'),
-    ('700000','Set Operations','shoot_plus4'),
-    ('720000','Studio Operations','shoot_plus4'),
-    ('750000','General & Administrative','full'),
-    ('760000','Post Production Staff','post_plus2'),
-    ('780000','Graphics/Acquired Ftg','graphics'),
-    ('800000','Music','post'),
-    ('820000','Post Finishing','post'),
-    ('840000','Transcriptions','post'),
-    ('860000','Equipment & Expenses','post'),
-    ('880000','Master Delivery','post'),
-    ('PCFEE','Production Co Fee','full'),
-    ('FMTFEE','Format Fee','full'),
-    ('AGYFEE','Agency Fee','full'),
-    ('LGLFEE','Legal Fee','full'),
-    ('INSUR','Insurance','week1'),
-]
-
 # ── PHASE NAME NORMALIZATION ──────────────────────────────────────────────────
-
 PHASE_ALIASES = {
     'CASTING': [
         'CASTING', 'CASTING PERIOD', 'TALENT SEARCH', 'AUDITIONS',
@@ -241,7 +197,10 @@ def compute_payments(wk_totals, nw, pr, phases):
 
 # ── CASH FLOW EXCEL BUILDER ───────────────────────────────────────────────────
 
-def build_excel(show_info, phases, budget_vals):
+
+# ── DYNAMIC EXCEL BUILDER ─────────────────────────────────────────────────────
+
+def build_excel(show_info, phases, sections):
     title   = show_info.get('showTitle','Untitled Show')
     network = show_info.get('network','')
     prod_co = show_info.get('prodCo','')
@@ -275,9 +234,12 @@ def build_excel(show_info, phases, budget_vals):
             })
 
     line_data = []
-    for acct, label, stype in BUDGET_LINES:
-        amt = budget_vals.get(acct, 0) or 0
-        wks = spread(stype, amt, nw, pr)
+    for s in sections:
+        acct  = str(s.get('acct',''))
+        label = str(s.get('label',''))
+        amt   = int(s.get('total', 0) or 0)
+        stype = s.get('spread_type','full')
+        wks   = spread(stype, amt, nw, pr)
         line_data.append((acct, label, amt, wks))
 
     wk_totals = [sum(ld[3][i] for ld in line_data) for i in range(nw)]
@@ -412,8 +374,8 @@ def build_excel(show_info, phases, budget_vals):
     ap(ws.cell(R_SHDR, CW1+1, 'Amount'), font=BOLD12, align=CTR)
     for pi, pmt in enumerate(payments):
         r = R_SDAT + pi
-        ap(ws.cell(r, CB, pmt['label']),    font=REG12, align=CTR)
-        ap(ws.cell(r, CC, pmt['milestone']),font=REG12, align=CTR)
+        ap(ws.cell(r, CB, pmt['label']),     font=REG12, align=CTR)
+        ap(ws.cell(r, CC, pmt['milestone']), font=REG12, align=CTR)
         ap(ws.cell(r, CW1, wk_date(min(pmt['start'], nw-1)).strftime('%m/%d/%y')), font=REG12, align=CTR)
         pr_row = R_PS + pi
         c = ws.cell(r, CW1+1); c.value = f'={cl(CC)}{pr_row}'; ap(c, font=REG12, align=CTR, fmt=FMT)
@@ -435,76 +397,6 @@ def build_excel(show_info, phases, budget_vals):
     return buf, title
 
 # ── AI PARSERS ────────────────────────────────────────────────────────────────
-
-def parse_budget_pdf(pdf_b64):
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-    account_list = '\n'.join(f"{a}: {l}" for a,l,_ in BUDGET_LINES)
-    prompt = f"""You are reading a production budget top sheet PDF.
-Extract the dollar total for each account number listed below.
-Return ONLY valid JSON — no markdown, no explanation, no code fences.
-Format: {{"100000": 1234567, "140000": 456789, ...}}
-Also extract show metadata if visible, adding these keys:
-"_showTitle": "show name",
-"_network": "network name",
-"_prodCo": "production company",
-"_numEps": number of episodes as integer
-Only include accounts where you find a clear dollar total.
-Use integers only — no decimals, commas, or $ signs.
-Accounts to find:
-{account_list}"""
-    response = client.messages.create(
-        model='claude-opus-4-5',
-        max_tokens=1500,
-        messages=[{'role':'user','content':[
-            {'type':'document','source':{'type':'base64','media_type':'application/pdf','data':pdf_b64}},
-            {'type':'text','text':prompt}
-        ]}]
-    )
-    raw   = response.content[0].text.strip()
-    clean = re.sub(r'^```[a-z]*\n?','',raw).replace('```','').strip()
-    return json.loads(clean)
-
-def parse_calendar_pdf(pdf_b64):
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-    prompt = """You are reading a TV production calendar PDF.
-Extract ALL named production phases and their date ranges.
-Include every phase you see — there may be more or fewer than five.
-Rules:
-- If a phase label shows "Week 10" as the first visible occurrence, count backward to find Week 1 start date
-- Use Monday of the first active week as start date
-- Use Friday of the last active week as end date
-- Phases can and do overlap — that is correct
-- Include ALL phases: CASTING, PREP, LOAD IN, SHOOT, POST and any variants
-- Use the exact phase name as it appears on the calendar
-Return ONLY valid JSON array, no markdown, no explanation:
-[
-  {"name": "CASTING", "start": "YYYY-MM-DD", "end": "YYYY-MM-DD"},
-  {"name": "PREP",    "start": "YYYY-MM-DD", "end": "YYYY-MM-DD"}
-]
-Sort by start date. Only include phases you can confidently identify."""
-    response = client.messages.create(
-        model='claude-opus-4-5',
-        max_tokens=1200,
-        messages=[{'role':'user','content':[
-            {'type':'document','source':{'type':'base64','media_type':'application/pdf','data':pdf_b64}},
-            {'type':'text','text':prompt}
-        ]}]
-    )
-    raw    = response.content[0].text.strip()
-    clean  = re.sub(r'^```[a-z]*\n?','',raw).replace('```','').strip()
-    parsed = json.loads(clean)
-    if isinstance(parsed, dict):
-        parsed = [{'name':k,'start':v['start'],'end':v['end']} for k,v in parsed.items() if isinstance(v,dict) and 'start' in v]
-    def sort_key(p):
-        d = parse_date(p.get('start',''))
-        return d if d else datetime(2099,1,1)
-    return sorted(parsed, key=sort_key)
-
-# ── COST REPORT PARSER (CHUNKED — fixes timeout/truncation) ──────────────────
-#
-# Two Claude calls instead of one: above-the-line first, then below-the-line.
-# Each call stays well under token limits. Results are merged before Excel build.
-
 def _safe_json_parse(raw):
     clean = re.sub(r'^```[a-z]*\n?', '', raw.strip()).replace('```', '').strip()
     try:
@@ -522,6 +414,148 @@ def _safe_json_parse(raw):
             except Exception:
                 pass
         raise ValueError(f'JSON parse failed. Raw length: {len(raw)} chars. Preview: {raw[:300]}')
+
+
+# ── COMBINED BUDGET + CALENDAR PARSER ────────────────────────────────────────
+
+def parse_budget_and_calendar(budget_b64=None, calendar_b64=None):
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY, timeout=300.0)
+
+    content_blocks = []
+    doc_index = 1
+
+    if budget_b64:
+        content_blocks.append({
+            'type': 'document',
+            'source': {'type': 'base64', 'media_type': 'application/pdf', 'data': budget_b64}
+        })
+
+    if calendar_b64:
+        content_blocks.append({
+            'type': 'document',
+            'source': {'type': 'base64', 'media_type': 'application/pdf', 'data': calendar_b64}
+        })
+
+    has_budget   = budget_b64   is not None
+    has_calendar = calendar_b64 is not None
+
+    budget_instructions = """
+DOCUMENT 1 is a production budget.
+Focus ONLY on the TOP SHEET — the summary page showing one total per department or account group.
+Do NOT read the detail pages below the top sheet.
+
+Extract every section line from the top sheet:
+- acct: account number as string (e.g. "100000"), use "" if none
+- label: section name exactly as shown (e.g. "PRODUCERS", "FIELD AUDIO", "ANIMALS")
+- total: the dollar total for this section as an integer (0 if blank)
+
+Also extract show metadata if visible: showTitle, network, prodCo, numEps (integer).
+""" if has_budget else ""
+
+    cal_doc_num = "2" if has_budget else "1"
+    calendar_instructions = f"""
+DOCUMENT {cal_doc_num} is a production calendar.
+Extract ALL named production phases and their date ranges.
+Include every phase you see: CASTING, PREP, LOAD IN, SHOOT, POST and any variants.
+- name: phase name exactly as it appears
+- start: first day as YYYY-MM-DD
+- end: last day as YYYY-MM-DD
+Sort by start date.
+""" if has_calendar else ""
+
+    spread_instructions = """
+For each budget section, assign a spread_type based on the section name, account number, and the phases present in the calendar.
+
+spread_type must be exactly one of:
+casting | prep | production | post | full | week1 | prep_shoot | shoot_plus2 | shoot_plus4 | post_plus2 | graphics
+
+Spread assignment rules (use these as your guide, applying judgment for unusual sections):
+- Producers, showrunners, EPs, executive staff = full
+- Rights, clearances, research = prep
+- Office production staff, coordinators, accountants = prep_shoot
+- Talent fees, host fees, participant fees = shoot_plus2
+- Talent travel and expenses = prep
+- Prize money = production
+- Stunts, extras, stand-ins = production
+- Casting directors, talent bookers = casting
+- Directors, field producers = shoot_plus2
+- Camera crews and equipment = shoot_plus2
+- Audio crews and equipment = shoot_plus2
+- Grip, electric, lighting = shoot_plus2
+- Art department, scenic, set design = shoot_plus4
+- Costume, wardrobe, makeup, hair = shoot_plus4
+- Locations, craft service, catering = prep_shoot
+- Transportation, vehicles = shoot_plus2
+- Studio equipment, field equipment rentals = shoot_plus4
+- Production travel (airfare, hotel, per diem) = shoot_plus4
+- Set construction, studio operations = shoot_plus4
+- General and administrative, office = full
+- Production company fee, format fee, agency fee, legal fee = full
+- Insurance, E&O, completion bond = week1
+- Post production staff, editors, post supervisors = post_plus2
+- Graphics, main titles, acquired footage = graphics
+- Music, score = post
+- Post finishing, online, color correction, audio mix = post
+- Transcriptions, closed captioning = post
+- Edit bays, post equipment, storage = post
+- Master delivery, digital delivery = post
+- Game show specific: gaming electronics, game props, prizes = production
+- Animals, specialty performers = production
+- Live audience costs = production
+- Any section you cannot confidently categorize = full
+""" if has_budget else ""
+
+    prompt = budget_instructions + calendar_instructions + spread_instructions + """
+Return ONLY valid JSON, no markdown, no explanation:
+{
+  "showTitle": "",
+  "network": "",
+  "prodCo": "",
+  "numEps": 0,
+  "sections": [
+    {"acct": "100000", "label": "PRODUCERS", "total": 1500000, "spread_type": "full"}
+  ],
+  "phases": [
+    {"name": "CASTING", "start": "2024-01-08", "end": "2024-03-01"}
+  ]
+}
+
+Return empty arrays [] for sections or phases if that document was not provided.
+Include ALL sections from the top sheet, even those with a zero total."""
+
+    content_blocks.append({'type': 'text', 'text': prompt})
+
+    response = client.messages.create(
+        model='claude-opus-4-5',
+        max_tokens=8000,
+        messages=[{'role': 'user', 'content': content_blocks}]
+    )
+
+    return _safe_json_parse(response.content[0].text)
+
+
+def parse_budget_pdf(pdf_b64):
+    """Legacy single-doc budget parse."""
+    result = parse_budget_and_calendar(budget_b64=pdf_b64)
+    out = {}
+    for s in result.get('sections', []):
+        if s.get('acct'):
+            out[s['acct']] = s.get('total', 0)
+    if result.get('showTitle'): out['_showTitle'] = result['showTitle']
+    if result.get('network'):   out['_network']   = result['network']
+    if result.get('prodCo'):    out['_prodCo']    = result['prodCo']
+    if result.get('numEps'):    out['_numEps']    = result['numEps']
+    return out
+
+
+def parse_calendar_pdf(pdf_b64):
+    """Legacy single-doc calendar parse."""
+    result = parse_budget_and_calendar(calendar_b64=pdf_b64)
+    phases = result.get('phases', [])
+    def sort_key(p):
+        d = parse_date(p.get('start',''))
+        return d if d else datetime(2099,1,1)
+    return sorted(phases, key=sort_key)
 
 def parse_cost_report_pdf(pdf_b64):
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY, timeout=300.0)
@@ -785,19 +819,20 @@ def build_variance_excel(show_info, lines, threshold=10):
 
 # ── ROUTES ────────────────────────────────────────────────────────────────────
 
+
+# ── ROUTES ────────────────────────────────────────────────────────────────────
+
 @app.route('/health')
 def health():
     return jsonify({'status':'ok','service':'StudioChief API'})
 
 @app.route('/parse-budget', methods=['POST','OPTIONS'])
 def parse_budget_route():
-    if request.method == 'OPTIONS':
-        return '', 200
+    if request.method == 'OPTIONS': return '', 200
     try:
         data    = request.get_json()
         pdf_b64 = data.get('pdf_base64', data.get('pdf_b64',''))
-        if not pdf_b64:
-            return jsonify({'error':'No PDF data provided'}), 400
+        if not pdf_b64: return jsonify({'error':'No PDF data provided'}), 400
         result = parse_budget_pdf(pdf_b64)
         return jsonify({'ok':True,'data':result})
     except Exception as e:
@@ -805,31 +840,49 @@ def parse_budget_route():
 
 @app.route('/parse-calendar', methods=['POST','OPTIONS'])
 def parse_calendar_route():
-    if request.method == 'OPTIONS':
-        return '', 200
+    if request.method == 'OPTIONS': return '', 200
     try:
         data    = request.get_json()
         pdf_b64 = data.get('pdf_base64', data.get('pdf_b64',''))
-        if not pdf_b64:
-            return jsonify({'error':'No PDF data provided'}), 400
+        if not pdf_b64: return jsonify({'error':'No PDF data provided'}), 400
         result = parse_calendar_pdf(pdf_b64)
         return jsonify({'ok':True,'phases':result})
     except Exception as e:
         return jsonify({'error':str(e)}), 500
 
+@app.route('/parse-both', methods=['POST','OPTIONS'])
+def parse_both_route():
+    """Combined budget + calendar — single AI call sees both PDFs together."""
+    if request.method == 'OPTIONS': return '', 200
+    try:
+        data         = request.get_json()
+        budget_b64   = data.get('budget_base64','') or None
+        calendar_b64 = data.get('calendar_base64','') or None
+        if not budget_b64 and not calendar_b64:
+            return jsonify({'error':'No PDF data provided'}), 400
+        result = parse_budget_and_calendar(budget_b64=budget_b64, calendar_b64=calendar_b64)
+        return jsonify({'ok':True, 'data':result})
+    except Exception as e:
+        return jsonify({'error':str(e)}), 500
+
 @app.route('/generate-cashflow', methods=['POST','OPTIONS'])
 def generate_cashflow():
-    if request.method == 'OPTIONS':
-        return '', 200
+    if request.method == 'OPTIONS': return '', 200
     try:
-        data       = request.get_json()
-        show_info  = data.get('showInfo',{})
-        phases     = data.get('phases',[])
-        budget_vals= data.get('budgetValues',{})
+        data      = request.get_json()
+        show_info = data.get('showInfo',{})
+        phases    = data.get('phases',[])
+        sections  = data.get('sections', None)
+        if sections is None:
+            budget_vals = data.get('budgetValues',{})
+            sections = [
+                {'acct': k, 'label': k, 'total': v, 'spread_type': 'full'}
+                for k, v in budget_vals.items() if v
+            ]
         if not phases:
             return jsonify({'error':'No phases provided'}), 400
-        buf, title = build_excel(show_info, phases, budget_vals)
-        safe_title = re.sub(r'[^\w\s-]','',title).strip().replace(' ','_')
+        buf, title = build_excel(show_info, phases, sections)
+        safe_title = re.sub(r'[^\w\s\-]','',title).strip().replace(' ','_')
         filename   = f'{safe_title}_CashFlow_{datetime.now().strftime("%Y%m%d")}.xlsx'
         return send_file(buf, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                          as_attachment=True, download_name=filename)
@@ -838,22 +891,16 @@ def generate_cashflow():
 
 @app.route('/parse-variance', methods=['POST','OPTIONS'])
 def parse_variance_route():
-    if request.method == 'OPTIONS':
-        return '', 200
+    if request.method == 'OPTIONS': return '', 200
     try:
         data    = request.get_json()
         pdf_b64 = data.get('pdf_base64', data.get('pdf_b64',''))
-        if not pdf_b64:
-            return jsonify({'error':'No PDF data provided'}), 400
-
-        # Parse the cost report (two chunked Claude calls)
+        if not pdf_b64: return jsonify({'error':'No PDF data provided'}), 400
         cost_data = parse_cost_report_pdf(pdf_b64)
         lines     = cost_data.get('lines', [])
         show_info = {k: cost_data.get(k,'') for k in ['showTitle','network','prodCo','period']}
-
-        # Build the Excel file
         buf, title = build_variance_excel(show_info, lines)
-        safe_title = re.sub(r'[^\w\s-]','',title).strip().replace(' ','_')
+        safe_title = re.sub(r'[^\w\s\-]','',title).strip().replace(' ','_')
         filename   = f'{safe_title}_VarianceReport_{datetime.now().strftime("%Y%m%d")}.xlsx'
         return send_file(buf, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                          as_attachment=True, download_name=filename)
