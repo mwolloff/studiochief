@@ -8,158 +8,174 @@
 
 ## WHAT THIS TOOL DOES
 
-The Tax Incentive Calculator helps production executives compare film/TV tax incentives across up to 3 locations simultaneously. It calculates net incentive value after monetization and contingency, surfaces eligibility restrictions by production type, prompts for uplifts, and flags critical issues the user needs to know before choosing a production location.
+The Tax Incentive Calculator helps production executives compare film/TV tax incentives across up to 3 locations simultaneously. It calculates net incentive value after monetization, contingency, and audit fees, surfaces eligibility restrictions by production type, prompts for uplifts, and flags critical issues. Entirely client-side — no backend API call.
 
 ---
 
 ## CURRENT STATUS
 
-- Full React/JSX component is complete: tax-incentive-calculator.jsx
-- Raw incentive data for 46 locations is complete: incentives_data.json
-- Full rules and calculation logic documented: TAX_INCENTIVE_RULES (1).md
-- NOT YET wired into the StudioChief frontend
-- Next step: convert JSX to vanilla JS and add as a new tab in studiochief_v21.html
+Live in studiochief_v24.html. All calculation logic is vanilla JavaScript embedded in the HTML file. No React, no build step, no backend.
 
 ---
 
 ## DATA COVERAGE
 
-- 46 locations total: 21 US states/territories + 25 international
-- Data source: Entertainment Partners (EP), 03/08-09/2026
-- Every output must display the data date so users know the data age
-- Approximately 14 additional US states are pending (Missouri, New Mexico, New York, North Carolina, Ohio, Oregon, Pennsylvania, Rhode Island, South Carolina, Utah, Vermont, Virginia, Wisconsin, Wyoming)
+- 46 locations: 21 US states/territories + 25 international
+- Data source: publicly available incentive data, March 2026
+- Do NOT reference Entertainment Partners by name in the UI
+- Every output displays: "Data: publicly available incentive data, March 2026"
+- Approximately 14 additional US states pending
 
 ---
 
-## FRONTEND INTEGRATION PLAN
+## PRODUCTION TYPES
 
-### Conversion approach
-- The JSX component must be converted to plain HTML/CSS/vanilla JavaScript
-- No React, no build step, no npm. Embed directly in the HTML file.
-- Style to match existing StudioChief UI: dark mode default, indigo/slate accent colors (#5c6bc0)
-- Add as a new tab in the existing tab navigation in studiochief_v21.html alongside Tools 1, 2, and 3
+Feature Film, Scripted Television, Reality Television, Unscripted / Non-Scripted, Documentary, Competition, Game Show, Animation, Commercial, Pilot, Post Only, Talk Show, Video Game.
 
-### Tool 4 does NOT need a backend API call
-- All calculation logic is client-side
-- No Claude API call needed for this tool
-- The incentive data is embedded directly in the JavaScript (as it is in the JSX)
-
-### Files needed for integration
-- tax-incentive-calculator.jsx (source to convert)
-- incentives_data.json (data, already embedded in the JSX)
-- studiochief_v21.html (target file to add the new tab into)
+Competition maps to Reality Television eligibility rules in the PT_MAP.
 
 ---
 
-## CORE CALCULATION LOGIC (SUMMARY)
+## BUCKET MODE SYSTEM
 
-Full detail is in TAX_INCENTIVE_RULES (1).md. Summary here for quick reference.
+This is the core UX logic. Each location is assigned one of four modes by the getBucketMode() function. The mode determines how many spend input fields appear and what they're called. A colored explanation banner always tells the user why they're seeing what they're seeing.
 
-### Production type is required first
-User must select production type before location selection. Several locations restrict eligibility or change rates based on production type.
+### simple (green banner)
+One field: "Total Qualifying Spend." Used when the incentive applies a flat rate to all qualifying expenditures with no distinction between labor and non-labor, and no residency differential.
 
-### Location comparison
-Up to 3 locations side by side.
+Examples: Georgia, Ireland, Romania, Morocco, most pure rebate locations.
 
-### Spend buckets
-- Resident ATL (Above the Line)
-- Resident BTL (Below the Line)
-- Non-Resident ATL
-- Non-Resident BTL
-- Qualifying Spend (general)
-- Post-Production Spend (South Africa only, separate rate)
+Georgia example: 20% (or 30% with logo) applies to everything. User enters one number.
 
-### Monetization defaults
-- Refundable credits: 1.00 (100 cents)
-- Rebates and grants: 1.00 (100 cents)
-- Transferable credits: 0.85 default (85 cents)
-- Arizona: 1.00 (state buys back at 100%)
-- Louisiana: 0.90 (state buy-back)
-- Massachusetts: 0.90 (state buy-back)
-- Indiana: no calculation (non-transferable, non-refundable)
-- Maine: dual program, each component handled separately
+### labor_spend (indigo banner)
+Two fields: "Qualifying Labor" and "Non-Labor Qualifying Spend." Used when resident and non-resident rates are the same, but the user's records benefit from separating labor from everything else. Rate is identical on both fields.
 
-### Contingency
-Always deduct 10% contingency from gross incentive before applying monetization rate. This matches Marc's spreadsheet model.
+Examples: Alabama (35% resident labor, 25% non-resident labor — actually this goes full), most states where rates differ between resident and non-resident.
 
-### Output structure per location
-1. Pre-incentive budget (total spend entered)
-2. Qualified spend breakdown by bucket with rates applied
-3. Total qualified at rates (gross incentive)
-4. Less 10% contingency
-5. Revised qualified spend
-6. Monetization rate applied (with reason)
-7. Net incentive value
-8. Revised budget after incentive
-9. Assumptions list
-10. Flags (red/yellow/blue)
+Note: If ANY rate differs between buckets, the location goes to full mode, not labor_spend.
 
-### Special calculation cases
-- Tiered rates (Arizona, Connecticut, Texas, South Korea): tier determines rate for entire project, not marginal
-- Spain: 30% on first EUR 1M, 25% on everything above. Must split the calculation at the EUR 1M mark.
-- Hawaii: prompt user which island(s). Oahu = 22%, Neighbor Islands = 27%.
-- British Columbia and Quebec: labour only, stacked provincial + federal. Use published effective rates (46.2% and 37%).
-- South Africa: two separate rates. Production spend (QSAPE) at 25%, post-production spend (QSAPPE) at 20%.
-- Louisiana labor uplift: applies to individuals only, not loan-outs. Loan-outs stay at base 25%.
-- Maryland $500K cap: entire compensation disqualified when threshold is hit, not just the overage.
-- Minnesota non-resident ATL: limited to ONE producer and ONE director per project, each capped at first $500K in wages.
+### full (amber banner)
+All applicable non-zero buckets shown individually with their own rate badges and descriptions. Used when rates genuinely differ by category — residency, ATL vs BTL, labor vs spend, or post vs production.
+
+Examples: Nevada (different ATL vs BTL rates), Minnesota (non-resident BTL is 20% not 25%), Louisiana (labor uplift changes resident labor rate), South Africa (production 25%, post 20%), Tennessee (non-resident ATL/BTL zero for non-scripted TV).
+
+### nocalc (red banner)
+No spend fields. Contact-for-details message only. Used for: Indiana (non-transferable non-refundable), Oklahoma (discretionary), UK (multiple sub-programs), Australia NSW/NT/WA (contact-for-details or discretionary).
+
+### getBucketMode() logic
+1. If incentiveType is non-calculable: nocalc
+2. If all bucket values are 0: nocalc
+3. If spendPost exists at a different rate than spend (South Africa): full
+4. If all non-zero buckets have identical rates: simple
+5. If labor buckets all match each other but differ from spend: labor_spend
+6. Otherwise: full
+
+---
+
+## CALCULATION OPTIONS (USER-CONTROLLED PER LOCATION)
+
+### Contingency toggle
+Checkbox: "Apply 10% contingency deduction" — ON by default.
+When checked: deducts 10% from gross incentive before applying monetization rate.
+When unchecked: gross incentive goes straight to monetization.
+This lets the user show the network the maximum possible credit without the conservative buffer.
+
+### Audit / CPA fee toggle
+Checkbox: "Deduct audit/CPA fee" — OFF by default.
+When checked: shows an editable dollar field pre-filled with a state-appropriate default.
+Deduction happens after net incentive is calculated (post-monetization).
+Default amounts by state are defined in the AUDIT_FEE_DEFAULTS object in the code.
+Typical range: $8,000–$20,000 depending on budget size and state.
+Georgia default: $15,000. Most states: $10,000–$12,000.
+
+---
+
+## CALCULATION FLOW (in order)
+
+1. User enters Total Production Budget (optional)
+2. User enters qualifying spend in applicable buckets
+3. Gross Incentive = spend × rate(s), with uplifts applied where checked
+4. Less 10% Contingency (if toggle is on)
+5. After Contingency amount
+6. × Monetization Rate (state-specific)
+7. = Net Incentive Value
+8. Less Audit Fee (if toggle is on and amount entered)
+9. = Net After Audit Fee
+10. Effective Budget After Incentive = Total Budget minus Net After Audit Fee (only shows if budget was entered)
+
+---
+
+## MONETIZATION RATES
+
+- 1.00 (100¢): Refundable credits, rebates, grants — paid directly, no sale needed
+- 0.90 (90¢): Louisiana and Massachusetts — known state buy-back rates
+- 0.85 (85¢): Transferable credits — open market default
+- null: Indiana (non-calculable), Maine dual program (handled separately)
+
+The UI displays a plain-English label for each rate, e.g. "90¢ — known state buy-back rate" so users understand why they're seeing that number.
+
+---
+
+## SPECIAL CALCULATION CASES
+
+Full detail in TAX_INCENTIVE_RULES (1).md. Key cases:
+
+- **Tiered rates** (Arizona, Connecticut, Texas, South Korea): tier determines rate for the ENTIRE project, not marginal. The tier is based on total qualifying spend entered.
+- **Spain**: 30% on first €1M of local spend, 25% on everything above. tiCalcSpainSplit() handles the split.
+- **Hawaii**: prompt user which island. Oahu = 22% (base), Neighbor Islands = +5% uplift to 27%.
+- **British Columbia and Quebec**: labour only, stacked provincial + federal. Use published effective rates (46.2% and 37%).
+- **South Africa**: full mode with two spend buckets — production spend (QSAPE) at 25%, post-production spend (QSAPPE) at 20%.
+- **Louisiana labor uplift**: applies to individuals only, not loan-outs. User prompted via uplift checkbox.
+- **Maryland $500K cap**: entire compensation disqualified when threshold hit, not just the overage. Flagged in red.
+- **Minnesota non-resident ATL**: one producer and one director only, each capped at first $500K. Flagged in red.
 
 ---
 
 ## FLAG SYSTEM
 
-### Red flags (critical)
-- Indiana: non-transferable and non-refundable, zero value without state tax liability
-- California: sunset date may have passed, verify program status
-- California: competitive allocation, application does not guarantee approval
-- Maryland: $500K cap disqualifies ENTIRE compensation
-- Minnesota: non-resident ATL limited to one producer and one director only
-- Turkey: all expenditures must be made AFTER application submission date
-- Thailand: foreign workers excluded from qualifying spend
-- Oklahoma: discretionary rebate, acceptance not guaranteed
+### Red (critical — show prominently)
+Indiana, California sunset, California competitive allocation, Maryland $500K cap, Minnesota one-producer-one-director limit, Turkey retroactivity rule, Thailand foreign workers excluded, Oklahoma discretionary.
 
-### Yellow flags (warnings)
-- Connecticut: theatrical feature films ineligible
-- Tennessee: non-resident ATL/BTL only qualify for Scripted TV
-- Washington: Reality TV and Docs are case-by-case
-- Louisiana: loan-outs at base rate only
-- South Korea: internal QPE percentage caps apply
-- Maine: 5% spend credit has no value without Maine tax liability
-- Tiered rate locations: confirm which tier applies
-- Spain: July-only application window
+### Yellow (warnings)
+Connecticut theatrical moratorium, Tennessee non-resident restriction, Washington case-by-case formats, Louisiana loan-out rate, South Korea QPE caps, Maine spend credit limitation, tiered rate locations, Spain July window.
 
-### Blue flags (informational)
-- Arizona: best buy-back rate in US dataset at 100%
-- Louisiana: state buy-back at 90%
-- Massachusetts: state buy-back at 90%
-- Israel: 80% paid during filming, cash flow advantage
-- Georgia: no project cap, no annual cap
-- Ireland: up to 90% claimable mid-production
-- British Columbia: highest effective rate in dataset at 46.2%
-- Romania: 35% + 10% promotional uplift = 45% potential
+### Blue (informational advantages)
+Arizona 100% buy-back, Louisiana 90% buy-back, Massachusetts 90% buy-back, Israel 80% mid-production, Georgia no caps, Ireland 90% mid-production, British Columbia 46.2%, Romania 45% potential.
 
 ---
 
-## LOCATIONS REQUIRING "CONTACT FOR DETAILS" TREATMENT
+## LOCATIONS REQUIRING "CONTACT FOR DETAILS" (nocalc mode)
 
-These locations cannot be precisely calculated and should display a contact message instead of a dollar figure:
-- United Kingdom (multiple sub-programs, different rates)
-- Australia - New South Wales (rate not published)
-- Australia - Northern Territory (fully discretionary)
-- Australia - Western Australia (negotiated rate)
-- Indiana (non-transferable, non-refundable)
-- Oklahoma (discretionary)
+UK, Australia NSW, Australia NT, Australia WA, Indiana, Oklahoma.
 
 ---
 
-## KNOWN LIMITATIONS TO DISPLAY IN UI
+## FRONTEND INTEGRATION NOTES
+
+- All 46 locations are embedded as a JavaScript array (TI_LOCATIONS) directly in the HTML
+- getBucketMode() is called at render time — no pre-computed mode lookup table
+- refreshTiResult() re-renders only the result card, not the spend card, to preserve user inputs
+- tiSpendInputs, tiUpliftState, tiTotalBudget, tiContingency, tiAuditFee are all session-level JS objects keyed by location ID
+- The "laborCombined" key is used for labor_spend mode's combined labor field
+- The "spend" key is used for both simple mode's single field and labor_spend mode's non-labor field
+
+---
+
+## KNOWN LIMITATIONS (displayed in UI disclaimer)
 
 - UK rates require sub-program selection not yet implemented
-- Indiana cannot be calculated (non-transferable, non-refundable)
-- Oklahoma and Australia - Northern Territory are discretionary
-- Australian Federal program rates not yet ingested
+- Indiana cannot be calculated
+- Oklahoma and Australia NT are discretionary
+- Australian Federal program not yet ingested
 - Approximately 14 additional US states pending
 
 ---
 
-*Update this file when: new locations are added, calculation logic changes, the frontend integration is completed, or the JSX-to-vanilla-JS conversion is done.*
+## PLANNED NEXT TOOLS (related)
+
+- Tool 5: Tax Incentive Chatbot — natural language Q&A from incentive data, answer gets smarter as more state PDFs are fed in. Nobody has built this well for production industry.
+- Tool 6: Tax Incentive Information lookup — pick a state, get full detail including application windows, audit requirements, deadlines.
+
+---
+
+*Update this file whenever: bucket mode logic changes, new locations are added, calculation flow changes, new options are added, or frontend integration details change.*
