@@ -224,3 +224,35 @@ When Marc uploads new PDFs for a location:
 ---
 
 *Update this file every time new source documents are ingested for any location.*
+
+---
+
+## SECTION 5: KNOWN DATA DISCREPANCIES (discovered April 9, 2026)
+
+These locations have confirmed program changes that differ from our current EP summary data (March 2026). Update Tool 4 calculator data and Tool 5 panels when possible.
+
+| Location | Issue | Source | Action Needed |
+|---|---|---|---|
+| New Zealand | Minimum spend for live action dropped from NZ$15M to NZ$4M effective January 1, 2026 | nzfilm.co.nz fetched April 9 2026 | Update Tool 4 + Tool 5 summary — significant eligibility change |
+| United Kingdom | Program renamed from Film Tax Relief to Audio-Visual Expenditure Credit (AVEC). New Independent Film Tax Credit (IFTC) added for films under £15M core expenditure, effective April 2025 | bfi.org.uk fetched April 9 2026 | Update Tool 4 + Tool 5 — program name and structure changed |
+
+---
+
+## SECTION 6: URL FETCH STATUS
+
+See TOOL4_TOOL5_URL_REGISTRY.md for full URL tracking.
+
+Dead URLs found April 9 2026 (Marc needs to find updated pages):
+- Australia NSW — screen.nsw.gov.au URL returned 404
+- British Columbia — creativebc.com URL returned 404
+- France CNC — cnc.fr URL returned 404
+- South Africa DTIC — thedtic.gov.za URL returned 404
+- UAE Abu Dhabi — twofour54 site restructured, incentives page moved
+
+Blocked (try PDF links directly or manual download):
+- Ireland — screenireland.ie blocked
+- Greece — ekome.media blocked
+
+Not yet fetched (pending next session):
+- Alabama, Arkansas, California, Colorado, Connecticut, Hawaii, Kentucky, Louisiana, Maine, Maryland, Massachusetts, Minnesota, Oklahoma, Puerto Rico, Tennessee, Texas, Washington
+- Australia NT/SA/Victoria/WA, Israel, Malaysia, Morocco, Norway, Philippines, Quebec, Romania, South Korea, Spain, Thailand, Turkey
