@@ -1,0 +1,2182 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "data_source": "Entertainment Partners",
+    "data_dates": ["03/08/2026", "03/09/2026"],
+    "generated": "2026-04-09",
+    "notes": "All dollar amounts in USD unless otherwise noted. Monetization defaults to 0.85 (85 cents on dollar) for transferable credits unless state buy-back rate is known. Rebates and grants calculate at 1.00 (100 cents). Non-transferable non-refundable credits flagged separately."
+  },
+
+  "locations": [
+
+    {
+      "id": "us-alabama",
+      "name": "Alabama",
+      "country": "US",
+      "region": "US",
+      "currency": "USD",
+      "data_date": "03/08/2026",
+      "incentive_type": "refundable_tax_credit",
+      "monetization_rate": 1.00,
+      "monetization_note": "Refundable — state pays out directly. No sale required.",
+      "headline_rate": "25%-35%",
+      "eligible_production_types": ["Animation","Commercials","Documentaries","Feature Films","Pilots","Post Only","Reality Television","Scripted Television","Video Games"],
+      "ineligible_production_types": ["Game Shows","Talk Shows"],
+      "buckets": {
+        "resident_atl":    { "rate": 0.35, "notes": null },
+        "resident_btl":    { "rate": 0.35, "notes": null },
+        "nonresident_atl": { "rate": 0.25, "notes": null },
+        "nonresident_btl": { "rate": 0.25, "notes": null },
+        "spend":           { "rate": 0.25, "notes": "All qualified in-state spend" }
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_spend_usd": 500000,
+        "min_filming_days": null
+      },
+      "caps": {
+        "project_cap_usd": null,
+        "qualified_spend_cap_usd": 20000000,
+        "compensation_cap_atl_usd": 1000000,
+        "compensation_cap_btl_usd": 500000,
+        "annual_cap_usd": 20000000
+      },
+      "sunset_date": "2028-12-31",
+      "requires_screen_credit": true,
+      "requires_cpa_audit": true,
+      "requires_loanout_registration": false,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Must apply no later than 30 days prior to start of activities. Principal photography must begin within 90 days of approval.",
+      "flags": [
+        "Loan-out companies must file an affidavit acknowledging payments received for work done in Alabama.",
+        "Marketing and distribution expenses do not qualify."
+      ]
+    },
+
+    {
+      "id": "us-arizona",
+      "name": "Arizona",
+      "country": "US",
+      "region": "US",
+      "currency": "USD",
+      "data_date": "03/09/2026",
+      "incentive_type": "refundable_tax_credit",
+      "monetization_rate": 1.00,
+      "monetization_note": "Refundable — credits can be cashed out with the state of Arizona at 100% of face value after satisfying tax liability.",
+      "headline_rate": "15%-27.5%",
+      "eligible_production_types": ["Commercials","Documentaries","Feature Films","Pilots","Reality Television","Scripted Television"],
+      "ineligible_production_types": ["Animation","Game Shows","Post Only","Talk Shows","Video Games"],
+      "buckets": {
+        "resident_atl":    { "rate": "tiered", "notes": "See tier structure" },
+        "resident_btl":    { "rate": "tiered", "notes": "See tier structure" },
+        "nonresident_atl": { "rate": "tiered", "notes": "See tier structure" },
+        "nonresident_btl": { "rate": "tiered", "notes": "See tier structure" },
+        "spend":           { "rate": "tiered", "notes": "See tier structure" }
+      },
+      "tier_structure": [
+        { "min_usd": 0,        "max_usd": 9999999,  "rate": 0.15 },
+        { "min_usd": 10000000, "max_usd": 34999999, "rate": 0.175 },
+        { "min_usd": 35000000, "max_usd": null,     "rate": 0.20 }
+      ],
+      "uplifts": [],
+      "minimums": {
+        "min_spend_usd": null,
+        "min_filming_days": null
+      },
+      "caps": {
+        "project_cap_usd": null,
+        "compensation_cap_atl_usd": null,
+        "compensation_cap_btl_usd": null,
+        "annual_cap_usd": 125000000
+      },
+      "sunset_date": "2043-12-31",
+      "requires_screen_credit": true,
+      "requires_cpa_audit": true,
+      "requires_loanout_registration": true,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Must begin principal photography within 9 months of pre-qualification notice. Must film >50% at a Qualified Production facility OR >50% at practical location with all preproduction and editing in Arizona.",
+      "flags": [
+        "Tier determines rate — the rate applied is based on total qualified spend level, not a sliding scale.",
+        "27.5% headline implies an undocumented uplift not captured in this PDF — verify with Arizona Film Office.",
+        "Credits cash out at 100% face value with the state — best buy-back rate of any US state in dataset."
+      ]
+    },
+
+    {
+      "id": "us-arkansas",
+      "name": "Arkansas",
+      "country": "US",
+      "region": "US",
+      "currency": "USD",
+      "data_date": "03/09/2026",
+      "incentive_type": "transferable_tax_credit_or_rebate",
+      "monetization_rate": 0.85,
+      "monetization_note": "Transferable tax credit — default 85 cents on dollar. Rebate track is discretionary.",
+      "headline_rate": "25%-30%",
+      "eligible_production_types": ["Animation","Documentaries","Feature Films","Pilots","Post Only","Scripted Television","Video Games"],
+      "ineligible_production_types": ["Commercials","Game Shows","Reality Television","Talk Shows"],
+      "buckets": {
+        "resident_atl":    { "rate": 0.25, "notes": null },
+        "resident_btl":    { "rate": 0.30, "notes": "Resident BTL is HIGHER than ATL — unusual, flag to user" },
+        "nonresident_atl": { "rate": 0.25, "notes": null },
+        "nonresident_btl": { "rate": 0.25, "notes": null },
+        "spend":           { "rate": 0.25, "notes": null }
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_spend_usd": 200000,
+        "min_spend_post_only_usd": 50000,
+        "min_filming_days": null
+      },
+      "caps": {
+        "project_cap_usd": null,
+        "compensation_cap_usd": 500000,
+        "annual_cap_tax_credit_usd": 4000000,
+        "annual_cap_rebate": "Discretionary"
+      },
+      "sunset_date": "2032-06-30",
+      "requires_screen_credit": false,
+      "requires_cpa_audit": false,
+      "requires_loanout_registration": false,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Must register with film office and submit application with expenditure estimate before beginning preproduction. Apply for rebate certificate no later than 180 days after last production expenses incurred.",
+      "flags": [
+        "Resident BTL rate (30%) is higher than Resident ATL (25%) — unique in dataset, confirm with film office.",
+        "Annual tax credit cap is only $4M — very low, fund may be exhausted early in year.",
+        "Rebate track is discretionary — no guaranteed amount."
+      ]
+    },
+
+    {
+      "id": "us-california",
+      "name": "California",
+      "country": "US",
+      "region": "US",
+      "currency": "USD",
+      "data_date": "03/08/2026",
+      "incentive_type": "transferable_tax_credit",
+      "monetization_rate": 0.85,
+      "monetization_note": "Transferable tax credit — default 85 cents on dollar.",
+      "headline_rate": "20%-30%",
+      "eligible_production_types": ["Feature Films","Pilots","Scripted Television"],
+      "ineligible_production_types": ["Animation","Commercials","Documentaries","Game Shows","Post Only","Reality Television","Talk Shows","Video Games"],
+      "buckets": {
+        "resident_btl":    { "rate": "20-25%", "notes": "Rate varies by program sub-category" },
+        "nonresident_btl": { "rate": "20-25%", "notes": "Rate varies by program sub-category" }
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_budget_usd": 1000000,
+        "min_filming_days_pct": 0.75
+      },
+      "caps": {
+        "annual_cap_usd": 330000000,
+        "tv_projects_cap_usd": 132000000,
+        "feature_films_cap_usd": 115500000,
+        "relocating_tv_cap_usd": 56100000,
+        "indie_under_10m_cap_usd": 15840000,
+        "indie_over_10m_cap_usd": 10560000
+      },
+      "sunset_date": "2025-06-30",
+      "requires_screen_credit": true,
+      "requires_cpa_audit": true,
+      "requires_loanout_registration": false,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Applications submitted via online portal during specific application windows only. Projects compete against others in same category. Must NOT begin principal photography before acceptance.",
+      "flags": [
+        "SUNSET DATE ALERT: Program 3.0 sunset was June 30, 2025 — verify current program status before relying on this data.",
+        "NO ATL COVERAGE — above the line labor does not qualify.",
+        "Competitive allocation program — application does not guarantee approval.",
+        "Related sub-programs exist: Feature Films, Independent Films, TV Projects, Relocating TV, San Francisco, Santa Clarita, Shasta County — each has separate rules.",
+        "Must complete 75% of principal photography days in California.",
+        "Reality TV not eligible."
+      ]
+    },
+
+    {
+      "id": "us-colorado",
+      "name": "Colorado",
+      "country": "US",
+      "region": "US",
+      "currency": "USD",
+      "data_date": "03/08/2026",
+      "incentive_type": "refundable_tax_credit",
+      "monetization_rate": 1.00,
+      "monetization_note": "Refundable tax credit.",
+      "headline_rate": "20%-22%",
+      "eligible_production_types": ["Animation","Commercials","Documentaries","Feature Films","Pilots","Post Only","Reality Television","Scripted Television","Video Games"],
+      "ineligible_production_types": ["Game Shows","Talk Shows"],
+      "buckets": {
+        "resident_atl":    { "rate": 0.20, "notes": null },
+        "resident_btl":    { "rate": 0.20, "notes": null },
+        "nonresident_atl": { "rate": 0.20, "notes": null },
+        "nonresident_btl": { "rate": 0.20, "notes": null },
+        "spend":           { "rate": 0.20, "notes": "Payments to Colorado persons or businesses only" }
+      },
+      "uplifts": [
+        {
+          "id": "co-rural-uplift",
+          "label": "Rural / Marginalized Urban Center",
+          "amount": 0.02,
+          "max_rate": 0.22,
+          "applies_to": ["labor","spend"],
+          "condition": "Project filmed in a rural community or marginalized urban center",
+          "prompt": "Is this production filming in a rural community or marginalized urban center in Colorado?"
+        }
+      ],
+      "minimums": {
+        "min_spend_local_company_usd": 100000,
+        "min_spend_out_of_state_company_usd": 1000000,
+        "min_spend_commercials_video_games_usd": 250000
+      },
+      "caps": {
+        "compensation_cap_usd": 1000000,
+        "annual_cap_usd": 5000000
+      },
+      "sunset_date": "2034-12-31",
+      "requires_screen_credit": true,
+      "requires_cpa_audit": true,
+      "requires_loanout_registration": true,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Must be approved before beginning principal photography. Must contact office before completing application.",
+      "flags": [
+        "Annual cap is only $5M — very low, likely exhausted quickly.",
+        "Crew must consist of at least 50% Colorado residents.",
+        "Production must be at least 80% funded or show proof of financing.",
+        "Income tax withholding required at 4.40% for individuals."
+      ]
+    },
+
+    {
+      "id": "us-connecticut",
+      "name": "Connecticut",
+      "country": "US",
+      "region": "US",
+      "currency": "USD",
+      "data_date": "03/08/2026",
+      "incentive_type": "transferable_tax_credit",
+      "monetization_rate": 0.85,
+      "monetization_note": "Transferable tax credit — default 85 cents on dollar. 5-year carry forward.",
+      "headline_rate": "10%-30%",
+      "eligible_production_types": ["Animation","Commercials","Documentaries","Feature Films","Game Shows","Pilots","Post Only","Reality Television","Scripted Television","Talk Shows","Video Games"],
+      "ineligible_production_types": [],
+      "production_type_notes": "Feature films for theatrical release subject to moratorium since 2017. Films made for TV and streaming still eligible.",
+      "buckets": {
+        "resident_atl":    { "rate": "tiered", "notes": "10-30% based on spend tier" },
+        "resident_btl":    { "rate": "tiered", "notes": "10-30% based on spend tier" },
+        "nonresident_atl": { "rate": "tiered", "notes": "10-30% based on spend tier" },
+        "nonresident_btl": { "rate": "tiered", "notes": "10-30% based on spend tier" },
+        "spend":           { "rate": "tiered", "notes": "10-30% based on spend tier" }
+      },
+      "tier_structure": [
+        { "min_spend_usd": 100000,  "max_spend_usd": 499999,  "rate": 0.10 },
+        { "min_spend_usd": 500000,  "max_spend_usd": 999999,  "rate": 0.15 },
+        { "min_spend_usd": 1000000, "max_spend_usd": null,    "rate": 0.30 }
+      ],
+      "uplifts": [],
+      "minimums": {
+        "min_spend_usd": 100000,
+        "min_filming_days_pct": 0.50,
+        "min_filming_days_note": "Or 50% of postproduction budget in state, or $1M of postproduction spent in state"
+      },
+      "caps": {
+        "project_cap_usd": null,
+        "compensation_cap_usd": 20000000,
+        "annual_cap_usd": null,
+        "carry_forward_years": 5
+      },
+      "sunset_date": null,
+      "requires_screen_credit": true,
+      "requires_cpa_audit": true,
+      "requires_loanout_registration": true,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Apply for eligibility certificate no later than 90 days after qualified production expense is incurred. Apply for tax credit certificate no later than 90 days after production expense incurred.",
+      "flags": [
+        "Theatrical feature films ineligible — moratorium in place since 2017.",
+        "Tier determines rate based on total qualified spend level.",
+        "No annual cap — program is uncapped."
+      ]
+    },
+
+    {
+      "id": "us-georgia",
+      "name": "Georgia",
+      "country": "US",
+      "region": "US",
+      "currency": "USD",
+      "data_date": "03/08/2026",
+      "incentive_type": "transferable_tax_credit",
+      "monetization_rate": 0.85,
+      "monetization_note": "Transferable tax credit — default 85 cents on dollar. 3-year carry forward.",
+      "headline_rate": "20%-30%",
+      "eligible_production_types": ["Animation","Commercials","Documentaries","Feature Films","Game Shows","Pilots","Post Only","Reality Television","Scripted Television","Talk Shows","Video Games"],
+      "ineligible_production_types": [],
+      "buckets": {
+        "resident_atl":    { "rate": 0.20, "notes": null },
+        "resident_btl":    { "rate": 0.20, "notes": null },
+        "nonresident_atl": { "rate": 0.20, "notes": null },
+        "nonresident_btl": { "rate": 0.20, "notes": null },
+        "spend":           { "rate": 0.20, "notes": "Must satisfy Georgia vendor rule" }
+      },
+      "uplifts": [
+        {
+          "id": "ga-logo-uplift",
+          "label": "Georgia Promotional Logo",
+          "amount": 0.10,
+          "max_rate": 0.30,
+          "applies_to": ["labor","spend"],
+          "condition": "Include Georgia promotional logo or end title credit, or pre-approved alternative marketing promotion",
+          "prompt": "Will this production include the Georgia promotional logo or end title credit?"
+        }
+      ],
+      "minimums": {
+        "min_spend_usd": 500000
+      },
+      "caps": {
+        "project_cap_usd": null,
+        "compensation_cap_usd": 500000,
+        "compensation_cap_loanout_usd": null,
+        "annual_cap_usd": null,
+        "carry_forward_years": 3
+      },
+      "sunset_date": null,
+      "requires_screen_credit": true,
+      "requires_cpa_audit": true,
+      "requires_loanout_registration": true,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Audit application must be submitted within one year of completion of principal photography.",
+      "flags": [
+        "Compensation cap of $500K applies to individuals — but NO cap for loan-outs.",
+        "Logo uplift adds 10% — most productions should include the logo.",
+        "Developmental costs, most fees, and marketing/distribution do not qualify.",
+        "No project cap, no annual cap — one of the most production-friendly states."
+      ]
+    },
+
+    {
+      "id": "us-hawaii",
+      "name": "Hawaii",
+      "country": "US",
+      "region": "US",
+      "currency": "USD",
+      "data_date": "03/08/2026",
+      "incentive_type": "refundable_tax_credit",
+      "monetization_rate": 1.00,
+      "monetization_note": "Refundable tax credit.",
+      "headline_rate": "22%-27%",
+      "eligible_production_types": ["Animation","Commercials","Documentaries","Feature Films","Game Shows","Pilots","Post Only","Reality Television","Scripted Television","Talk Shows","Video Games"],
+      "ineligible_production_types": [],
+      "buckets": {
+        "resident_atl":    { "rate": "island_dependent", "notes": "22% Oahu, 27% neighbor islands" },
+        "resident_btl":    { "rate": "island_dependent", "notes": "22% Oahu, 27% neighbor islands" },
+        "nonresident_atl": { "rate": "island_dependent", "notes": "22% Oahu, 27% neighbor islands" },
+        "nonresident_btl": { "rate": "island_dependent", "notes": "22% Oahu, 27% neighbor islands" },
+        "spend":           { "rate": "island_dependent", "notes": "22% Oahu, 27% neighbor islands" }
+      },
+      "island_rates": {
+        "oahu": 0.22,
+        "neighbor_islands": 0.27
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_spend_usd": 100000
+      },
+      "caps": {
+        "project_cap_usd": 17000000,
+        "compensation_cap_usd": null,
+        "annual_cap_usd": 50000000
+      },
+      "sunset_date": "2032-12-31",
+      "requires_screen_credit": true,
+      "requires_cpa_audit": false,
+      "requires_cpa_audit_notes": "No longer mandatory as of Jan 1 2023, but strongly encouraged for claims over $1M",
+      "requires_loanout_registration": true,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Must submit application at least 7 business days prior to first Hawaii shoot date.",
+      "flags": [
+        "Rate depends on which island(s) production films on — prompt user.",
+        "Productions must make reasonable efforts to hire local talent and crew.",
+        "Productions must provide evidence of financial contribution to local film industry of 0.1% of Hawaii spend or $1K whichever is greater.",
+        "Loan-out income tax withholding: 4% GET plus applicable county surcharge."
+      ]
+    },
+
+    {
+      "id": "us-indiana",
+      "name": "Indiana",
+      "country": "US",
+      "region": "US",
+      "currency": "USD",
+      "data_date": "03/09/2026",
+      "incentive_type": "non_transferable_non_refundable",
+      "monetization_rate": null,
+      "monetization_note": "NON-TRANSFERABLE AND NON-REFUNDABLE. Only valuable if production company has Indiana tax liability. Cannot be sold or cashed out. Consult tax advisor.",
+      "headline_rate": "20%-30%",
+      "eligible_production_types": ["Animation","Documentaries","Feature Films","Game Shows","Pilots","Scripted Television","Video Games"],
+      "ineligible_production_types": ["Commercials","Post Only","Reality Television","Talk Shows"],
+      "buckets": {
+        "resident_atl":    { "rate": 0.20, "notes": null },
+        "resident_btl":    { "rate": 0.25, "notes": null },
+        "nonresident_atl": { "rate": 0.20, "notes": null },
+        "nonresident_btl": { "rate": 0.20, "notes": null },
+        "spend":           { "rate": 0.20, "notes": null }
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_spend_usd": null
+      },
+      "caps": {
+        "compensation_cap_usd": 500000,
+        "annual_cap_usd": 5000000
+      },
+      "sunset_date": null,
+      "requires_screen_credit": false,
+      "requires_cpa_audit": false,
+      "requires_loanout_registration": false,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Application can only be submitted during specific application window.",
+      "flags": [
+        "CRITICAL: Non-transferable AND non-refundable — this credit has zero value unless the production company has Indiana state tax liability.",
+        "Annual cap of $5M is low.",
+        "Application windows are limited — timing critical."
+      ]
+    },
+
+    {
+      "id": "us-kentucky",
+      "name": "Kentucky",
+      "country": "US",
+      "region": "US",
+      "currency": "USD",
+      "data_date": "03/08/2026",
+      "incentive_type": "refundable_tax_credit",
+      "monetization_rate": 1.00,
+      "monetization_note": "Refundable tax credit.",
+      "headline_rate": "30%-35%",
+      "eligible_production_types": ["Animation","Documentaries","Feature Films","Game Shows","Pilots","Post Only","Reality Television","Scripted Television","Talk Shows","Video Games"],
+      "ineligible_production_types": ["Commercials"],
+      "buckets": {
+        "resident_atl":    { "rate": 0.35, "notes": null },
+        "resident_btl":    { "rate": 0.35, "notes": null },
+        "nonresident_atl": { "rate": 0.30, "notes": null },
+        "nonresident_btl": { "rate": 0.30, "notes": null },
+        "spend":           { "rate": 0.30, "notes": "Expenditures must be made from businesses within Kentucky" }
+      },
+      "uplifts": [
+        {
+          "id": "ky-rural-uplift",
+          "label": "Kentucky Rural Zone",
+          "amount": 0.05,
+          "max_rate": 0.35,
+          "applies_to": ["labor","spend"],
+          "condition": "Production films in a designated area (details from KEDFA)",
+          "prompt": "Is this production filming in a designated Kentucky rural or incentive zone?"
+        }
+      ],
+      "minimums": {
+        "min_spend_film_tv_usd": 125000,
+        "min_spend_film_tv_upper_usd": 250000,
+        "min_spend_documentary_usd": 10000,
+        "min_spend_documentary_upper_usd": 20000
+      },
+      "caps": {
+        "project_cap_usd": 10000000,
+        "compensation_cap_usd": 1000000,
+        "annual_cap_usd": 75000000
+      },
+      "sunset_date": null,
+      "requires_screen_credit": true,
+      "requires_cpa_audit": true,
+      "requires_loanout_registration": true,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Must be approved by KEDFA at its monthly meeting. Filming must begin within 6 months of final application.",
+      "flags": [
+        "Monthly KEDFA board meeting required for approval — timing affects production schedule.",
+        "Income tax withholding required at 4.0% for individuals and loan-outs."
+      ]
+    },
+
+    {
+      "id": "us-louisiana",
+      "name": "Louisiana",
+      "country": "US",
+      "region": "US",
+      "currency": "USD",
+      "data_date": "03/08/2026",
+      "incentive_type": "refundable_tax_credit",
+      "monetization_rate": 0.90,
+      "monetization_note": "State buy-back rate is 90% (88% after 2% transfer fee). Use 0.90 as default, or 0.88 if transfer fee applies.",
+      "headline_rate": "25%-40%",
+      "eligible_production_types": ["Animation","Commercials","Documentaries","Feature Films","Game Shows","Pilots","Post Only","Reality Television","Scripted Television","Talk Shows","Video Games"],
+      "ineligible_production_types": [],
+      "buckets": {
+        "resident_atl":    { "rate": 0.25, "notes": null },
+        "resident_btl":    { "rate": 0.25, "notes": null },
+        "nonresident_atl": { "rate": 0.25, "notes": null },
+        "nonresident_btl": { "rate": 0.25, "notes": null },
+        "spend":           { "rate": 0.25, "notes": "Tangible goods and services within Louisiana borders" }
+      },
+      "uplifts": [
+        {
+          "id": "la-labor-uplift",
+          "label": "Louisiana Resident Labor Uplift",
+          "amount": 0.15,
+          "max_rate": 0.40,
+          "applies_to": ["resident_atl","resident_btl"],
+          "condition": "Applies to individual labor — loan-outs qualify at base 25% only",
+          "prompt": "Does this production qualify for the Louisiana resident labor uplift? (Loan-outs do not qualify for uplift.)"
+        },
+        {
+          "id": "la-vfx-uplift",
+          "label": "Louisiana VFX Spend Uplift",
+          "amount": 0.05,
+          "max_rate": null,
+          "applies_to": ["spend"],
+          "condition": "Applies to certain VFX spend only",
+          "prompt": "Does this production have qualifying VFX spend in Louisiana?"
+        }
+      ],
+      "minimums": {
+        "min_spend_usd": 300000,
+        "min_spend_la_screenplay_usd": 50000
+      },
+      "caps": {
+        "project_cap_film_usd": 20000000,
+        "project_cap_tv_per_season_usd": 25000000,
+        "compensation_cap_usd": 3000000,
+        "annual_cap_usd": 125000000
+      },
+      "sunset_date": "2031-06-30",
+      "requires_screen_credit": true,
+      "requires_cpa_audit": true,
+      "requires_loanout_registration": false,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Submit online application with supporting documents and fees to receive initial certification. Final certification commences after completion of production.",
+      "flags": [
+        "State buy-back rate is 90% (88% after transfer fee) — better than open market default of 85%.",
+        "Labor uplift of up to 15% applies to individuals only — loan-outs stay at base 25%.",
+        "VFX uplift of 5% available on certain VFX spend only.",
+        "Loan-out income tax withholding required at 3%."
+      ]
+    },
+
+    {
+      "id": "us-maine",
+      "name": "Maine",
+      "country": "US",
+      "region": "US",
+      "currency": "USD",
+      "data_date": "03/09/2026",
+      "incentive_type": "dual_program",
+      "monetization_rate": null,
+      "monetization_note": "Two separate programs: (1) 5% non-refundable non-transferable tax credit on spend — no monetization value unless company has Maine tax liability. (2) Wage rebate at 12% resident / 10% non-resident — paid directly as rebate at 100 cents.",
+      "headline_rate": "5%-17%",
+      "eligible_production_types": ["Animation","Commercials","Documentaries","Feature Films","Game Shows","Pilots","Post Only","Reality Television","Scripted Television","Talk Shows","Video Games"],
+      "ineligible_production_types": [],
+      "buckets": {
+        "resident_atl":    { "rate": 0.12, "notes": "Wage rebate component only" },
+        "resident_btl":    { "rate": 0.12, "notes": "Wage rebate component only" },
+        "nonresident_atl": { "rate": 0.10, "notes": "Wage rebate component only" },
+        "nonresident_btl": { "rate": 0.10, "notes": "Wage rebate component only" },
+        "spend":           { "rate": 0.05, "notes": "Separate non-refundable non-transferable credit — only valuable with Maine tax liability" }
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_spend_usd": 75000
+      },
+      "caps": {
+        "project_cap_usd": null,
+        "compensation_cap_usd": 50000,
+        "annual_cap_usd": null
+      },
+      "sunset_date": null,
+      "requires_screen_credit": true,
+      "requires_cpa_audit": false,
+      "requires_loanout_registration": false,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Submit application to Department of Economic and Community Development prior to production.",
+      "flags": [
+        "Two separate incentive programs that stack — wage rebate pays out directly, spend credit only useful with Maine tax liability.",
+        "Compensation cap of $50K is very low — most talent will exceed this quickly.",
+        "Income tax withholding required at 5.8%-7.15% for individuals and loan-outs."
+      ]
+    },
+
+    {
+      "id": "us-maryland",
+      "name": "Maryland",
+      "country": "US",
+      "region": "US",
+      "currency": "USD",
+      "data_date": "03/09/2026",
+      "incentive_type": "refundable_tax_credit",
+      "monetization_rate": 1.00,
+      "monetization_note": "Refundable tax credit.",
+      "headline_rate": "28%-30%",
+      "eligible_production_types": ["Documentaries","Feature Films","Pilots","Reality Television","Scripted Television"],
+      "ineligible_production_types": ["Animation","Commercials","Game Shows","Post Only","Talk Shows","Video Games"],
+      "buckets": {
+        "resident_atl":    { "rate": 0.28, "notes": null },
+        "resident_btl":    { "rate": 0.28, "notes": null },
+        "nonresident_atl": { "rate": 0.28, "notes": null },
+        "nonresident_btl": { "rate": 0.28, "notes": null },
+        "spend":           { "rate": 0.28, "notes": "All goods and services from qualified vendors" }
+      },
+      "uplifts": [
+        {
+          "id": "md-tv-uplift",
+          "label": "TV Series Uplift",
+          "amount": 0.02,
+          "max_rate": 0.30,
+          "applies_to": ["labor","spend"],
+          "condition": "Production is a TV series",
+          "prompt": "Is this production a TV series? (Applies automatically if yes.)"
+        }
+      ],
+      "minimums": {
+        "min_spend_usd": 250000,
+        "min_spend_small_film_usd": 25000,
+        "min_filming_days_pct": 0.50
+      },
+      "caps": {
+        "project_cap_usd": 10000000,
+        "compensation_cap_usd": 500000,
+        "compensation_cap_note": "If $500K threshold reached, ENTIRE compensation for that individual is disqualified — not just the overage",
+        "annual_cap_usd": 15000000
+      },
+      "sunset_date": null,
+      "requires_screen_credit": true,
+      "requires_cpa_audit": true,
+      "requires_loanout_registration": false,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Submit Application for Qualification before beginning any production activity. Submit Application for Final Tax Credit Certification within 180 days of completion.",
+      "flags": [
+        "CRITICAL: Compensation cap works differently here — once an individual hits $500K, their ENTIRE compensation is disqualified, not just the overage above $500K.",
+        "50% of principal photography must occur in Maryland.",
+        "TV series gets 2% uplift automatically.",
+        "Small Film program: up to 28% on total direct costs, max $125K credit.",
+        "Income tax withholding required at 2%-5.75%."
+      ]
+    },
+
+    {
+      "id": "us-massachusetts",
+      "name": "Massachusetts",
+      "country": "US",
+      "region": "US",
+      "currency": "USD",
+      "data_date": "03/09/2026",
+      "incentive_type": "partially_refundable_fully_transferable",
+      "monetization_rate": 0.90,
+      "monetization_note": "Credits can be cashed out with Commonwealth of Massachusetts at 90% of face value after satisfying tax liabilities, or transferred at market rate. Use 0.90 as default.",
+      "headline_rate": "25%",
+      "eligible_production_types": ["Animation","Commercials","Documentaries","Feature Films","Pilots","Post Only","Reality Television","Scripted Television"],
+      "ineligible_production_types": ["Game Shows","Talk Shows","Video Games"],
+      "buckets": {
+        "resident_atl":    { "rate": 0.25, "notes": null },
+        "resident_btl":    { "rate": 0.25, "notes": null },
+        "nonresident_atl": { "rate": 0.25, "notes": null },
+        "nonresident_btl": { "rate": 0.25, "notes": null },
+        "spend":           { "rate": 0.25, "notes": "Equipment purchased outside MA qualifies; qualifying cost is depreciation, not purchase price" }
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_spend_usd": 50000,
+        "min_filming_days_pct": 0.75,
+        "min_filming_days_note": "75% of total PP days OR 75% of all production costs (for Production Credit)"
+      },
+      "caps": {
+        "project_cap_usd": null,
+        "annual_cap_usd": null,
+        "carry_forward_years": 5,
+        "payroll_exclusion_note": "Any employee paid $1M or more total is excluded from qualifying aggregate payroll BUT remains eligible for separate production credit"
+      },
+      "sunset_date": null,
+      "requires_screen_credit": true,
+      "requires_cpa_audit": true,
+      "requires_loanout_registration": true,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Complete STE form and file with MA Department of Revenue prior to start of production. Credit application filed after all production complete, all vendors paid, and audit completed. Only one application per project.",
+      "flags": [
+        "State buy-back at 90% — better than open market default.",
+        "Equipment purchased OUTSIDE Massachusetts can qualify — unusual provision.",
+        "For equipment and personal property, qualifying cost is depreciation cost, not purchase price.",
+        "Employees paid $1M+ are excluded from aggregate payroll but eligible for production credit separately.",
+        "No project cap, no annual cap.",
+        "Income tax withholding required at 5% for individuals and loan-outs."
+      ]
+    },
+
+    {
+      "id": "us-minnesota",
+      "name": "Minnesota",
+      "country": "US",
+      "region": "US",
+      "currency": "USD",
+      "data_date": "03/09/2026",
+      "incentive_type": "transferable_tax_credit",
+      "monetization_rate": 0.85,
+      "monetization_note": "Transferable tax credit — default 85 cents on dollar.",
+      "headline_rate": "25%",
+      "eligible_production_types": ["Animation","Documentaries","Feature Films","Pilots","Post Only","Reality Television","Scripted Television"],
+      "ineligible_production_types": ["Commercials","Game Shows","Talk Shows","Video Games"],
+      "buckets": {
+        "resident_atl":    { "rate": 0.25, "notes": "Capped at first $500K in wages per individual (talent capped at first $1M) — MN withholding must be remitted" },
+        "resident_btl":    { "rate": 0.25, "notes": null },
+        "nonresident_atl": { "rate": 0.25, "notes": "LIMITED: Only ONE non-resident producer and ONE non-resident director per project (one each per episode if episodic), capped at first $500K each ($1M total non-res ATL cap) — MN withholding must be remitted" },
+        "nonresident_btl": { "rate": 0.20, "notes": null },
+        "spend":           { "rate": 0.25, "notes": "Direct costs incurred after certification letter date" }
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_spend_usd": 1000000
+      },
+      "caps": {
+        "annual_cap_usd": 25000000,
+        "annual_cap_note": "$70M currently available in fund",
+        "nonresident_atl_cap_per_individual_usd": 500000,
+        "nonresident_atl_total_cap_usd": 1000000
+      },
+      "sunset_date": "2030-12-31",
+      "requires_screen_credit": true,
+      "requires_cpa_audit": true,
+      "requires_loanout_registration": true,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Apply at least 30 but no more than 180 days prior to beginning of principal photography in MN.",
+      "flags": [
+        "CRITICAL: Non-resident ATL is limited to exactly ONE producer and ONE director per project — any additional non-resident ATL does not qualify.",
+        "If one person holds two ATL roles, they only qualify once.",
+        "MN withholding taxes must be remitted for ATL to qualify.",
+        "Non-resident BTL rate is 20%, lower than resident BTL at 25%.",
+        "Qualified spend only counts from certification letter date — do not incur costs before certification."
+      ]
+    },
+
+    {
+      "id": "us-nevada",
+      "name": "Nevada",
+      "country": "US",
+      "region": "US",
+      "currency": "USD",
+      "data_date": "03/08/2026",
+      "incentive_type": "transferable_tax_credit",
+      "monetization_rate": 0.85,
+      "monetization_note": "Transferable tax credit — default 85 cents on dollar. 4-year carry forward.",
+      "headline_rate": "12%-25%",
+      "eligible_production_types": ["Animation","Commercials","Documentaries","Feature Films","Game Shows","Pilots","Reality Television","Scripted Television","Talk Shows","Video Games"],
+      "ineligible_production_types": ["Post Only"],
+      "buckets": {
+        "resident_atl":    { "rate": 0.15, "notes": null },
+        "resident_btl":    { "rate": 0.15, "notes": null },
+        "nonresident_atl": { "rate": 0.12, "notes": "Lower rate for non-resident ATL specifically" },
+        "nonresident_btl": { "rate": null, "notes": "Not listed in PDF — verify with Nevada Film Office" },
+        "spend":           { "rate": 0.15, "notes": "Purchases and rentals from NV businesses only" }
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_spend_usd": 500000
+      },
+      "caps": {
+        "project_cap_usd": 6000000,
+        "compensation_cap_usd": 750000,
+        "annual_cap_usd": 10000000,
+        "carry_forward_years": 4
+      },
+      "sunset_date": null,
+      "requires_screen_credit": true,
+      "requires_cpa_audit": true,
+      "requires_loanout_registration": false,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Apply before start of principal photography. Can incur costs before application submission date. Must begin PP within 90 days of submission (180 days with extension). 18 months to complete from first PP day.",
+      "flags": [
+        "Non-Resident BTL rate not specified in PDF — verify with Nevada Film Office.",
+        "Non-Resident ATL (12%) is lower than Resident ATL (15%) — one of few states with ATL residency differential.",
+        "CRITICAL: At least 60% of total production budget (including pre/post) must be incurred in Nevada as qualified direct production expenditures.",
+        "Project cap of $6M is relatively low.",
+        "Most granular bucket structure of any US state — use all six buckets for calculation."
+      ]
+    },
+
+    {
+      "id": "us-oklahoma",
+      "name": "Oklahoma",
+      "country": "US",
+      "region": "US",
+      "currency": "USD",
+      "data_date": "03/08/2026",
+      "incentive_type": "discretionary_rebate",
+      "monetization_rate": 1.00,
+      "monetization_note": "Rebate — paid directly. No sale required. However application is discretionary — not guaranteed.",
+      "headline_rate": "20%-30%",
+      "eligible_production_types": ["Animation","Documentaries","Feature Films","Game Shows","Pilots","Post Only","Reality Television","Scripted Television","Talk Shows"],
+      "ineligible_production_types": ["Commercials","Video Games"],
+      "buckets": {
+        "resident_atl":    { "rate": 0.30, "notes": null },
+        "resident_btl":    { "rate": 0.30, "notes": null },
+        "nonresident_atl": { "rate": null, "notes": "Not listed — verify with Oklahoma Film + Music Office" },
+        "nonresident_btl": { "rate": 0.20, "notes": null },
+        "spend":           { "rate": 0.20, "notes": "Oklahoma expenditures through Oklahoma-based entities" }
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_total_budget_usd": 50000
+      },
+      "caps": {
+        "project_cap_usd": null,
+        "compensation_cap_usd": null,
+        "annual_cap_usd": 30000000
+      },
+      "sunset_date": "2031-06-30",
+      "requires_screen_credit": true,
+      "requires_cpa_audit": true,
+      "requires_loanout_registration": true,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Apply at least 45 days before principal photography. Application does not guarantee acceptance. OF+MO evaluates based on economic impact, tourism, branding, and funds available.",
+      "flags": [
+        "CRITICAL: Discretionary rebate — acceptance is NOT guaranteed.",
+        "OF+MO evaluates projects individually based on economic benefit to Oklahoma.",
+        "Mandatory apprentice hiring based on spend: under $7.5M QPE = 2 apprentices; $7.5M-$15M = 4; $15M-$25M = 8; over $25M = 16.",
+        "Non-resident ATL rate not listed — verify with film office."
+      ]
+    },
+
+    {
+      "id": "us-puerto_rico",
+      "name": "Puerto Rico",
+      "country": "US",
+      "region": "US_Territory",
+      "currency": "USD",
+      "data_date": "03/08/2026",
+      "incentive_type": "transferable_tax_credit",
+      "monetization_rate": 0.85,
+      "monetization_note": "Transferable tax credit — default 85 cents on dollar.",
+      "headline_rate": "20%-40%",
+      "eligible_production_types": ["Animation","Commercials","Documentaries","Feature Films","Game Shows","Pilots","Post Only","Reality Television","Scripted Television","Talk Shows","Video Games"],
+      "ineligible_production_types": [],
+      "buckets": {
+        "resident_atl":    { "rate": 0.40, "notes": null },
+        "resident_btl":    { "rate": 0.40, "notes": null },
+        "nonresident_atl": { "rate": 0.20, "notes": null },
+        "nonresident_btl": { "rate": 0.20, "notes": null },
+        "spend":           { "rate": 0.40, "notes": "All preproduction, production, and postproduction costs incurred in Puerto Rico" }
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_spend_usd": 50000
+      },
+      "caps": {
+        "project_cap_usd": null,
+        "compensation_cap_usd": null,
+        "annual_cap_usd": 38000000
+      },
+      "sunset_date": null,
+      "requires_screen_credit": true,
+      "requires_cpa_audit": true,
+      "requires_loanout_registration": true,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Contact film office for more information on available funding.",
+      "flags": [
+        "Highest resident rate in entire US dataset at 40%.",
+        "Non-residents who live in Puerto Rico for 183+ days become residents and qualify for 40% rate.",
+        "Significant gap between resident (40%) and non-resident (20%) rates — crew residency matters greatly.",
+        "Annual cap of $38M — verify availability."
+      ]
+    },
+
+    {
+      "id": "us-tennessee",
+      "name": "Tennessee",
+      "country": "US",
+      "region": "US",
+      "currency": "USD",
+      "data_date": "03/08/2026",
+      "incentive_type": "grant",
+      "monetization_rate": 1.00,
+      "monetization_note": "Grant — paid directly at 100 cents.",
+      "headline_rate": "25%-30%",
+      "eligible_production_types": ["Feature Films","Pilots","Scripted Television"],
+      "ineligible_production_types": ["Animation","Commercials","Documentaries","Game Shows","Post Only","Reality Television","Talk Shows","Video Games"],
+      "production_type_notes": "Non-resident ATL and BTL coverage restricted to SCRIPTED TV ONLY. Reality, unscripted, and other formats do not qualify for non-resident labor.",
+      "buckets": {
+        "resident_atl":    { "rate": 0.25, "notes": null },
+        "resident_btl":    { "rate": 0.25, "notes": null },
+        "nonresident_atl": { "rate": 0.25, "notes": "SCRIPTED TV ONLY — zero for all other formats" },
+        "nonresident_btl": { "rate": 0.25, "notes": "SCRIPTED TV ONLY — zero for all other formats" },
+        "spend":           { "rate": 0.25, "notes": null }
+      },
+      "uplifts": [
+        {
+          "id": "tn-logo-uplift",
+          "label": "Filmed in Tennessee Logo",
+          "amount": 0.05,
+          "max_rate": 0.30,
+          "applies_to": ["resident_labor"],
+          "condition": "Scripted TV projects only that include a Filmed in TN logo",
+          "prompt": "Is this a scripted TV project that will include the Filmed in Tennessee logo?"
+        }
+      ],
+      "minimums": {
+        "min_spend_film_pilot_usd": 200000,
+        "min_spend_scripted_tv_per_episode_usd": 500000
+      },
+      "caps": {
+        "project_cap_usd": null,
+        "compensation_cap_resident_usd": 250000,
+        "compensation_cap_nonresident_season_usd": 2000000,
+        "annual_cap": "Determined annually"
+      },
+      "sunset_date": null,
+      "requires_screen_credit": true,
+      "requires_cpa_audit": true,
+      "requires_loanout_registration": true,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Recommended to submit at least 4 months before start of principal photography.",
+      "flags": [
+        "CRITICAL: Non-resident ATL and BTL only qualify for SCRIPTED TV — reality, unscripted, docs, etc. get zero on non-resident labor.",
+        "Annual funding amount determined on annual basis — not a fixed cap.",
+        "Logo uplift for scripted TV only.",
+        "Compensation caps are low: $250K per resident, $2M total non-resident per season.",
+        "Also offers qualified production credit to offset franchise and excise tax — separate from main incentive."
+      ]
+    },
+
+    {
+      "id": "us-texas",
+      "name": "Texas",
+      "country": "US",
+      "region": "US",
+      "currency": "USD",
+      "data_date": "03/08/2026",
+      "incentive_type": "grant",
+      "monetization_rate": 1.00,
+      "monetization_note": "Grant — paid directly at 100 cents.",
+      "headline_rate": "5%-22.5%",
+      "eligible_production_types": ["Animation","Commercials","Documentaries","Feature Films","Game Shows","Pilots","Reality Television","Scripted Television","Talk Shows","Video Games"],
+      "ineligible_production_types": ["Post Only"],
+      "buckets": {
+        "resident_atl":    { "rate": "tiered", "notes": "5-20% based on spend tier" },
+        "resident_btl":    { "rate": "tiered", "notes": "5-20% based on spend tier" },
+        "nonresident_atl": { "rate": null, "notes": "Not listed — verify with Texas Film Commission" },
+        "nonresident_btl": { "rate": null, "notes": "Not listed — verify with Texas Film Commission" },
+        "spend":           { "rate": "tiered", "notes": "Payments to Texas companies for goods and services domiciled and used in Texas" }
+      },
+      "tier_structure": [
+        { "min_spend_usd": 250000,  "max_spend_usd": 999999,  "rate": 0.05 },
+        { "min_spend_usd": 1000000, "max_spend_usd": 3499999, "rate": 0.10 },
+        { "min_spend_usd": 3500000, "max_spend_usd": null,    "rate": 0.20 }
+      ],
+      "uplifts": [
+        {
+          "id": "tx-rural-uplift",
+          "label": "Rural Location Uplift",
+          "amount": 0.025,
+          "applies_to": ["spend"],
+          "condition": "25% of production occurs in designated area",
+          "prompt": "Will at least 25% of this production occur in a Texas rural or designated area?"
+        },
+        {
+          "id": "tx-veteran-uplift",
+          "label": "Texas Resident Veteran Uplift",
+          "amount": 0.025,
+          "applies_to": ["spend"],
+          "condition": "5% of total paid crew and cast (including extras) are Texas Resident Veterans",
+          "prompt": "Will at least 5% of total paid crew and cast be Texas Resident Veterans?"
+        },
+        {
+          "id": "tx-post-uplift",
+          "label": "Post-Production Uplift",
+          "amount": 0.025,
+          "applies_to": ["spend"],
+          "condition": "10% of total eligible in-state spending is on qualified post-production costs",
+          "prompt": "Will at least 10% of total eligible in-state spending be on qualified post-production costs?"
+        }
+      ],
+      "minimums": {
+        "min_spend_5pct_usd": 250000,
+        "min_spend_10pct_usd": 1000000,
+        "min_spend_20pct_usd": 3500000,
+        "min_filming_days_pct": 0.60
+      },
+      "caps": {
+        "project_cap_usd": null,
+        "compensation_cap_usd": 1000000,
+        "annual_cap": "Contact TFC for funding availability"
+      },
+      "sunset_date": null,
+      "requires_screen_credit": true,
+      "requires_cpa_audit": false,
+      "requires_loanout_registration": false,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Apply no earlier than 180 days prior and no later than 5 business days before first day of production. Contact TFC Incentives Team for application link — links valid for 7 days only.",
+      "flags": [
+        "Annual cap amount is not published — must contact Texas Film Commission for current availability.",
+        "60% of total production days must be completed in Texas.",
+        "55% of paid crew AND 55% of paid cast (including extras) must be Texas residents.",
+        "Three stackable 2.5% uplifts available.",
+        "Non-resident rates not listed in PDF — verify with Texas Film Commission."
+      ]
+    },
+
+    {
+      "id": "us-washington",
+      "name": "Washington",
+      "country": "US",
+      "region": "US",
+      "currency": "USD",
+      "data_date": "03/08/2026",
+      "incentive_type": "rebate",
+      "monetization_rate": 1.00,
+      "monetization_note": "Rebate — paid directly at 100 cents.",
+      "headline_rate": "15%-45%",
+      "eligible_production_types": ["Animation","Feature Films","Pilots","Scripted Television"],
+      "ineligible_production_types": ["Commercials","Game Shows","Post Only","Talk Shows","Video Games"],
+      "production_type_notes": "Documentaries and Reality TV qualified on case-by-case basis only.",
+      "buckets": {
+        "resident_atl":    { "rate": 0.30, "notes": null },
+        "resident_btl":    { "rate": 0.30, "notes": null },
+        "nonresident_atl": { "rate": null, "notes": "Not listed" },
+        "nonresident_btl": { "rate": 0.15, "notes": null },
+        "spend":           { "rate": "30-45%", "notes": "Base 30% plus uplifts" }
+      },
+      "uplifts": [
+        {
+          "id": "wa-episodic-uplift",
+          "label": "Episodic Series Uplift",
+          "amount": 0.05,
+          "applies_to": ["spend"],
+          "condition": "Episodic series with at least 6 episodes",
+          "prompt": "Is this an episodic series with at least 6 episodes?"
+        },
+        {
+          "id": "wa-rural-underrepresented-uplift",
+          "label": "Rural or Underrepresented Community Uplift",
+          "amount": 0.10,
+          "applies_to": ["spend"],
+          "condition": "Filming in a rural county OR telling the story of a historically underrepresented community",
+          "prompt": "Is this production filming in a Washington rural county OR telling the story of a historically underrepresented community?"
+        }
+      ],
+      "minimums": {
+        "min_spend_film_usd": 500000,
+        "min_spend_tv_usd": 300000,
+        "min_spend_commercial_usd": 150000
+      },
+      "caps": {
+        "project_cap_usd": null,
+        "compensation_cap_nonresident_usd": 50000,
+        "annual_cap_usd": 15000000
+      },
+      "sunset_date": "2030-06-30",
+      "requires_screen_credit": true,
+      "requires_cpa_audit": false,
+      "requires_loanout_registration": false,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Washington Filmworks opens preliminary application window in Q1 each year. Fully funded projects invited to submit for board review.",
+      "flags": [
+        "Application window opens Q1 only — timing critical.",
+        "Reality TV and Documentaries are case-by-case only — not guaranteed.",
+        "Non-resident labor compensation cap is extremely low at $50K.",
+        "Up to 45% achievable with both uplifts stacked.",
+        "Annual cap of $15M is relatively low."
+      ]
+    },
+
+    {
+      "id": "intl-australia-nsw",
+      "name": "Australia - New South Wales",
+      "country": "Australia",
+      "region": "International",
+      "currency": "AUD",
+      "data_date": "03/08/2026",
+      "incentive_type": "grant_rebate",
+      "monetization_rate": 1.00,
+      "monetization_note": "Grant/Rebate — paid directly. Stackable with Australian Federal incentives.",
+      "headline_rate": "Not published — contact Screen NSW",
+      "eligible_production_types": ["Animation","Documentaries","Feature Films","Pilots","Post Only","Reality Television","Scripted Television","Video Games"],
+      "ineligible_production_types": ["Commercials","Game Shows","Talk Shows"],
+      "buckets": {
+        "spend": { "rate": "contact_for_details", "notes": "Made in NSW fund — rate not published in this PDF" }
+      },
+      "uplifts": [
+        {
+          "id": "nsw-pdv-rebate",
+          "label": "NSW PDV Rebate",
+          "amount": 0.10,
+          "applies_to": ["post_production_digital_vfx"],
+          "condition": "PDV work carried out in NSW",
+          "prompt": null
+        }
+      ],
+      "minimums": { "min_spend_usd": null },
+      "caps": {
+        "fund_total_aud": 180000000
+      },
+      "sunset_date": null,
+      "requires_screen_credit": true,
+      "requires_cpa_audit": true,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Applications made online. Stackable with Australian Federal Location Offset, PDV Offset, and Producer Offset.",
+      "flags": [
+        "Rate not published — treat as contact-for-details location.",
+        "Made in NSW fund allocated AU$180M for future years in 2025 state budget.",
+        "Stacks with Australian Federal program — see Australia Federal entry.",
+        "10% PDV rebate available separately for qualifying post/VFX work."
+      ]
+    },
+
+    {
+      "id": "intl-australia-northern_territory",
+      "name": "Australia - Northern Territory",
+      "country": "Australia",
+      "region": "International",
+      "currency": "AUD",
+      "data_date": "03/08/2026",
+      "incentive_type": "discretionary_grant",
+      "monetization_rate": 1.00,
+      "monetization_note": "Discretionary grant — amount at Screen Territory's discretion based on funding availability.",
+      "headline_rate": "Discretionary — percentage of qualifying NT expenditure",
+      "eligible_production_types": ["Documentaries","Feature Films","Scripted Television"],
+      "ineligible_production_types": ["Animation","Commercials","Game Shows","Pilots","Post Only","Reality Television","Talk Shows","Video Games"],
+      "buckets": {
+        "resident_atl": { "rate": "discretionary", "notes": null },
+        "resident_btl": { "rate": "discretionary", "notes": null },
+        "spend":        { "rate": "discretionary", "notes": null }
+      },
+      "uplifts": [],
+      "minimums": { "min_spend_aud": 2000000 },
+      "caps": { "project_cap": "Discretionary" },
+      "sunset_date": null,
+      "requires_screen_credit": false,
+      "requires_cpa_audit": false,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Applications year round. Must be approved before commencement of production. Cannot seek funding retrospectively. Project must be footloose and have marketplace interest.",
+      "flags": [
+        "Fully discretionary — no published rate or guaranteed amount.",
+        "Must be footloose — production cannot already be locked into NT.",
+        "Must engage NT resident screen industry practitioners in meaningful employment.",
+        "Stacks with Australian Federal program."
+      ]
+    },
+
+    {
+      "id": "intl-australia-south_australia",
+      "name": "Australia - South Australia",
+      "country": "Australia",
+      "region": "International",
+      "currency": "AUD",
+      "data_date": "03/08/2026",
+      "incentive_type": "grant",
+      "monetization_rate": 1.00,
+      "monetization_note": "Grant — paid directly. Stackable with Australian Federal incentives.",
+      "headline_rate": "10%",
+      "eligible_production_types": ["Animation","Documentaries","Feature Films","Pilots","Post Only","Scripted Television","Video Games"],
+      "ineligible_production_types": ["Commercials","Game Shows","Reality Television","Talk Shows"],
+      "buckets": {
+        "resident_atl": { "rate": 0.10, "notes": null },
+        "resident_btl": { "rate": 0.10, "notes": null },
+        "spend":        { "rate": 0.10, "notes": null }
+      },
+      "uplifts": [],
+      "minimums": { "min_spend_aud": null },
+      "caps": {},
+      "sunset_date": null,
+      "requires_screen_credit": false,
+      "requires_cpa_audit": false,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Applications open all year, considered by SAFC Board. Must be received no later than 6 weeks prior to Board Meeting.",
+      "flags": [
+        "Stacks with Australian Federal Location Offset, Location Incentive, PDV Offset, and Producer Offset.",
+        "Separate non-discretionary 10% rebate for post-production, digital, and VFX work.",
+        "10% Video Game Development Rebate also available."
+      ]
+    },
+
+    {
+      "id": "intl-australia-victoria",
+      "name": "Australia - Victoria",
+      "country": "Australia",
+      "region": "International",
+      "currency": "AUD",
+      "data_date": "03/08/2026",
+      "incentive_type": "grant",
+      "monetization_rate": 1.00,
+      "monetization_note": "Grant — paid directly. Stackable with Australian Federal incentives.",
+      "headline_rate": "10%",
+      "eligible_production_types": ["Animation","Documentaries","Feature Films","Pilots","Post Only","Reality Television","Scripted Television","Video Games"],
+      "ineligible_production_types": ["Commercials","Game Shows","Talk Shows"],
+      "buckets": {
+        "spend": { "rate": 0.10, "notes": null }
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_spend_aud": 3500000,
+        "min_spend_animation_vfx_aud": 1000000,
+        "min_spend_post_aud": 500000
+      },
+      "caps": {},
+      "sunset_date": null,
+      "requires_screen_credit": false,
+      "requires_cpa_audit": false,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Must be approved by Film Victoria prior to commencing activities for which incentive is sought.",
+      "flags": [
+        "Stacks with Australian Federal Location Offset, Location Incentive, PDV Offset, Official Co-production, and Producer Offset."
+      ]
+    },
+
+    {
+      "id": "intl-australia-western_australia",
+      "name": "Australia - Western Australia",
+      "country": "Australia",
+      "region": "International",
+      "currency": "AUD",
+      "data_date": "03/08/2026",
+      "incentive_type": "grant",
+      "monetization_rate": 1.00,
+      "monetization_note": "Grant — paid directly. Minimum 10% of QWAE. Stackable with Australian Federal.",
+      "headline_rate": "Minimum 10% of QWAE",
+      "eligible_production_types": ["Animation","Documentaries","Feature Films","Pilots","Post Only","Scripted Television"],
+      "ineligible_production_types": ["Commercials","Game Shows","Reality Television","Talk Shows","Video Games"],
+      "buckets": {
+        "spend": { "rate": "minimum_0.10", "notes": "Minimum 10% of Qualifying Western Australia Expenditure (QWAE)" }
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_qwae_aud": 3500000,
+        "min_regional_scripted_aud": 500000,
+        "min_regional_documentary_aud": 100000
+      },
+      "caps": {
+        "regional_screen_fund_max_aud": 2000000,
+        "pdv_rebate_rate": 0.20
+      },
+      "sunset_date": null,
+      "requires_screen_credit": false,
+      "requires_cpa_audit": false,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Production must be footloose and have genuine marketplace interest. Stacks with Australian Screen Production Incentive.",
+      "flags": [
+        "Rate is negotiated — minimum 10% but actual amount depends on project.",
+        "WA PDV Incentive: separate 20% rebate on qualifying WA post/VFX expenditure.",
+        "Regional Screen Fund available separately — up to AU$2M based on 2:1 ratio of QWAE.",
+        "Must be footloose."
+      ]
+    },
+
+    {
+      "id": "intl-british_columbia",
+      "name": "British Columbia",
+      "country": "Canada",
+      "region": "International",
+      "currency": "CAD",
+      "data_date": "03/08/2026",
+      "incentive_type": "refundable_tax_credit_stacked",
+      "monetization_rate": 1.00,
+      "monetization_note": "Refundable provincial tax credit (36%) stackable with Canadian Federal incentive (16% on net qualifying Canadian labour). Combined effective rate is 46.2% on qualifying labour.",
+      "headline_rate": "46.2% effective (36% provincial + 16% federal on net labour)",
+      "eligible_production_types": ["Animation","Documentaries","Feature Films","Pilots","Post Only","Reality Television","Scripted Television"],
+      "ineligible_production_types": ["Commercials","Game Shows","Talk Shows","Video Games"],
+      "buckets": {
+        "resident_atl": { "rate": 0.462, "notes": "Combined provincial + federal effective rate on qualifying Canadian labour" },
+        "resident_btl": { "rate": 0.462, "notes": "Combined provincial + federal effective rate on qualifying Canadian labour" },
+        "spend":        { "rate": null, "notes": "Credit applies to qualifying BC labour expenditure only — not general spend" }
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_spend_film_cad": 1000000,
+        "min_spend_tv_over_30min_per_episode_cad": 200000,
+        "min_spend_tv_under_30min_per_episode_cad": 100000
+      },
+      "caps": {
+        "project_cap_cad": null,
+        "compensation_cap_cad": null,
+        "annual_cap_cad": null
+      },
+      "sunset_date": null,
+      "requires_screen_credit": false,
+      "requires_cpa_audit": false,
+      "requires_loanout_registration": false,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Submit completed PSTC Application to Creative BC. Can apply for Accreditation Certificate any time during production or after completion.",
+      "flags": [
+        "Highest effective rate in entire dataset at 46.2% combined.",
+        "LABOUR ONLY — credit applies to qualifying BC labour expenditure only, not general production spend.",
+        "Federal 16% applies to qualifying Canadian labour NET of provincial assistance — stacking math is not simply additive.",
+        "No caps of any kind — uncapped program.",
+        "Currency is CAD — apply current exchange rate for USD comparison."
+      ]
+    },
+
+    {
+      "id": "intl-france",
+      "name": "France",
+      "country": "France",
+      "region": "International",
+      "currency": "EUR",
+      "data_date": "03/08/2026",
+      "incentive_type": "rebate",
+      "monetization_rate": 1.00,
+      "monetization_note": "Rebate (TRIP) — paid directly at 100 cents.",
+      "headline_rate": "30%-40%",
+      "eligible_production_types": ["Animation","Feature Films","Pilots","Scripted Television"],
+      "ineligible_production_types": ["Commercials","Documentaries","Game Shows","Post Only","Reality Television","Talk Shows","Video Games"],
+      "buckets": {
+        "resident_atl": { "rate": 0.30, "notes": null },
+        "resident_btl": { "rate": 0.30, "notes": null },
+        "spend":        { "rate": 0.30, "notes": "Must be incurred in France by PSC after date of provisional application reception" }
+      },
+      "uplifts": [
+        {
+          "id": "fr-vfx-uplift",
+          "label": "VFX Uplift",
+          "amount": 0.10,
+          "max_rate": 0.40,
+          "applies_to": ["vfx_spend"],
+          "condition": "Project has more than €2M in VFX-related eligible French expenses",
+          "prompt": "Does this production have more than €2M in VFX-related eligible French expenses?"
+        }
+      ],
+      "minimums": {
+        "min_spend_eur": 250000,
+        "min_spend_note": "Or 50% of production budget, whichever is less",
+        "min_filming_days": 5
+      },
+      "caps": {
+        "project_cap_eur": 30000000,
+        "annual_cap_eur": null
+      },
+      "sunset_date": null,
+      "requires_screen_credit": false,
+      "requires_cpa_audit": false,
+      "requires_local_production_company": true,
+      "requires_cultural_test": true,
+      "application_notes": "French PSC applies for provisional qualification at CNC. Must include signed preliminary production service agreement (PSA).",
+      "flags": [
+        "Requires a French production services company (PSC) to apply.",
+        "VFX uplift threshold is €2M in French VFX expenses — significant threshold.",
+        "Qualifying expenditures START from date of provisional application reception — do not incur costs before application.",
+        "Currency is EUR — apply current exchange rate for USD comparison."
+      ]
+    },
+
+    {
+      "id": "intl-greece",
+      "name": "Greece",
+      "country": "Greece",
+      "region": "International",
+      "currency": "EUR",
+      "data_date": "03/08/2026",
+      "incentive_type": "rebate",
+      "monetization_rate": 1.00,
+      "monetization_note": "Rebate — paid directly at 100 cents.",
+      "headline_rate": "40%",
+      "eligible_production_types": ["Animation","Documentaries","Feature Films","Post Only","Scripted Television","Video Games"],
+      "ineligible_production_types": ["Commercials","Game Shows","Reality Television","Talk Shows"],
+      "buckets": {
+        "resident_atl":    { "rate": 0.40, "notes": null },
+        "resident_btl":    { "rate": 0.40, "notes": null },
+        "nonresident_atl": { "rate": 0.40, "notes": "Alien cast/crew must be subject to Greek taxation and insurance and have valid contract with Greek company" },
+        "nonresident_btl": { "rate": 0.40, "notes": "Alien cast/crew must be subject to Greek taxation and insurance and have valid contract with Greek company" },
+        "spend":           { "rate": 0.40, "notes": "Eligible costs may not exceed 80% of total costs" }
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_spend_features_animation_eur": 100000,
+        "min_spend_tv_per_episode_eur": "15000-25000",
+        "min_spend_tv_per_series_eur": 100000,
+        "min_spend_documentary_eur": 60000,
+        "min_filming_days": null
+      },
+      "caps": {
+        "project_cap_eur": 12000000,
+        "compensation_cap_atl_note": "35% of eligible Greek spend on ATL — no cap for BTL",
+        "annual_cap_eur": 75000000
+      },
+      "sunset_date": null,
+      "requires_screen_credit": false,
+      "requires_cpa_audit": false,
+      "requires_local_production_company": true,
+      "requires_cultural_test": true,
+      "application_notes": "Applications submitted to EKOME year round, no later than 10 days before beginning of production or post-production.",
+      "flags": [
+        "40% flat rate across all buckets — one of the highest in dataset.",
+        "Eligible costs may NOT exceed 80% of total costs — similar cap to Morocco's 90% rule.",
+        "Non-resident cast/crew qualify only if subject to Greek taxation and insurance and contracted with Greek company.",
+        "ATL compensation cap is 35% of eligible Greek spend — unusual percentage-based cap rather than dollar amount.",
+        "Currency is EUR — apply current exchange rate for USD comparison."
+      ]
+    },
+
+    {
+      "id": "intl-ireland",
+      "name": "Ireland",
+      "country": "Ireland",
+      "region": "International",
+      "currency": "EUR",
+      "data_date": "03/08/2026",
+      "incentive_type": "rebate",
+      "monetization_rate": 1.00,
+      "monetization_note": "Rebate (Section 481) — paid directly. Can claim up to 90% based on budgeted expenses mid-production, remainder on completion.",
+      "headline_rate": "32%",
+      "eligible_production_types": ["Animation","Documentaries","Feature Films","Pilots","Post Only","Scripted Television"],
+      "ineligible_production_types": ["Commercials","Game Shows","Reality Television","Talk Shows","Video Games"],
+      "buckets": {
+        "resident_atl":    { "rate": 0.32, "notes": null },
+        "resident_btl":    { "rate": 0.32, "notes": null },
+        "nonresident_atl": { "rate": 0.32, "notes": null },
+        "nonresident_btl": { "rate": 0.32, "notes": null },
+        "spend":           { "rate": 0.32, "notes": "All cast, crew, goods and services sourced in Ireland including post and VFX" }
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_expenditure_eur": 125000,
+        "min_budget_eur": 250000
+      },
+      "caps": {
+        "project_cap_eur": 125000000,
+        "compensation_cap_eur": null,
+        "annual_cap_eur": null
+      },
+      "sunset_date": "2028-12-31",
+      "requires_screen_credit": false,
+      "requires_cpa_audit": false,
+      "requires_local_production_company": true,
+      "requires_cultural_test": true,
+      "application_notes": "Producer company must apply to Minister for Culture, Heritage and the Gaeltacht for qualifying film certificate at least 21 working days prior to commencement of Irish production.",
+      "flags": [
+        "32% flat across ALL buckets including non-resident ATL and BTL — one of cleanest international structures.",
+        "Includes post-production and VFX in qualifying spend.",
+        "Up to 90% of credit can be claimed mid-production based on budgeted expenses.",
+        "No compensation cap, no annual cap — very production-friendly.",
+        "€125M project cap is very high — rarely a constraint.",
+        "Currency is EUR — apply current exchange rate for USD comparison."
+      ]
+    },
+
+    {
+      "id": "intl-israel",
+      "name": "Israel",
+      "country": "Israel",
+      "region": "International",
+      "currency": "NIS",
+      "data_date": "03/08/2026",
+      "incentive_type": "rebate",
+      "monetization_rate": 1.00,
+      "monetization_note": "Rebate — 80% paid during filming, 20% after completion.",
+      "headline_rate": "30%",
+      "eligible_production_types": ["Documentaries","Feature Films","Post Only","Scripted Television"],
+      "ineligible_production_types": ["Animation","Commercials","Game Shows","Pilots","Reality Television","Talk Shows","Video Games"],
+      "buckets": {
+        "spend": { "rate": 0.30, "notes": "Direct costs incurred in Israel necessary to carry out production activity" }
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_spend_nis": 500000
+      },
+      "caps": {
+        "annual_cap_nis": 45000000
+      },
+      "sunset_date": null,
+      "requires_screen_credit": false,
+      "requires_cpa_audit": false,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Apply through an Israeli producer (e.g. PSN Israel Partner). Applicant must have history of producing and distributing at least 2 feature films or TV series in past 5 years.",
+      "flags": [
+        "80% of rebate paid DURING filming upon Ministry of Economy and Industry approval — cash flow advantage.",
+        "Must apply through an Israeli producer.",
+        "International production company must have track record: 2+ feature films or TV series in past 5 years.",
+        "2-year window to complete production and report expenses.",
+        "Currency is NIS — apply current exchange rate for USD comparison.",
+        "Related program: Israel - Jerusalem."
+      ]
+    },
+
+    {
+      "id": "intl-malaysia",
+      "name": "Malaysia",
+      "country": "Malaysia",
+      "region": "International",
+      "currency": "MYR",
+      "data_date": "03/08/2026",
+      "incentive_type": "rebate",
+      "monetization_rate": 1.00,
+      "monetization_note": "Rebate — paid directly at 100 cents.",
+      "headline_rate": "30%-35%",
+      "eligible_production_types": ["Animation","Documentaries","Feature Films","Pilots","Post Only","Reality Television","Scripted Television"],
+      "ineligible_production_types": ["Commercials","Game Shows","Talk Shows","Video Games"],
+      "buckets": {
+        "resident_atl":    { "rate": 0.30, "notes": null },
+        "resident_btl":    { "rate": 0.30, "notes": null },
+        "nonresident_atl": { "rate": 0.30, "notes": "Malaysia covers non-resident ATL and BTL at same rate as residents" },
+        "nonresident_btl": { "rate": 0.30, "notes": "Malaysia covers non-resident ATL and BTL at same rate as residents" },
+        "spend":           { "rate": 0.30, "notes": "Expenditure incurred in Malaysia for production and/or post-production" }
+      },
+      "uplifts": [
+        {
+          "id": "my-cultural-uplift",
+          "label": "Cultural Test Uplift",
+          "amount": 0.05,
+          "max_rate": 0.35,
+          "applies_to": ["production_spend"],
+          "condition": "Passes Cultural Test for production activities only in Malaysia",
+          "prompt": "Does this production expect to pass the Malaysia Cultural Test?"
+        }
+      ],
+      "minimums": {
+        "min_spend_film_tv_myr": 5000000,
+        "min_spend_post_myr": 1000000
+      },
+      "caps": {
+        "project_cap_myr": null,
+        "compensation_cap_myr": 7500000,
+        "annual_cap_myr": null
+      },
+      "sunset_date": null,
+      "requires_screen_credit": true,
+      "requires_cpa_audit": true,
+      "requires_local_production_company": false,
+      "requires_cultural_test": true,
+      "application_notes": "Applications must be submitted to FIMO at least 2 months before production date.",
+      "flags": [
+        "Covers non-resident ATL and BTL at same 30% rate as residents — very accessible for US productions.",
+        "At least 30% of production crew must be Malaysian citizens or permanent residents.",
+        "Cultural test uplift adds 5% on production activities only.",
+        "Currency is MYR — apply current exchange rate for USD comparison."
+      ]
+    },
+
+    {
+      "id": "intl-morocco",
+      "name": "Morocco",
+      "country": "Morocco",
+      "region": "International",
+      "currency": "MAD",
+      "data_date": "03/08/2026",
+      "incentive_type": "rebate",
+      "monetization_rate": 1.00,
+      "monetization_note": "Rebate — paid directly at 100 cents.",
+      "headline_rate": "30%",
+      "eligible_production_types": ["Documentaries","Feature Films","Scripted Television"],
+      "ineligible_production_types": ["Animation","Commercials","Game Shows","Pilots","Post Only","Reality Television","Talk Shows","Video Games"],
+      "buckets": {
+        "resident_atl": { "rate": 0.30, "notes": null },
+        "resident_btl": { "rate": 0.30, "notes": null },
+        "spend":        { "rate": 0.30, "notes": "Eligible expenses cannot exceed 90% of total budget invested in Morocco" }
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_spend_mad": 10000000,
+        "min_filming_days": 18,
+        "min_filming_days_note": "Set construction and principal photography combined"
+      },
+      "caps": {},
+      "sunset_date": null,
+      "requires_screen_credit": true,
+      "requires_cpa_audit": true,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Send requests to Secretary of Commission for Foreign Production Support. Commission meets twice a year minimum.",
+      "flags": [
+        "CRITICAL: Qualifying expenses cannot exceed 90% of total budget invested in Morocco.",
+        "Commission meets only twice a year minimum — application timing critical.",
+        "Minimum 18 filming days (set construction + principal photography).",
+        "Currency is MAD (Moroccan Dirham) — apply current exchange rate for USD comparison."
+      ]
+    },
+
+    {
+      "id": "intl-new_zealand",
+      "name": "New Zealand",
+      "country": "New Zealand",
+      "region": "International",
+      "currency": "NZD",
+      "data_date": "03/08/2026",
+      "incentive_type": "rebate",
+      "monetization_rate": 1.00,
+      "monetization_note": "Rebate — paid directly at 100 cents.",
+      "headline_rate": "20%-25%",
+      "eligible_production_types": ["Animation","Documentaries","Feature Films","Pilots","Post Only","Reality Television","Scripted Television"],
+      "ineligible_production_types": ["Commercials","Game Shows","Talk Shows","Video Games"],
+      "buckets": {
+        "resident_atl":    { "rate": 0.20, "notes": null },
+        "resident_btl":    { "rate": 0.20, "notes": null },
+        "nonresident_atl": { "rate": 0.20, "notes": "Non-NZ cast/crew qualify if working on production in NZ" },
+        "nonresident_btl": { "rate": 0.20, "notes": "Non-NZ crew qualify if they work on production in NZ for at least 14 days total" },
+        "spend":           { "rate": 0.20, "notes": "Spend incurred in NZ on the production" }
+      },
+      "uplifts": [
+        {
+          "id": "nz-economic-benefit-uplift",
+          "label": "Significant Economic Benefit Uplift",
+          "amount": 0.05,
+          "max_rate": 0.25,
+          "applies_to": ["spend"],
+          "condition": "Production meets certain spend criteria and can demonstrate significant economic benefits to NZ",
+          "prompt": "Does this production meet the criteria for significant economic benefit to New Zealand?"
+        }
+      ],
+      "minimums": {
+        "min_spend_film_nzd": 15000000,
+        "min_spend_tv_nzd": 4000000,
+        "min_spend_post_nzd": 250000
+      },
+      "caps": {
+        "project_cap_nzd": null,
+        "annual_cap_nzd": null
+      },
+      "sunset_date": null,
+      "requires_screen_credit": true,
+      "requires_cpa_audit": true,
+      "requires_local_production_company": true,
+      "requires_cultural_test": false,
+      "application_notes": "Applicant must be NZ resident company or foreign corporation with fixed establishment in NZ for tax purposes. Must register with NZFC before start of principal photography.",
+      "flags": [
+        "Non-NZ crew qualify if they work in NZ for at least 14 days total — relatively accessible.",
+        "Minimum spend thresholds are high: NZ$15M for film.",
+        "Must register with NZFC before start of principal photography.",
+        "Currency is NZD — apply current exchange rate for USD comparison."
+      ]
+    },
+
+    {
+      "id": "intl-norway",
+      "name": "Norway",
+      "country": "Norway",
+      "region": "International",
+      "currency": "NOK",
+      "data_date": "03/08/2026",
+      "incentive_type": "grant",
+      "monetization_rate": 1.00,
+      "monetization_note": "Grant — paid directly at 100 cents.",
+      "headline_rate": "25%",
+      "eligible_production_types": ["Documentaries","Feature Films","Scripted Television"],
+      "ineligible_production_types": ["Animation","Commercials","Game Shows","Pilots","Post Only","Reality Television","Talk Shows","Video Games"],
+      "buckets": {
+        "resident_atl": { "rate": 0.25, "notes": "Costs arising in Norway paid to Norwegian taxpayers" },
+        "resident_btl": { "rate": 0.25, "notes": "Costs arising in Norway paid to Norwegian taxpayers" },
+        "spend":        { "rate": 0.25, "notes": "Costs arising in Norway paid to Norwegian taxpayers" }
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_budget_film_nok": 25000000,
+        "min_budget_tv_documentary_nok": 10000000,
+        "min_spend_all_projects_nok": 4000000
+      },
+      "caps": {},
+      "sunset_date": null,
+      "requires_screen_credit": false,
+      "requires_cpa_audit": false,
+      "requires_local_production_company": false,
+      "requires_cultural_test": true,
+      "application_notes": "Must be submitted before start of production in Norway via Norwegian Film Institute online form. Application must be in Norwegian or English.",
+      "flags": [
+        "Most restrictive eligible production type list of all international locations — only Docs, Feature Films, Scripted TV.",
+        "30% of financing must come from international sources outside Norway.",
+        "Must document an international distribution agreement.",
+        "Grant decisions valid for 12 months with possible 1-year force majeure extension.",
+        "Currency is NOK — apply current exchange rate for USD comparison."
+      ]
+    },
+
+    {
+      "id": "intl-philippines",
+      "name": "Philippines",
+      "country": "Philippines",
+      "region": "International",
+      "currency": "PHP",
+      "data_date": "03/08/2026",
+      "incentive_type": "rebate",
+      "monetization_rate": 1.00,
+      "monetization_note": "Rebate — paid directly at 100 cents.",
+      "headline_rate": "20%-25%",
+      "eligible_production_types": ["Animation","Documentaries","Feature Films","Pilots","Post Only","Reality Television","Scripted Television"],
+      "ineligible_production_types": ["Commercials","Game Shows","Talk Shows","Video Games"],
+      "buckets": {
+        "resident_atl": { "rate": 0.20, "notes": null },
+        "resident_btl": { "rate": 0.20, "notes": null },
+        "spend":        { "rate": 0.20, "notes": "Development, preproduction, production, and postproduction expenses" }
+      },
+      "uplifts": [
+        {
+          "id": "ph-cultural-uplift",
+          "label": "Cultural Test Uplift",
+          "amount": 0.05,
+          "max_rate": 0.25,
+          "applies_to": ["spend"],
+          "condition": "Passes Philippine Cultural Test",
+          "cap_php": 30000000,
+          "prompt": "Does this production expect to pass the Philippines Cultural Test?"
+        }
+      ],
+      "minimums": {
+        "min_spend_film_php": 20000000,
+        "min_spend_tv_per_episode_php": 3000000,
+        "min_spend_documentary_php": 8000000
+      },
+      "caps": {
+        "project_cap_php": 25000000,
+        "cultural_uplift_cap_php": 30000000
+      },
+      "sunset_date": null,
+      "requires_screen_credit": false,
+      "requires_cpa_audit": false,
+      "requires_local_production_company": false,
+      "requires_cultural_test": true,
+      "application_notes": "Contact FPO early. Must submit Provisional Application Form and all required documents BEFORE spending any QPPE in the Philippines.",
+      "flags": [
+        "Must submit provisional application BEFORE spending any money in the Philippines.",
+        "Cultural test uplift (5%) is capped at PHP 30M — not an uncapped percentage.",
+        "Project cap is relatively low at PHP 25M.",
+        "Currency is PHP — apply current exchange rate for USD comparison."
+      ]
+    },
+
+    {
+      "id": "intl-quebec",
+      "name": "Quebec",
+      "country": "Canada",
+      "region": "International",
+      "currency": "CAD",
+      "data_date": "03/08/2026",
+      "incentive_type": "refundable_tax_credit_stacked",
+      "monetization_rate": 1.00,
+      "monetization_note": "Refundable provincial tax credit (25%) stackable with Canadian Federal incentive (16% on net qualifying Canadian labour). Combined effective rate is 37% on qualifying labour.",
+      "headline_rate": "37% effective (25% provincial + 16% federal on net labour)",
+      "eligible_production_types": ["Animation","Documentaries","Feature Films","Pilots","Post Only","Scripted Television"],
+      "ineligible_production_types": ["Commercials","Game Shows","Reality Television","Talk Shows","Video Games"],
+      "buckets": {
+        "resident_atl": { "rate": 0.37, "notes": "Combined effective rate on qualifying labour" },
+        "resident_btl": { "rate": 0.37, "notes": "Combined effective rate on qualifying labour" },
+        "spend":        { "rate": 0.25, "notes": "All-spend production costs directly attributable to completion of qualified production" }
+      },
+      "uplifts": [
+        {
+          "id": "qc-animation-vfx-uplift",
+          "label": "Animation and Special Effects Labour Uplift",
+          "amount": 0.16,
+          "applies_to": ["qualifying_animation_special_effects_labour"],
+          "condition": "Qualifying animation and special effects Quebec labour",
+          "prompt": "Does this production have qualifying animation or special effects Quebec labour?"
+        }
+      ],
+      "minimums": {
+        "min_spend_cad": 250000
+      },
+      "caps": {
+        "project_cap_cad": null,
+        "compensation_cap_cad": null,
+        "annual_cap_cad": null
+      },
+      "sunset_date": null,
+      "requires_screen_credit": true,
+      "requires_cpa_audit": false,
+      "requires_loanout_registration": false,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Applications must be submitted prior to the taxation year end for which the claim will be made.",
+      "flags": [
+        "Federal 16% applies to qualifying Canadian labour NET of provincial assistance — stacking math is not simply additive.",
+        "No caps of any kind — uncapped program.",
+        "Currency is CAD — apply current exchange rate for USD comparison.",
+        "Animation/VFX labour gets additional 16% uplift on qualifying QC labour."
+      ]
+    },
+
+    {
+      "id": "intl-romania",
+      "name": "Romania",
+      "country": "Romania",
+      "region": "International",
+      "currency": "EUR",
+      "data_date": "03/08/2026",
+      "incentive_type": "rebate",
+      "monetization_rate": 1.00,
+      "monetization_note": "Rebate — paid directly at 100 cents. First-come, first-served.",
+      "headline_rate": "35%-45%",
+      "eligible_production_types": ["Animation","Documentaries","Feature Films","Pilots","Scripted Television"],
+      "ineligible_production_types": ["Commercials","Game Shows","Post Only","Reality Television","Talk Shows","Video Games"],
+      "buckets": {
+        "resident_atl": { "rate": 0.35, "notes": null },
+        "resident_btl": { "rate": 0.35, "notes": null },
+        "spend":        { "rate": 0.35, "notes": null }
+      },
+      "uplifts": [
+        {
+          "id": "ro-promotional-uplift",
+          "label": "Romania Promotional Uplift",
+          "amount": 0.10,
+          "max_rate": 0.45,
+          "applies_to": ["spend"],
+          "condition": "Project explicitly promotes Romania — country, region, city, or landmarks",
+          "prompt": "Does this project explicitly promote Romania (country, region, city, or landmarks)?"
+        }
+      ],
+      "minimums": {
+        "min_spend_eur": 100000
+      },
+      "caps": {
+        "project_cap_eur": 10000000,
+        "annual_cap_eur": 50000000
+      },
+      "sunset_date": null,
+      "requires_screen_credit": false,
+      "requires_cpa_audit": false,
+      "requires_local_production_company": true,
+      "requires_cultural_test": true,
+      "application_notes": "Rebate awarded on first-come, first-served basis.",
+      "flags": [
+        "First-come, first-served — annual cap of €50M can be exhausted.",
+        "Very low minimum spend of €100K — accessible for smaller productions.",
+        "35% + 10% promotional uplift = 45% potential — tied for highest ceiling in dataset.",
+        "Currency is EUR — apply current exchange rate for USD comparison."
+      ]
+    },
+
+    {
+      "id": "intl-south_africa",
+      "name": "South Africa",
+      "country": "South Africa",
+      "region": "International",
+      "currency": "ZAR",
+      "data_date": "03/08/2026",
+      "incentive_type": "rebate",
+      "monetization_rate": 1.00,
+      "monetization_note": "Rebate — paid directly at 100 cents.",
+      "headline_rate": "20%-30%",
+      "eligible_production_types": ["Documentaries","Feature Films","Pilots","Post Only","Scripted Television"],
+      "ineligible_production_types": ["Animation","Commercials","Game Shows","Reality Television","Talk Shows","Video Games"],
+      "buckets": {
+        "resident_atl": { "rate": 0.25, "notes": "Qualifying South African Production Expenditure (QSAPE)" },
+        "resident_btl": { "rate": 0.25, "notes": "Qualifying South African Production Expenditure (QSAPE)" },
+        "spend_production": { "rate": 0.25, "notes": "QSAPE — production spend with SA registered entities" },
+        "spend_post": { "rate": 0.20, "notes": "QSAPPE — post-production spend at lower rate" }
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_spend_production_zar": "12000000-15000000",
+        "min_spend_post_zar": 1500000,
+        "min_filming_days": 21,
+        "min_filming_days_pct": 0.50,
+        "min_filming_days_post": 14
+      },
+      "caps": {
+        "project_cap_zar": 50000000
+      },
+      "sunset_date": null,
+      "requires_screen_credit": true,
+      "requires_cpa_audit": true,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Submit application not earlier than 45 calendar days prior to commencement of principal photography.",
+      "flags": [
+        "TWO DIFFERENT RATES: Production spend (QSAPE) at 25%, Post-production spend (QSAPPE) at 20% — must separate these buckets.",
+        "Minimum filming days: 21 calendar days AND 50% of principal photography.",
+        "Filming days requirement may be waived with minimum QSAPE of R100M.",
+        "Post minimum days may be waived if 100% of post conducted in South Africa.",
+        "Currency is ZAR — apply current exchange rate for USD comparison."
+      ]
+    },
+
+    {
+      "id": "intl-south_korea",
+      "name": "South Korea",
+      "country": "South Korea",
+      "region": "International",
+      "currency": "KRW",
+      "data_date": "03/08/2026",
+      "incentive_type": "rebate",
+      "monetization_rate": 1.00,
+      "monetization_note": "Rebate — paid directly at 100 cents.",
+      "headline_rate": "25%-30%",
+      "eligible_production_types": ["Documentaries","Feature Films","Scripted Television"],
+      "ineligible_production_types": ["Animation","Commercials","Game Shows","Pilots","Post Only","Reality Television","Talk Shows","Video Games"],
+      "buckets": {
+        "resident_atl": { "rate": "tiered", "notes": "25% (50M KRW min, 3 day minimum) or 30% (2B KRW min, 10 day minimum)" },
+        "resident_btl": { "rate": "tiered", "notes": "25% or 30% based on spend and filming day tier" },
+        "spend":        { "rate": "tiered", "notes": "25% or 30% based on tier" }
+      },
+      "tier_structure": [
+        { "min_spend_krw": 50000000,    "min_filming_days": 3,  "rate": 0.25 },
+        { "min_spend_krw": 2000000000,  "min_filming_days": 10, "rate": 0.30 }
+      ],
+      "uplifts": [],
+      "minimums": {
+        "min_spend_25pct_krw": 50000000,
+        "min_spend_30pct_krw": 2000000000,
+        "min_filming_days_25pct": 3,
+        "min_filming_days_30pct": 10
+      },
+      "caps": {
+        "project_cap_krw": 700000000,
+        "compensation_cap_pct_of_labor": 0.30,
+        "postproduction_cap_pct_of_qpe": 0.50
+      },
+      "sunset_date": null,
+      "requires_screen_credit": true,
+      "requires_cpa_audit": false,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Provisional application documents must be submitted no later than 30 days and no earlier than 90 days prior to commencement of principal photography in Korea.",
+      "flags": [
+        "CRITICAL: Post costs OR labor costs for cast/crew cannot exceed 50% of total QPE.",
+        "CRITICAL: Total costs for main cast cannot exceed 30% of total labor costs.",
+        "Review Committee approval required — evaluates tourism promotion, contribution to Korean film industry, and foreign producer engagement.",
+        "Currency is KRW — apply current exchange rate for USD comparison."
+      ]
+    },
+
+    {
+      "id": "intl-spain",
+      "name": "Spain",
+      "country": "Spain",
+      "region": "International",
+      "currency": "EUR",
+      "data_date": "03/08/2026",
+      "incentive_type": "rebate",
+      "monetization_rate": 1.00,
+      "monetization_note": "Rebate — paid directly at 100 cents.",
+      "headline_rate": "25%-30%",
+      "eligible_production_types": ["Animation","Feature Films","Pilots","Scripted Television"],
+      "ineligible_production_types": ["Commercials","Documentaries","Game Shows","Post Only","Reality Television","Talk Shows","Video Games"],
+      "buckets": {
+        "resident_atl": { "rate": "tiered_by_spend", "notes": "30% on first €1M of local spend by foreign shoot, 25% thereafter" },
+        "resident_btl": { "rate": "tiered_by_spend", "notes": "30% on first €1M of local spend by foreign shoot, 25% thereafter" },
+        "spend":        { "rate": "tiered_by_spend", "notes": "30% on first €1M of local spend by foreign shoot, 25% thereafter" }
+      },
+      "spain_tier_structure": {
+        "first_tier_eur": 1000000,
+        "first_tier_rate": 0.30,
+        "subsequent_rate": 0.25
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_spend_eur": 1000000,
+        "min_spend_animation_vfx_eur": 200000
+      },
+      "caps": {
+        "project_cap_eur": 20000000,
+        "project_cap_per_episode_eur": 10000000,
+        "annual_cap_eur": null
+      },
+      "sunset_date": null,
+      "requires_screen_credit": false,
+      "requires_cpa_audit": false,
+      "requires_local_production_company": true,
+      "requires_cultural_test": false,
+      "application_notes": "Refund must be applied for by the Spanish company during the month of July of the year after the end of filming.",
+      "flags": [
+        "TIERED: 30% on first €1M of local spend, 25% on everything after — must split calculation.",
+        "Application window is July only — year after filming ends.",
+        "Must apply through a Spanish company.",
+        "Related programs: Spain - Canary Islands, Spain - Navarre, Spain - Biscay — may have different rates.",
+        "Currency is EUR — apply current exchange rate for USD comparison."
+      ]
+    },
+
+    {
+      "id": "intl-thailand",
+      "name": "Thailand",
+      "country": "Thailand",
+      "region": "International",
+      "currency": "THB",
+      "data_date": "03/08/2026",
+      "incentive_type": "rebate",
+      "monetization_rate": 1.00,
+      "monetization_note": "Rebate — paid directly at 100 cents.",
+      "headline_rate": "15%-20%",
+      "eligible_production_types": ["Animation","Documentaries","Feature Films","Pilots","Post Only","Reality Television","Scripted Television"],
+      "ineligible_production_types": ["Commercials","Game Shows","Talk Shows","Video Games"],
+      "buckets": {
+        "resident_atl": { "rate": 0.15, "notes": null },
+        "resident_btl": { "rate": 0.15, "notes": null },
+        "nonresident_atl": { "rate": null, "notes": "Foreigners who work in Thailand are EXCLUDED from qualifying spend" },
+        "nonresident_btl": { "rate": null, "notes": "Foreigners who work in Thailand are EXCLUDED from qualifying spend" },
+        "spend":           { "rate": 0.15, "notes": "Thai registered businesses and Thai services and individuals only" }
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_spend_thb": 50000000
+      },
+      "caps": {
+        "project_cap_thb": 75000000
+      },
+      "sunset_date": null,
+      "requires_screen_credit": false,
+      "requires_cpa_audit": false,
+      "requires_local_production_company": true,
+      "requires_cultural_test": false,
+      "application_notes": "Cannot apply until filming permit received from Thailand Film Office. Must apply within 90 days of permit receipt and before shooting begins. Must engage a local coordinator company (no individual fixers or coordinators).",
+      "flags": [
+        "CRITICAL: Foreigners working in Thailand are EXCLUDED from qualifying spend — non-resident labor does not qualify.",
+        "Must obtain filming permit before applying — adds lead time.",
+        "Must engage a local coordinator company (not an individual).",
+        "Currency is THB — apply current exchange rate for USD comparison."
+      ]
+    },
+
+    {
+      "id": "intl-turkey",
+      "name": "Turkey",
+      "country": "Turkey",
+      "region": "International",
+      "currency": "TRY",
+      "data_date": "03/08/2026",
+      "incentive_type": "rebate",
+      "monetization_rate": 1.00,
+      "monetization_note": "Cash rebate — paid directly at 100 cents.",
+      "headline_rate": "30%",
+      "eligible_production_types": ["Documentaries","Feature Films","Scripted Television"],
+      "ineligible_production_types": ["Animation","Commercials","Game Shows","Pilots","Post Only","Reality Television","Talk Shows","Video Games"],
+      "buckets": {
+        "resident_atl": { "rate": 0.30, "notes": null },
+        "resident_btl": { "rate": 0.30, "notes": null },
+        "nonresident_atl": { "rate": null, "notes": "Not listed — likely residents only" },
+        "nonresident_btl": { "rate": null, "notes": "Not listed — likely residents only" },
+        "spend":           { "rate": 0.30, "notes": "All eligible expenses incurred in Turkey after application submission date" }
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_spend_film_try": 6000000,
+        "min_spend_tv_per_episode_try": 1000000,
+        "min_spend_documentary_try": 1000000
+      },
+      "caps": {},
+      "sunset_date": null,
+      "requires_screen_credit": false,
+      "requires_cpa_audit": false,
+      "requires_local_production_company": true,
+      "requires_cultural_test": true,
+      "application_notes": "Incentive Commission meets at least once every three months. Commission evaluates applications and notifies qualified applicants to sign contract with Ministry of Culture and Tourism.",
+      "flags": [
+        "CRITICAL: All expenditures must be made AFTER the date of application submission — no retroactive qualifying.",
+        "Commission meets quarterly — timing affects production schedule.",
+        "Non-resident rates not specified — verify with Filming in Turkey.",
+        "Currency is TRY (Turkish Lira) — highly volatile, apply current exchange rate.",
+        "Minimums expressed in Turkish Lira — verify current USD equivalents."
+      ]
+    },
+
+    {
+      "id": "intl-uae_abu_dhabi",
+      "name": "UAE - Abu Dhabi",
+      "country": "UAE",
+      "region": "International",
+      "currency": "USD",
+      "data_date": "03/08/2026",
+      "incentive_type": "rebate",
+      "monetization_rate": 1.00,
+      "monetization_note": "Rebate — paid directly at 100 cents. Denominated in USD.",
+      "headline_rate": "30%",
+      "eligible_production_types": ["Animation","Commercials","Documentaries","Feature Films","Game Shows","Pilots","Post Only","Scripted Television"],
+      "ineligible_production_types": ["Reality Television","Talk Shows","Video Games"],
+      "buckets": {
+        "resident_btl": { "rate": 0.30, "notes": "Abu Dhabi Qualifying Production Expenditure (ADQPE)" },
+        "spend":        { "rate": 0.30, "notes": "Goods and services sourced and/or provided in Abu Dhabi" }
+      },
+      "uplifts": [],
+      "minimums": {
+        "min_spend_film_usd": 200000,
+        "min_spend_tv_usd": 50000,
+        "min_spend_post_film_usd": 70000,
+        "min_spend_post_tv_usd": 10000
+      },
+      "caps": {
+        "project_cap_film_usd": 5000000,
+        "project_cap_tv_usd": 1000000,
+        "project_cap_post_film_usd": 250000,
+        "project_cap_post_tv_usd": 150000
+      },
+      "sunset_date": null,
+      "requires_screen_credit": true,
+      "requires_cpa_audit": true,
+      "requires_local_production_company": false,
+      "requires_cultural_test": false,
+      "application_notes": "Online application via ADFC website. Requires National Media Council and/or ADFC approval — obtain as early as possible.",
+      "flags": [
+        "Denominated in USD — no currency conversion needed.",
+        "ONLY Resident BTL listed for labor — ATL and non-resident not listed, verify with ADFC.",
+        "Project caps are relatively low — $5M for film, $1M for TV.",
+        "Requires National Media Council approval — build in lead time."
+      ]
+    },
+
+    {
+      "id": "intl-united_kingdom",
+      "name": "United Kingdom",
+      "country": "United Kingdom",
+      "region": "International",
+      "currency": "GBP",
+      "data_date": "03/08/2026",
+      "incentive_type": "refundable_tax_credit",
+      "monetization_rate": 1.00,
+      "monetization_note": "Refundable tax credit — paid directly. Multiple sub-programs with different rates.",
+      "headline_rate": "Varies by program — see sub-programs",
+      "eligible_production_types": ["Documentaries","Feature Films","Pilots","Scripted Television"],
+      "ineligible_production_types": ["Animation","Commercials","Game Shows","Post Only","Reality Television","Talk Shows","Video Games"],
+      "sub_programs": [
+        { "name": "Feature Films", "notes": "See UK - Feature Films sub-program" },
+        { "name": "Independent Films", "notes": "See UK - Independent Films sub-program" },
+        { "name": "High End TV", "notes": "See UK - High End TV sub-program" },
+        { "name": "Children's TV and Animation", "notes": "See UK - Children's TV and Animation sub-program" }
+      ],
+      "buckets": {
+        "spend": { "rate": "varies_by_subprogram", "notes": "UK qualifying production expenditure = costs incurred by TPC on filming activities in UK" }
+      },
+      "uplifts": [
+        {
+          "id": "uk-vfx-enhanced",
+          "label": "Enhanced VFX Rate",
+          "amount": 0.2925,
+          "applies_to": ["vfx_spend"],
+          "condition": "From 1 April 2025: Films (non-IFTC) and High-end TV only. Not subject to 80% cap.",
+          "prompt": "Does this production have VFX spend in the UK? (Enhanced 29.25% rate available for qualifying productions from April 2025.)"
+        }
+      ],
+      "minimums": {},
+      "caps": {},
+      "sunset_date": null,
+      "requires_screen_credit": false,
+      "requires_cpa_audit": "dependent_on_size",
+      "requires_local_production_company": false,
+      "requires_cultural_test": true,
+      "application_notes": "Must receive initial and final DCMS British Film Certificate from BFI Certification Department.",
+      "flags": [
+        "COMPLEX: UK has 4 separate sub-programs — rate and rules depend entirely on production type.",
+        "Cultural test required via BFI.",
+        "Enhanced VFX rate of 29.25% available from April 2025 for qualifying productions — not subject to 80% cap.",
+        "Range of regional/national incentives stackable with main Audio-visual Expenditure Credit.",
+        "Treat as contact-for-details location — sub-program PDFs needed for precise calculation.",
+        "Currency is GBP — apply current exchange rate for USD comparison."
+      ]
+    }
+
+  ]
+}
