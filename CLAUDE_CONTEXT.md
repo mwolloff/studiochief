@@ -34,23 +34,23 @@ Always use the highest-numbered studiochief_vXX.html unless this file says other
 
 ## FILE SIZE NOTE
 
-v29 is ~2,327 lines. Flag proactively when approaching 3,000 lines or 300KB — at that point recommend splitting tools into separate HTML files.
+v29 is ~2,327 lines. Flag proactively when approaching 3,000 lines or 300KB.
 
 ---
 
-## FONTS
+## FONTS (v29+)
 
-As of v29, DM Mono has been removed entirely. The site now uses two fonts only:
+DM Mono removed entirely. Two fonts only:
 - **Playfair Display** — big headings, card names, tool titles
-- **Outfit** — everything else (labels, data, tags, nav, body copy)
+- **Outfit** — everything else
 
-Letter-spacing reduced throughout to suit Outfit (was tuned for monospace). Do not reintroduce DM Mono or any monospace font.
+Do not reintroduce DM Mono or any monospace font.
 
 ---
 
 ## GLOBAL CURRENCY FORMATTING RULE
 
-ALL currency inputs across ALL tools use type="text" inputmode="numeric" with live comma formatting via shared utilities: formatWithCommas(), parseCurrency(), onCurrencyInput(). Never use type="number" for currency fields.
+All currency inputs use type="text" inputmode="numeric" with live comma formatting via formatWithCommas(), parseCurrency(), onCurrencyInput(). Never use type="number" for currency fields.
 
 ---
 
@@ -59,10 +59,10 @@ ALL currency inputs across ALL tools use type="text" inputmode="numeric" with li
 | # | Name | Status | Notes |
 |---|---|---|---|
 | 1 | Cash Flow Generator | ✅ Working | See TOOL1_CASHFLOW_RULES.md |
-| 2 | Cost & Variance Report | ⚠️ In Progress | Timeout issue on Claude parse. See TOOL2_VARIANCE_RULES.md |
+| 2 | Cost & Variance Report | ⚠️ In Progress | Timeout issue. See TOOL2_VARIANCE_RULES.md |
 | 3 | Risk & Diligence Scanner | ✅ Working | Icon is 🔍 |
 | 4 | Tax Incentive Calculator | ✅ Working | Client-side. See TOOL4_TAX_INCENTIVE_RULES.md |
-| 5 | Tax Incentive Information | ✅ Working | Georgia + Nevada at detailed level. All others summary. See TOOL5_TAX_INFO_RULES.md |
+| 5 | Tax Incentive Information | ✅ Working | Georgia + Nevada detailed. All others summary. See TOOL5_TAX_INFO_RULES.md |
 
 ---
 
@@ -71,58 +71,70 @@ ALL currency inputs across ALL tools use type="text" inputmode="numeric" with li
 - App order: Tax Incentive Calculator → Tax Incentive Information → Cash Flow Generator → Cost & Variance Report → Risk & Diligence Scanner → Coming Soon
 - Tagline: "Built and trained for the way productions actually work."
 - StudioChief nav logo: 26px
-- All tools live — no more Coming Soon cards in active positions
 
 ---
 
-## TOOL 4 — TAX INCENTIVE CALCULATOR (v29 feature state)
+## TOOL 4 — TAX INCENTIVE CALCULATOR
 
-- Dynamic bucket modes: simple / labor_spend / full / nocalc
-- Rate transparency: "Rates applied: X% base + Y% uplift = Z% effective" shown inline in result card
-- Unified "Options & Uplifts" section: one block, all checkboxes
-- Optional show title field at top of Step 3
-- Excel export (CSV): filename "Tax_Incentive_Comparison.csv" or "[ShowTitle]_TaxIncentiveComparison.csv", 2 decimal places with commas
-- All spend inputs: type="text" inputmode="numeric" with live comma formatting
-- Data Status button in tool header: panel showing all 46 current + 14 pending locations
 - 46 locations, 13 production types including Competition
-- Attribution: "publicly available incentive data, March 2026"
+- Rate transparency in result card
+- Unified Options & Uplifts section
+- Optional show title field
+- Excel/CSV export with 2 decimal places and commas
+- Data Status button in tool header
+- Known stale data: New Zealand min spend changed, UK program renamed to AVEC
 
-**Known data discrepancies (EP summary data is stale for these):**
-- New Zealand: min spend dropped from NZ$15M to NZ$4M for live action, eff. Jan 1 2026
-- United Kingdom: program renamed to AVEC; new IFTC for films under £15M, eff. April 2025
+**Pending v-next items:**
+- In Excel export, replace static "Headline Rate" with calculated "Effective Rate Applied"
+- Add Cyprus as new location
+- Update New Zealand min spend (NZ$15M → NZ$4M for live action, eff. Jan 1 2026)
+- Update UK program name to AVEC and add IFTC note
 
 ---
 
-## TOOL 5 — TAX INCENTIVE INFORMATION (v29 feature state)
+## TOOL 5 — TAX INCENTIVE INFORMATION
 
-- One location at a time. Search/filter left, full detail panel right.
-- Indigo dot = detailed data. Green dot = summary data.
-- Georgia: full detailed panel including 9-step process, film office contacts, audit rules, and expandable GDOR qualifying expenditures YES/NO chart (every budget account)
-- Nevada: full detailed panel including 5-step process, Kim Spurgeon contact, all bonus and cap rules
-- All other locations: summary panel with headline rate, incentive type, and flags from EP data
-- Excel export button on every location
-- See TOOL5_TAX_INFO_RULES.md for data ingestion workflow
+- One location at a time. Search left, detail right.
+- Indigo dot = detailed. Green dot = summary.
+- Georgia: full detail including expandable GDOR expenditure YES/NO chart
+- Nevada: full detail including Kim Spurgeon contact
+- All others: summary panel
+- Excel export per location
+
+**Pending v-next items:**
+- Add Cyprus as new location (up to 45% cash rebate, official PDF available)
+- Add New York at summary level (30% base, $700M/year through 2036)
+- Upgrade Ireland to detailed (32% + new 8% Scéal Uplift = 40%, eff. March 2025)
+- Upgrade Greece to detailed (40% cash rebate, new law 5105/2024)
+- Update New Zealand and UK data
 
 ---
 
 ## TAX INCENTIVE DATA SYSTEM
 
 Three files work together:
-- **DATA_REGISTRY.md**: what data we have, at what level, and what's missing
-- **TOOL4_TOOL5_URL_REGISTRY.md**: official source URLs, fetch status, dead links, pending queue
-- **TOOL5_TAX_INFO_RULES.md**: how to ingest new PDFs and what fields to extract
+- **DATA_REGISTRY.md** — what data we have, at what level, what's missing
+- **TOOL4_TOOL5_URL_REGISTRY.md** — official source URLs, fetch status, dead links, pending queue
+- **TOOL5_TAX_INFO_RULES.md** — ingestion workflow and field list
 
-When Marc asks "how are the tax incentive files going?" or "are we missing any states?":
+When Marc asks "how are the tax incentive files going?":
 - If DATA_REGISTRY.md is in context: answer immediately and in full
 - If not: say "paste DATA_REGISTRY.md and TOOL4_TOOL5_URL_REGISTRY.md from GitHub and I'll give you the full picture"
 
-When new PDFs arrive: read them, extract detail, update DATA_REGISTRY.md, update DATA_STATUS object in HTML, return updated DATA_REGISTRY.md in airtight package.
+**Current data levels:**
+- Detailed: Georgia, Nevada
+- Ready to upgrade to detailed: Ireland, Greece
+- Ready to add as new: Cyprus
+- Ready to add at summary: New York
+- Summary only: all other 44 current locations
+- Pending/not in system: ~13 remaining US states
+- Inactive/limited programs: Vermont, Wisconsin, Wyoming, Missouri (verify), South Carolina (verify)
 
-**Currently detailed:** Georgia, Nevada
-**Currently summary:** All other 44 locations
-**Pending (not in system):** ~14 US states including New York
-**Dead URLs needing new addresses:** Australia NSW, British Columbia, France, South Africa, UAE Abu Dhabi
-**Blocked:** Ireland, Greece
+**Dead URLs still needing corrected addresses:**
+- Australia NSW, British Columbia, France, South Africa, UAE Abu Dhabi
+
+**US state URLs logged but not yet fetched (blocked this session — fetch next session):**
+New Mexico, Missouri, Oregon, Pennsylvania, Rhode Island, South Carolina, Utah, Virginia, Wisconsin, Wyoming, North Carolina, Ohio, Vermont
 
 ---
 
@@ -132,7 +144,7 @@ When new PDFs arrive: read them, extract detail, update DATA_REGISTRY.md, update
 - Login / email capture: preview-then-prompt modal at Generate click
 - Visual polish pass: Tax calculator and Cost & Variance Report feel text-heavy
 - HTML file size: flag at 3,000 lines / 300KB
-- Tool 4 v28 list item: in Excel export, replace static "Headline Rate" with calculated "Effective Rate Applied" showing actual rate used
+- Excel export effective rate fix (v-next)
 
 ---
 
@@ -140,14 +152,14 @@ When new PDFs arrive: read them, extract detail, update DATA_REGISTRY.md, update
 
 | File | Purpose |
 |---|---|
-| CLAUDE_CONTEXT.md | This file. Paste first in every session. |
+| CLAUDE_CONTEXT.md | This file. Paste first every session. |
 | DATA_REGISTRY.md | Master log of all incentive source documents and data levels |
 | TOOL4_TOOL5_URL_REGISTRY.md | Official source URLs, fetch status, dead links, pending queue |
 | TOOL1_CASHFLOW_RULES.md | Cash Flow Generator rules |
 | TOOL2_VARIANCE_RULES.md | Cost & Variance Report rules |
 | TOOL3_RISK_RULES.md | Risk & Diligence Scanner rules |
 | TOOL4_TAX_INCENTIVE_RULES.md | Tax Incentive Calculator rules |
-| TOOL5_TAX_INFO_RULES.md | Tax Incentive Information rules and data ingestion workflow |
+| TOOL5_TAX_INFO_RULES.md | Tax Incentive Information rules and ingestion workflow |
 | TAX_INCENTIVE_RULES (1).md | Detailed source rules for Tool 4 incentive logic |
 | incentives_data.json | Raw incentive data, 46 locations, March 2026 |
 | studiochief_v29.html | Current production frontend |
@@ -172,7 +184,7 @@ When new PDFs arrive: read them, extract detail, update DATA_REGISTRY.md, update
 
 ## AIRTIGHT PACKAGE RULE
 
-Every session ending with a new HTML version, tool status change, or new data ingested must include: CLAUDE_CONTEXT.md + any affected rules files + DATA_REGISTRY.md (always if tax data touched) + TOOL4_TOOL5_URL_REGISTRY.md (if URLs were fetched or updated). All delivered together, unprompted, before the session ends.
+Every session ending with a new HTML version, tool status change, or new data ingested must include: CLAUDE_CONTEXT.md + any affected rules files + DATA_REGISTRY.md + TOOL4_TOOL5_URL_REGISTRY.md if URLs were touched. All delivered together, unprompted.
 
 ---
 
@@ -186,4 +198,4 @@ Every session ending with a new HTML version, tool status change, or new data in
 
 ---
 
-*Update whenever: tool ships, version changes, architecture changes, new tool added, pending conversation resolved, data registry changes.*
+*Update whenever: tool ships, version changes, new data ingested, pending items resolved.*
