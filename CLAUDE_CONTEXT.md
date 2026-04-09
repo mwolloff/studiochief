@@ -147,3 +147,17 @@ Every session ending with a new HTML version or tool status change must include 
 ---
 
 *Update whenever: tool ships, version changes, architecture changes, new tool added, pending conversation resolved.*
+
+---
+
+## DATA REGISTRY
+
+All incentive source documents are tracked in DATA_REGISTRY.md in the repo root.
+
+When Marc asks about data status for any location, fetch DATA_REGISTRY.md first.
+
+Currently at detailed level: Georgia, Nevada
+All others: summary level (EP guides, March 2026)
+Pending (not in system): ~14 US states
+
+When new PDFs arrive in any session: read them, extract detail, update DATA_REGISTRY.md, update DATA_STATUS in HTML, return updated registry file for upload.

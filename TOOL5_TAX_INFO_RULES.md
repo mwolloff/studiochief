@@ -113,3 +113,26 @@ Currently shown as "Coming Soon" on the dashboard.
 ---
 
 *Update this file when: development begins, layout decisions are finalized, first PDF is ingested, or output format changes.*
+
+---
+
+## DATA REGISTRY
+
+All source documents are tracked in DATA_REGISTRY.md in the repo root.
+
+When Marc asks "did we ever get detailed data for X?" — fetch DATA_REGISTRY.md and answer from Section 3.
+
+When new PDFs arrive:
+1. Read all documents
+2. Extract detailed fields per the detail panel content list above
+3. Update DATA_REGISTRY.md (add to Section 2, update Section 3 status)
+4. Update DATA_STATUS object in the current HTML file
+5. Return updated DATA_REGISTRY.md for upload
+
+### Currently at detailed level (as of April 9, 2026)
+- Georgia (4 documents ingested)
+- Nevada (5 documents ingested)
+
+### All other locations: summary level only (EP guides, March 2026)
+
+### Pending (not yet in system): Missouri, New Mexico, New York, North Carolina, Ohio, Oregon, Pennsylvania, Rhode Island, South Carolina, Utah, Vermont, Virginia, Wisconsin, Wyoming
