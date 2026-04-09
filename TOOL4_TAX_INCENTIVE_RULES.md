@@ -179,3 +179,12 @@ UK, Australia NSW, Australia NT, Australia WA, Indiana, Oklahoma.
 ---
 
 *Update this file whenever: bucket mode logic changes, new locations are added, calculation flow changes, new options are added, or frontend integration details change.*
+
+---
+
+## UPDATES IN V25
+
+- Audit/CPA fee checkbox label now shows the default estimated amount per state: "Deduct audit/CPA fee (est. $15,000)". The amount shown is pulled from AUDIT_FEE_DEFAULTS and formatted using tiFmtCurrency.
+- Data Status button added to Tax Incentive tool header. Opens/closes a panel showing all 46 current locations + 14 pending US states, color-coded: green = summary data, indigo = detailed data, grey = pending.
+- DATA_STATUS object in the JS contains every location with name, region, data level, and data date. Update this object as new PDFs are ingested and locations upgrade from summary to detailed.
+- When Marc asks "what states are we missing?" or "what's the data status?", fetch the DATA_STATUS object from the current HTML or ask Marc to open the Data Status panel in the tool.

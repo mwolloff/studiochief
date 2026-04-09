@@ -7,61 +7,96 @@
 
 ## WHAT IS STUDIOCHIEF
 
-StudioChief is a web-based subscription tool suite for professional TV and film production executives. It automates calculations that production execs currently do manually in Excel. Marc Walloff (former SVP of Production, ITV America) is the sole owner and product lead. There is no developer on staff — Claude builds everything.
+StudioChief is a web-based subscription tool suite for professional TV and film production executives. Marc Walloff (former SVP of Production, ITV America) is the sole owner and product lead. No developer on staff — Claude builds everything.
 
 ---
 
 ## ARCHITECTURE
 
-| Layer | Platform | URL / Location |
+| Layer | Platform | URL |
 |---|---|---|
 | Backend (Python/Flask) | Render Pro | studiochief.onrender.com |
 | Frontend (HTML) | GitHub Pages | mwolloff.github.io/studiochief |
 | Repo | GitHub | github.com/mwolloff/studiochief |
 | AI Engine | Anthropic Claude API | Called from backend via /api/* routes |
 
-The frontend is plain HTML/CSS/vanilla JavaScript. NOT React, NOT a build system. All tools are embedded directly in the HTML file. JSX components must be converted to vanilla JS before integration. The backend handles all Claude API calls. Tool 4 is entirely client-side and does not touch the backend.
+Frontend is plain HTML/CSS/vanilla JavaScript. NOT React, NOT a build system. All tools embedded in one HTML file. Tool 4 and Tool 5 (when built) are client-side only — no backend call.
 
 ---
 
 ## CURRENT FRONTEND FILE
 
-**studiochief_v24.html** is the current production frontend as of April 9, 2026.
+**studiochief_v25.html** — current production frontend as of April 9, 2026.
 
-Always use the highest-numbered HTML file in the repo unless this file says otherwise.
+Always use the highest-numbered studiochief_vXX.html unless this file says otherwise.
+
+---
+
+## FILE SIZE NOTE
+
+v25 is ~1,634 lines / ~135KB. Watch this. At ~3,000 lines or 300KB+ we should split tools into separate HTML files. Flag this proactively when approaching that threshold.
 
 ---
 
 ## TOOL STATUS
 
-| Tool | Name | Status | Notes |
+| # | Name | Status | Notes |
 |---|---|---|---|
-| Tool 1 | Cash Flow Generator | ✅ Working | See TOOL1_CASHFLOW_RULES.md |
-| Tool 2 | Variance Report | ⚠️ In Progress | Polling arch in place, timing out on Claude parse. See TOOL2_VARIANCE_RULES.md |
-| Tool 3 | Risk / Diligence Scanner | ✅ Working | Live in frontend |
-| Tool 4 | Tax Incentive Calculator | ✅ Working | Live in v24. Client-side only. See TOOL4_TAX_INCENTIVE_RULES.md |
+| 1 | Cash Flow Generator | ✅ Working | See TOOL1_CASHFLOW_RULES.md |
+| 2 | Cost & Variance Report | ⚠️ In Progress | Timeout issue on Claude parse. See TOOL2_VARIANCE_RULES.md |
+| 3 | Risk & Diligence Scanner | ✅ Working | Icon is 🔍 (magnifying glass) |
+| 4 | Tax Incentive Calculator | ✅ Working | Client-side. See TOOL4_TAX_INCENTIVE_RULES.md |
+| 5 | Tax Incentive Information | 🔴 Not Started | See TOOL5_TAX_INFO_RULES.md |
 
 ---
 
-## TOOL 4 CURRENT FEATURE STATE (v24)
+## HOMEPAGE
 
-**Bucket modes (dynamic per location):**
-- simple: one field "Total Qualifying Spend" — flat rate applies to everything (Georgia, Ireland, most rebates)
-- labor_spend: two fields "Qualifying Labor" + "Non-Labor Qualifying Spend" — same rate, different categories
-- full: all applicable buckets shown with individual rates (Nevada, Minnesota, Louisiana, etc.)
-- nocalc: no fields — contact-for-details or non-calculable (Indiana, Oklahoma, UK, Australia NT)
+- App order: Tax Incentive Calculator → Tax Incentive Information (soon) → Cash Flow Generator → Cost & Variance Report → Risk & Diligence Scanner → Coming Soon
+- Tagline: "Built and trained for the way productions actually work."
+- StudioChief nav logo: 26px (increased from 18px)
+- Tax Incentive Information card is shown as "Coming Soon" on dashboard
 
-Each location shows a colored explanation banner telling the user exactly what to enter and why.
+---
 
-**Other features:**
-- Total production budget field (optional) — produces "Effective Budget After Incentive" in green
-- Contingency toggle: 10% deduction on by default, user can uncheck to remove
-- Audit/CPA fee toggle: off by default, user checks to add deduction with editable dollar amount (defaults to state-appropriate estimate)
-- Monetization rate explained per state (100¢, 90¢, 85¢) with plain-English label
-- 46 locations (21 US + 25 international)
-- Production types include: Feature Film, Scripted TV, Reality TV, Unscripted, Documentary, Competition, Game Show, Animation, Commercial, Pilot, Post Only, Talk Show, Video Game
-- Attribution: "publicly available incentive data, March 2026" (no EP mention)
-- 3-location limit clearly called out with indigo banner
+## TOOL 2 NAME
+
+Renamed from "Variance Report" to "Cost & Variance Report" everywhere including nav, dashboard card, tool header, download buttons, and JS labels.
+
+---
+
+## TOOL 3 ICON
+
+Changed from ⚠️ to 🔍 (magnifying glass) everywhere including dashboard card, import box, and JS icon reset functions.
+
+---
+
+## TOOL 4 CURRENT FEATURE STATE (v25)
+
+- Dynamic bucket modes: simple (one field), labor_spend (two fields), full (all applicable buckets), nocalc (no fields)
+- Each location shows a colored explanation banner describing what to enter and why
+- Total production budget field (optional) → shows Effective Budget After Incentive in green
+- Contingency toggle: 10% deduction on by default, user can uncheck
+- Audit/CPA fee toggle: off by default, checkbox label shows estimated default amount per state
+- Monetization rate explained per state (100¢ / 90¢ / 85¢) with plain-English label
+- 46 locations, 13 production types including Competition
+- Attribution: "publicly available incentive data, March 2026" — no EP mention
+- Data Status button in tool header opens a panel showing all 46 current locations + 14 pending US states, color-coded by data level (summary / detailed / pending)
+
+---
+
+## TOOL 5 PLAN — TAX INCENTIVE INFORMATION
+
+One state at a time (not side-by-side comparison like Tool 4). Search/filter on left, full detail panel on right. Output: Excel export of state info sheet. Features: last-updated badge per state, data completeness indicator (summary vs detailed), print/export button, eventually a compare-two-states mode. Chatbot (Tool 6) eventually sits on top of this same data. See TOOL5_TAX_INFO_RULES.md when created.
+
+---
+
+## PENDING CONVERSATIONS (do not forget)
+
+- Pricing and structure: free founding member period, future paid tier, pricing page build
+- Login / email capture: preview-then-prompt flow (modal at Generate click), no hard login wall yet
+- Visual polish pass: Tax calculator and Cost & Variance Report both feel text-heavy/cramped — v26 polish pass planned
+- HTML file size: flag when approaching 3,000 lines or 300KB
 
 ---
 
@@ -70,67 +105,48 @@ Each location shows a colored explanation banner telling the user exactly what t
 | File | Purpose |
 |---|---|
 | CLAUDE_CONTEXT.md | This file. Paste first in every session. |
-| TOOL1_CASHFLOW_RULES.md | Full reasoning and rules for the Cash Flow Generator |
-| TOOL2_VARIANCE_RULES.md | Full reasoning and rules for the Variance Report tool |
-| TOOL3_RISK_RULES.md | Intent and planned rules for the Risk/Diligence Scanner |
-| TOOL4_TAX_INCENTIVE_RULES.md | Summary rules for the Tax Incentive Calculator |
-| TAX_INCENTIVE_RULES (1).md | Detailed source rules doc for Tool 4 — authoritative on incentive logic |
+| TOOL1_CASHFLOW_RULES.md | Cash Flow Generator rules |
+| TOOL2_VARIANCE_RULES.md | Cost & Variance Report rules |
+| TOOL3_RISK_RULES.md | Risk & Diligence Scanner rules |
+| TOOL4_TAX_INCENTIVE_RULES.md | Tax Incentive Calculator rules |
+| TOOL5_TAX_INFO_RULES.md | Tax Incentive Information rules (to be created) |
+| TAX_INCENTIVE_RULES (1).md | Detailed source rules for Tool 4 incentive logic |
 | incentives_data.json | Raw incentive data, 46 locations, March 2026 |
-| tax-incentive-calculator.jsx | Original React/JSX component — kept for reference |
-| studiochief_domain_rules.md | Legacy combined rules file — superseded by per-tool files |
-| studiochief_v24.html | Current production frontend |
-| app.py | Flask backend. All API routes live here. |
+| tax-incentive-calculator.jsx | Original JSX component — reference only |
+| studiochief_domain_rules.md | Legacy rules file — superseded, kept for reference |
+| studiochief_v25.html | Current production frontend |
+| app.py | Flask backend, all API routes |
 | requirements.txt | Python dependencies |
 | render.yaml | Render deployment config |
 | gunicorn.conf.py | Gunicorn server config |
 
 ---
 
-## BACKEND NOTES
-
-- Anthropic API key is an environment variable in Render. Never hardcode it.
-- API key rotation is a pending TODO.
-- Tool 2 timeout issue is on the Claude API response side, not the polling architecture.
-- Tool 4 is 100% client-side — no backend call needed.
-
----
-
 ## SESSION STARTUP INSTRUCTIONS
 
-**Working on Tool 1:** Paste CLAUDE_CONTEXT.md + TOOL1_CASHFLOW_RULES.md
-**Working on Tool 2:** Paste CLAUDE_CONTEXT.md + TOOL2_VARIANCE_RULES.md
-**Working on Tool 3:** Paste CLAUDE_CONTEXT.md + TOOL3_RISK_RULES.md
-**Working on Tool 4:** Paste CLAUDE_CONTEXT.md + TOOL4_TAX_INCENTIVE_RULES.md (add TAX_INCENTIVE_RULES (1).md and incentives_data.json if working on incentive logic)
-**Working on frontend/architecture:** Paste CLAUDE_CONTEXT.md + studiochief_v24.html
+**Tool 1:** CLAUDE_CONTEXT.md + TOOL1_CASHFLOW_RULES.md
+**Tool 2:** CLAUDE_CONTEXT.md + TOOL2_VARIANCE_RULES.md
+**Tool 3:** CLAUDE_CONTEXT.md + TOOL3_RISK_RULES.md
+**Tool 4:** CLAUDE_CONTEXT.md + TOOL4_TAX_INCENTIVE_RULES.md (+ TAX_INCENTIVE_RULES (1).md and incentives_data.json if working on incentive logic)
+**Tool 5:** CLAUDE_CONTEXT.md + TOOL5_TAX_INFO_RULES.md (once created)
+**Frontend/architecture:** CLAUDE_CONTEXT.md + studiochief_v25.html
 
 ---
 
-## RULE: CLAUDE ALWAYS SENDS CLAUDE_CONTEXT.MD WITH EVERY DELIVERABLE
+## RULE: CLAUDE ALWAYS SENDS AIRTIGHT PACKAGE WITH EVERY DELIVERABLE
 
-Any session where Claude produces a new HTML version, fixes a bug, or changes tool status must include an updated CLAUDE_CONTEXT.md in the same delivery. No exceptions.
-
----
-
-## PRODUCT VISION / BACKLOG
-
-- Tool 5 (planned): Tax Incentive Chatbot — natural language Q&A from incentive data, gets smarter as more state PDFs are fed in
-- Tool 6 (planned): Tax Incentive Information lookup — pick a state, get the full detail including application windows, audit requirements, etc.
-- Tool 7 (future): AI video rights/clearance scanner
-- Tool 8 (future): AI script risk scanner
-- Approximately 14 additional US states pending for Tool 4
-- Intelligent section-to-phase mapping rule set for Tool 1
+Any session where Claude produces a new HTML version or changes tool status must include updated CLAUDE_CONTEXT.md + any affected tool rules files. All delivered together, unprompted, before the session ends.
 
 ---
 
 ## MARC'S PREFERENCES
 
-- No EM dashes. Use commas or other punctuation instead.
+- No EM dashes. Commas or other punctuation instead.
 - Direct communication. No fluff.
-- Claude should not ask questions it can answer from context files.
-- Always use the highest-numbered studiochief_vXX.html as current frontend.
+- Claude does not ask questions it can answer from context files.
 - Claude builds everything. No developer available.
-- Claude always sends updated CLAUDE_CONTEXT.md with every file deliverable.
+- Claude always sends the full airtight package at session end.
 
 ---
 
-*Update this file whenever: a tool ships, frontend version changes, architecture changes, or new tools are added.*
+*Update whenever: tool ships, version changes, architecture changes, new tool added, pending conversation resolved.*
