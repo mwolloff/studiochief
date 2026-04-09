@@ -188,3 +188,24 @@ UK, Australia NSW, Australia NT, Australia WA, Indiana, Oklahoma.
 - Data Status button added to Tax Incentive tool header. Opens/closes a panel showing all 46 current locations + 14 pending US states, color-coded: green = summary data, indigo = detailed data, grey = pending.
 - DATA_STATUS object in the JS contains every location with name, region, data level, and data date. Update this object as new PDFs are ingested and locations upgrade from summary to detailed.
 - When Marc asks "what states are we missing?" or "what's the data status?", fetch the DATA_STATUS object from the current HTML or ask Marc to open the Data Status panel in the tool.
+
+---
+
+## UPDATES IN V26
+
+### Rate transparency
+Result card now shows a "Rates applied:" line between Total Qualifying Spend and Gross Incentive. Format varies by bucket mode:
+- simple: "20% base + 10% logo uplift = 30% effective" (or just "Flat rate: 20%" if no uplifts)
+- labor_spend: "Labor: 25% · Non-labor: 25%"
+- full: "Res ATL: 15% · Non-Res ATL: 12% · Spend: 15%" (only shows buckets with amounts entered)
+
+### Unified Options & Uplifts section
+All checkboxes merged into one section per location in the spend card. Order: uplifts first (if any), then contingency toggle, then audit fee toggle. All use the same card-style checkbox row design. No separate "Available Uplifts" and "Calculation Options" headings.
+
+### Show title field
+Single optional text input above the location columns in Step 3. Label: "Show Title (optional — appears on Excel export)". Stored in `tiShowTitle` variable (not per-location, one global field).
+
+### Excel export
+Green "Download Comparison — Excel" button appears below the location columns when any location is selected. Exports as CSV (opens in Excel). Filename: [ShowTitle]_TaxIncentives.csv or TaxIncentiveComparison_TaxIncentives.csv if no title entered. Contains: header with show title and data date, then per-location sections with spend inputs, rates applied, full calculation breakdown, and all flags.
+
+Export button visibility is controlled by `tiExportWrap` div — shown when tiSelectedIds.length > 0.
