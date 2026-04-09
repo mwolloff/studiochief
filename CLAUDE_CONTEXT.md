@@ -28,9 +28,9 @@ The backend handles all Claude API calls. The frontend POSTs to the backend and 
 
 ## CURRENT FRONTEND FILE
 
-**studiochief_v21.html** is the current production frontend as of April 9, 2026.
+**studiochief_v22.html** is the current production frontend as of April 9, 2026.
 
-Earlier versions (v10 through v20) are kept in the repo for reference but are not live. When working on the frontend, always use the highest-numbered HTML file in the repo unless this file says otherwise.
+Earlier versions (v10 through v21) are kept in the repo for reference but are not live. Always use the highest-numbered HTML file in the repo unless this file says otherwise.
 
 ---
 
@@ -40,8 +40,8 @@ Earlier versions (v10 through v20) are kept in the repo for reference but are no
 |---|---|---|---|
 | Tool 1 | Cash Flow Generator | ✅ Working | See TOOL1_CASHFLOW_RULES.md |
 | Tool 2 | Variance Report | ⚠️ In Progress | Polling arch in place, timing out on Claude parse. See TOOL2_VARIANCE_RULES.md |
-| Tool 3 | Risk / Diligence Scanner | 🔴 Not Started | Intent captured. See TOOL3_RISK_RULES.md |
-| Tool 4 | Tax Incentive Calculator | ✅ Built, not yet wired | JSX done, needs vanilla JS conversion + frontend tab. See TOOL4_TAX_INCENTIVE_RULES.md |
+| Tool 3 | Risk / Diligence Scanner | ✅ Working | Live in frontend |
+| Tool 4 | Tax Incentive Calculator | ✅ Working | Wired into v22. Client-side only, no backend call. See TOOL4_TAX_INCENTIVE_RULES.md |
 
 ---
 
@@ -56,9 +56,9 @@ Earlier versions (v10 through v20) are kept in the repo for reference but are no
 | TOOL4_TAX_INCENTIVE_RULES.md | Summary rules for the Tax Incentive Calculator + integration plan |
 | TAX_INCENTIVE_RULES (1).md | Detailed source rules doc for Tool 4 incentive logic — authoritative on calculation rules |
 | incentives_data.json | Raw incentive data, 46 locations, EP 03/08-09/2026 |
-| tax-incentive-calculator.jsx | Complete React/JSX component for Tool 4 — convert to vanilla JS for frontend integration |
+| tax-incentive-calculator.jsx | Original React/JSX component for Tool 4 — kept for reference, converted to vanilla JS in v22 |
 | studiochief_domain_rules.md | Legacy combined rules file — superseded by per-tool files above, kept for reference only |
-| studiochief_v21.html | Current production frontend |
+| studiochief_v22.html | Current production frontend |
 | app.py | Flask backend. All API routes live here. |
 | requirements.txt | Python dependencies |
 | render.yaml | Render deployment config |
@@ -72,6 +72,7 @@ Earlier versions (v10 through v20) are kept in the repo for reference but are no
 - API key rotation is a pending TODO.
 - Polling pattern: frontend POSTs job, backend queues it, frontend polls /api/status/{job_id} until complete.
 - Tool 2 timeout issue is on the Claude API response side, not the polling architecture itself.
+- Tool 4 does NOT use the backend — all calculation logic is client-side JavaScript.
 
 ---
 
@@ -91,7 +92,13 @@ Paste CLAUDE_CONTEXT.md + TOOL4_TAX_INCENTIVE_RULES.md
 If working on incentive logic specifically, also paste TAX_INCENTIVE_RULES (1).md and incentives_data.json.
 
 **Working on frontend or architecture (not tool-specific):**
-Paste CLAUDE_CONTEXT.md only, then paste studiochief_v21.html if Claude needs to see the frontend code.
+Paste CLAUDE_CONTEXT.md only, then paste the current studiochief_v22.html if Claude needs to see the frontend code.
+
+---
+
+## RULE: CLAUDE ALWAYS SENDS CLAUDE_CONTEXT.MD WITH EVERY DELIVERABLE
+
+Any session where Claude produces a new HTML version, fixes a bug, or changes tool status must include an updated CLAUDE_CONTEXT.md in the same file delivery. No exceptions. Marc should never have to remember to update this file himself.
 
 ---
 
@@ -113,6 +120,7 @@ Paste CLAUDE_CONTEXT.md only, then paste studiochief_v21.html if Claude needs to
 - Always use the highest-numbered studiochief_vXX.html as the current frontend unless this file says otherwise.
 - Claude builds everything. No developer is available.
 - Rules files grow over time. Every session where new reasoning is established, update the relevant tool rules file and re-upload it to the repo.
+- Claude always sends an updated CLAUDE_CONTEXT.md alongside any file deliverable that changes tool status or the frontend version.
 
 ---
 
