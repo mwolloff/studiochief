@@ -18,9 +18,9 @@ Status codes: ✅ Fetched and readable | ⚠️ URL dead/moved | 🔒 Blocked | 
 | Location | Main URL | Status | PDFs | Notes |
 |---|---|---|---|---|
 | Alabama | https://www.revenue.alabama.gov/tax-incentives/film-rebate/ | Not yet fetched | None found | HTML only |
-| Arizona | Pending | — | — | Not in Part 1 or Part 2 from ChatGPT |
+| Arizona | https://commerce.az.gov/film-media/film-incentives | Not yet fetched | https://commerce.az.gov/sites/default/files/film_tax_credit_program_guidelines.pdf | Added April 9 2026 |
 | Arkansas | https://www.arkansasedc.com/business-in-arkansas/incentives/film | Not yet fetched | https://www.arkansasedc.com/docs/default-source/incentives/film-incentive-guidelines.pdf | — |
-| California | https://film.ca.gov/tax-credit/ | Not yet fetched | https://film.ca.gov/wp-content/uploads/2023/11/Program-3.0-Guidelines.pdf / FAQs-Program-3.0.pdf | — |
+| California | https://film.ca.gov/tax-credit/ | Not yet fetched | https://film.ca.gov/wp-content/uploads/2023/11/Program-3.0-Guidelines.pdf | — |
 | Colorado | https://oedit.colorado.gov/film-incentives | Not yet fetched | None found | HTML only |
 | Connecticut | https://portal.ct.gov/DECD/Content/Film-TV-Digital-Media/Film-TV-Tax-Credit | Not yet fetched | https://portal.ct.gov/-/media/DECD/Small-Business/Film-TV/Tax-Credit/Film-TV-Tax-Credit-Guide.pdf | — |
 | Georgia | https://georgia.org/industries/film-entertainment/georgia-film-tv-production/production-incentives | ✅ Fetched April 9 2026 | FAQ + Expenditure List + Official Site | At detailed level — see DATA_REGISTRY.md |
@@ -32,12 +32,26 @@ Status codes: ✅ Fetched and readable | ⚠️ URL dead/moved | 🔒 Blocked | 
 | Maryland | https://commerce.maryland.gov/fund/programs-for-businesses/film-production-tax-credit | Not yet fetched | https://commerce.maryland.gov/Documents/FinanceDocument/film-tax-credit-guidelines.pdf | — |
 | Massachusetts | https://www.mass.gov/info-details/massachusetts-film-tax-incentives | Not yet fetched | https://www.mass.gov/doc/dor-directive-07-1-massachusetts-film-tax-credit/download | — |
 | Minnesota | https://mn.gov/deed/business/financing-business/deed-programs/mn-film-tv-board/ | Not yet fetched | https://mn.gov/deed/assets/mn-film-tv-tax-credit-program-guidelines.pdf | — |
+| Missouri | https://film.mo.gov/incentives/ | Not yet fetched | None (inactive/not currently funded) | Verify active status |
 | Nevada | https://film.nv.gov/incentive/ | ✅ Fetched April 9 2026 | Multiple PDFs | At detailed level — see DATA_REGISTRY.md |
+| New Mexico | https://nmfilm.com/why-new-mexico/incentives/ | Not yet fetched | https://nmfilm.com/wp-content/uploads/Film-Incentive-Overview.pdf | Also: https://www.tax.newmexico.gov/all-taxes/film-production-tax-credit/ |
+| New York | https://esd.ny.gov/new-york-state-film-tax-credit-program-production | ✅ Fetched April 9 2026 | — | Data retrieved — not yet built into HTML |
+| North Carolina | https://www.nccommerce.com/industries/film/incentives | Not yet fetched | https://www.nccommerce.com/sites/default/files/Film-Incentive-Grant-Guidelines.pdf | — |
+| Ohio | https://development.ohio.gov/business/film | Not yet fetched | https://development.ohio.gov/static/business/FilmTaxCreditProgram.pdf | — |
 | Oklahoma | https://okfilmmusic.org/incentives/ | Not yet fetched | https://okfilmmusic.org/wp-content/uploads/2023/07/Filmed-in-Oklahoma-Act.pdf | — |
+| Oregon | https://oregonfilm.org/incentives/ | ✅ Fetched April 9 2026 | https://oregonfilm.org/wp-content/uploads/2023/01/OPIF-Guidelines.pdf | Live and readable |
+| Pennsylvania | https://dced.pa.gov/programs/film-tax-credit-program/ | ✅ Fetched April 9 2026 | https://dced.pa.gov/download/film-production-tax-credit-guidelines/?wpdmdl=75431 | Live — 25% base, +5% for qualified facility, 60% PA spend required |
 | Puerto Rico | https://ddec.pr.gov/en/incentives/film/ | Not yet fetched | https://ddec.pr.gov/wp-content/uploads/2021/05/Puerto-Rico-Film-Incentive-Guide.pdf | — |
+| Rhode Island | https://film.ri.gov/incentives | Not yet fetched | https://film.ri.gov/sites/g/files/xkgbur701/files/documents/RI-Film-Tax-Credit-Program.pdf | — |
+| South Carolina | https://www.scfilmcommission.com/incentives | Not yet fetched | https://www.scfilmcommission.com/sites/default/files/SC-Film-Incentives.pdf | Limited funding pool |
 | Tennessee | https://www.tnentertainment.com/film/incentives/ | Not yet fetched | None found | HTML only |
 | Texas | https://gov.texas.gov/film/page/incentives | Not yet fetched | https://gov.texas.gov/uploads/files/film/TMIIIP_Guidelines.pdf | — |
+| Utah | https://film.utah.gov/incentives/ | Not yet fetched | https://film.utah.gov/wp-content/uploads/Utah-Film-Incentive-Guidelines.pdf | — |
+| Vermont | https://accd.vermont.gov/economic-development/film | Not yet fetched | None (no formal program) | No active statewide incentive |
+| Virginia | https://www.film.virginia.org/incentives/ | Not yet fetched | https://www.film.virginia.org/wp-content/uploads/Film-Incentives-Overview.pdf | — |
 | Washington | https://www.washingtonfilmworks.org/incentives/ | Not yet fetched | https://www.washingtonfilmworks.org/wp-content/uploads/2023/01/Washington-Filmworks-Incentive-Guidelines.pdf | — |
+| Wisconsin | https://filmwisconsin.net/ | Not yet fetched | None | Program largely discontinued |
+| Wyoming | https://wyomingfilmoffice.com/incentives/ | Not yet fetched | https://wyomingfilmoffice.com/wp-content/uploads/Wyoming-Film-Incentive.pdf | Small grant-style program |
 
 ---
 
@@ -50,14 +64,15 @@ Status codes: ✅ Fetched and readable | ⚠️ URL dead/moved | 🔒 Blocked | 
 | Australia – SA | https://www.safilm.com.au/incentives | Not yet fetched | https://www.safilm.com.au/assets/documents/SA-Film-Rebate-Guidelines.pdf | — |
 | Australia – Victoria | https://www.film.vic.gov.au/choose-victoria/incentives | Not yet fetched | https://www.film.vic.gov.au/__data/assets/pdf_file/0010/165082/Film-Victoria-Incentive-Guidelines.pdf | — |
 | Australia – WA | https://www.screenwest.com.au/funding-and-support/incentives/ | Not yet fetched | https://www.screenwest.com.au/wp-content/uploads/2023/07/Screenwest-Incentive-Scheme-Guidelines.pdf | — |
-| British Columbia | https://www.creativebc.com/programs/provincial-film-incentives | ⚠️ 404 Dead | https://www2.gov.bc.ca/assets/gov/taxes/income-taxes/corporate/credits/film/bc-production-services-tax-credit.pdf | Need updated URL |
-| France | https://www.cnc.fr/web/en/tax-rebate-for-international-production | ⚠️ 404 Dead | — | Need updated URL |
-| Greece | https://cashrebate.ekome.media/ | 🔒 Blocked | https://ekome.media/wp-content/uploads/2023/01/Cash-Rebate-Program-Greece.pdf | Try PDF directly or manual |
-| Ireland | https://www.screenireland.ie/funding/section-481 | 🔒 Blocked | https://www.screenireland.ie/images/uploads/general/Section_481_Guidelines.pdf | Try PDF directly or manual |
+| British Columbia | https://www.creativebc.com/programs/provincial-film-incentives | ⚠️ 404 Dead | https://www2.gov.bc.ca/assets/gov/taxes/income-taxes/corporate/credits/film/bc-production-services-tax-credit.pdf | Need updated URL. Backup: https://www2.gov.bc.ca/gov/content/taxes/income-taxes/corporate/credits/film |
+| Cyprus | https://film.investcyprus.org.cy/incentives/ | 📄 PDF ingested | CYPRUS_FILM_SCHEME_-_2025_-_ENG_-_29_SEP_2025.pdf | **At detailed level.** Full scheme document ingested September 2025. Built into v30. |
+| France | https://www.cnc.fr/web/en/tax-rebate-for-international-production | ⚠️ 404 Dead | https://www.cnc.fr/documents/36995/148858/Tax+Rebate+for+International+Production.pdf | Need updated URL |
+| Greece | https://filmcommission.gr/cash-rebate/ | ✅ Fetched April 9 2026 | https://ekome.media/wp-content/uploads/2023/01/Cash-Rebate-Program-Greece.pdf | Corrected URL — data retrieved, not yet built into HTML |
+| Ireland | https://www.screenireland.ie/filming/section-481-1 | ✅ Fetched April 9 2026 | https://www.screenireland.ie/images/uploads/general/Section_481_Guidelines.pdf | Corrected URL — Scéal 40% uplift confirmed, data retrieved, not yet built into HTML |
 | Israel | https://filmfund.org.il/en/incentives | Not yet fetched | None | HTML only |
 | Malaysia | https://www.finas.gov.my/en/incentives/ | Not yet fetched | https://www.finas.gov.my/wp-content/uploads/film-in-malaysia-incentive-guide.pdf | — |
 | Morocco | https://www.ccm.ma/en/film-production-incentives/ | Not yet fetched | None | HTML only |
-| New Zealand | https://www.nzfilm.co.nz/incentives/rebate-international-nzspr | ✅ Fetched April 9 2026 | Guidelines PDF in resource library | **Key update: min spend dropped to NZ$4M for live action eff. Jan 1 2026. Was NZ$15M.** Summary data needs updating. |
+| New Zealand | https://www.nzfilm.co.nz/incentives/rebate-international-nzspr | ✅ Fetched April 9 2026 | Guidelines PDF in resource library | **Key update: min spend dropped to NZ$4M for live action eff. Jan 1 2026. Was NZ$15M. FIXED in v30.** |
 | Norway | https://www.nfi.no/eng/incentive-scheme | Not yet fetched | https://www.nfi.no/eng/files/2023/02/Incentive-Scheme-Guidelines.pdf | — |
 | Philippines | https://www.fdcp.ph/programs/film-incentives | Not yet fetched | https://www.fdcp.ph/wp-content/uploads/Film-Incentive-Program-Guidelines.pdf | — |
 | Quebec | https://sodec.gouv.qc.ca/en/programmes-aide/production/ | Not yet fetched | https://sodec.gouv.qc.ca/wp-content/uploads/production-tax-credit-guidelines.pdf | — |
@@ -67,8 +82,8 @@ Status codes: ✅ Fetched and readable | ⚠️ URL dead/moved | 🔒 Blocked | 
 | Spain | https://www.icex.es/en/tax-incentives-audiovisual | Not yet fetched | None | HTML only — varies by region |
 | Thailand | https://www.thailandfilmoffice.go.th/incentives | Not yet fetched | https://www.thailandfilmoffice.go.th/wp-content/uploads/Incentive-Measure.pdf | — |
 | Turkey | https://www.ktb.gov.tr/EN-98736/cinema.html | Not yet fetched | None | Limited program |
-| UAE – Abu Dhabi | https://twofour54.com/en/production/incentives | ⚠️ URL redirected | https://twofour54.com/wp-content/uploads/production-incentive-guidelines.pdf | Site restructured — incentives page moved |
-| United Kingdom | https://www.bfi.org.uk/film-industry/british-certification-tax-relief | ✅ Fetched April 9 2026 | https://core-cms.bfi.org.uk/media/87/download (AVEC info leaflet) | **Key update: program now called AVEC (not Film Tax Relief). New IFTC for films under £15M eff. April 2025. Summary data needs updating.** |
+| UAE – Abu Dhabi | https://twofour54.com/en/production/incentives | ⚠️ Redirects to homepage | — | Site restructured — incentives page appears to be gone entirely. Verify with ADFC directly. |
+| United Kingdom | https://www.bfi.org.uk/film-industry/british-certification-tax-relief | ✅ Fetched April 9 2026 | https://core-cms.bfi.org.uk/media/87/download | **Program now called AVEC. New IFTC for films under £15M eff. April 2025. FIXED in v30.** |
 
 ---
 
@@ -79,21 +94,17 @@ Marc needs to manually find or verify updated URLs for:
 2. **British Columbia** — creativebc.com URL is dead, find current page
 3. **France CNC** — cnc.fr URL is dead, find current page
 4. **South Africa DTIC** — URL is dead, find current page
-5. **UAE Abu Dhabi** — twofour54 restructured, find current incentives page
-6. **Greece EKOME** — blocked, try fetching PDF directly or manual download
-7. **Ireland Screen Ireland** — blocked, try PDF directly or manual download
-8. **Arizona** — not yet in URL registry at all, need official URL
+5. **UAE Abu Dhabi** — twofour54 restructured, incentives page appears gone — contact ADFC directly
 
 ---
 
-## KNOWN DATA UPDATES NEEDED (from fetch session April 9 2026)
+## KNOWN DATA UPDATES — RESOLVED
 
-These locations have confirmed program changes that differ from our current EP summary data:
-
-| Location | Change | Action Needed |
+| Location | Change | Status |
 |---|---|---|
-| New Zealand | Min spend for live action dropped from NZ$15M to NZ$4M effective Jan 1 2026 | Update Tool 4 calculator data and Tool 5 summary panel |
-| United Kingdom | Program renamed from Film Tax Relief to Audio-Visual Expenditure Credit (AVEC). New Independent Film Tax Credit (IFTC) for films under £15M core expenditure, effective April 2025 | Update Tool 4 and Tool 5 — significant change |
+| New Zealand | Min spend for live action dropped from NZ$15M to NZ$4M effective Jan 1 2026 | ✅ Fixed in v30 |
+| United Kingdom | Program renamed to AVEC. New IFTC for films under £15M, effective April 2025 | ✅ Fixed in v30 |
+| Cyprus | New location added — full scheme document ingested, built into Tool 4 and Tool 5 | ✅ Done in v30 |
 
 ---
 
@@ -101,51 +112,10 @@ These locations have confirmed program changes that differ from our current EP s
 
 These URLs have not yet been fetched. Next session should work through these:
 
-**US:** Alabama, Arkansas, California, Colorado, Connecticut, Hawaii, Kentucky, Louisiana, Maine, Maryland, Massachusetts, Minnesota, Oklahoma, Puerto Rico, Tennessee, Texas, Washington
+**US:** Alabama, Arkansas, California, Colorado, Connecticut, Hawaii, Kentucky, Louisiana, Maine, Maryland, Massachusetts, Minnesota, Oklahoma, Puerto Rico, Tennessee, Texas, Washington, Missouri, New Mexico, North Carolina, Ohio, Rhode Island, South Carolina, Utah, Virginia, Wisconsin, Wyoming
 
 **International:** Australia NT, Australia SA, Australia Victoria, Australia WA, Israel, Malaysia, Morocco, Norway, Philippines, Quebec, Romania, South Korea, Spain, Thailand, Turkey
 
 ---
 
 *Update this file after every fetch session. Note what was retrieved, what failed, and what program changes were discovered.*
-
----
-
-## UPDATE — April 9, 2026 (second fetch session)
-
-### NEWLY FETCHED — INTERNATIONAL
-
-| Location | URL Fetched | Result |
-|---|---|---|
-| New York | https://esd.ny.gov/new-york-state-film-tax-credit-program-production | ✅ Full detail retrieved |
-| Ireland | https://www.screenireland.ie/filming/section-481-1 | ✅ Full detail retrieved — corrected URL |
-| Greece | https://filmcommission.gr/cash-rebate/ | ✅ Full detail retrieved — corrected URL |
-| Cyprus | https://film.investcyprus.org.cy/incentives/ | ✅ Full detail retrieved — NEW LOCATION, not previously in system |
-
-### US STATE URLs — LOGGED BUT NOT YET FETCHED (permissions issue this session)
-
-The following URLs were provided via document attachment rather than direct text and could not be fetched this session. Paste URL Registry at start of next session to fetch these properly.
-
-| Location | URL to Fetch |
-|---|---|
-| New Mexico | https://nmfilm.com/whynewmexico/incentives-2 |
-| Missouri | https://film.mo.gov/incentives/ |
-| Oregon | https://oregonfilm.org/incentives/ |
-| Pennsylvania | https://dced.pa.gov/programs/film-tax-credit-program/ |
-| Rhode Island | https://film.ri.gov/incentives |
-| South Carolina | https://www.scfilmcommission.com/incentives |
-| Utah | https://film.utah.gov/incentives/ |
-| Virginia | https://www.film.virginia.org/incentives/ |
-| Wisconsin | https://filmwisconsin.net/ |
-| Wyoming | https://wyomingfilmoffice.com/incentives/ |
-| North Carolina | https://www.nccommerce.com/industries/film/incentives |
-| Ohio | https://development.ohio.gov/business/film |
-| Vermont | https://accd.vermont.gov/economic-development/film |
-
-### STATUS NOTES FROM ChatGPT
-- Vermont: no active statewide incentive program (grants/very limited)
-- Wisconsin: incentive program largely discontinued
-- Wyoming: very small grant-style program
-- Missouri: on/off historically — verify active status
-- South Carolina: limited/allocation-based, not guaranteed
-

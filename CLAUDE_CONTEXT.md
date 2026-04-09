@@ -26,7 +26,7 @@ Frontend is plain HTML/CSS/vanilla JavaScript. NOT React, NOT a build system. Al
 
 ## CURRENT FRONTEND FILE
 
-**studiochief_v29.html** — current production frontend as of April 9, 2026.
+**studiochief_v30.html** — current production frontend as of April 9, 2026.
 
 Always use the highest-numbered studiochief_vXX.html unless this file says otherwise.
 
@@ -34,7 +34,7 @@ Always use the highest-numbered studiochief_vXX.html unless this file says other
 
 ## FILE SIZE NOTE
 
-v29 is ~2,327 lines. Flag proactively when approaching 3,000 lines or 300KB.
+v30 is ~2,390 lines. Flag proactively when approaching 3,000 lines or 300KB.
 
 ---
 
@@ -61,8 +61,8 @@ All currency inputs use type="text" inputmode="numeric" with live comma formatti
 | 1 | Cash Flow Generator | ✅ Working | See TOOL1_CASHFLOW_RULES.md |
 | 2 | Cost & Variance Report | ⚠️ In Progress | Timeout issue. See TOOL2_VARIANCE_RULES.md |
 | 3 | Risk & Diligence Scanner | ✅ Working | Icon is 🔍 |
-| 4 | Tax Incentive Calculator | ✅ Working | Client-side. See TOOL4_TAX_INCENTIVE_RULES.md |
-| 5 | Tax Incentive Information | ✅ Working | Georgia + Nevada detailed. All others summary. See TOOL5_TAX_INFO_RULES.md |
+| 4 | Tax Incentive Calculator | ✅ Working | Client-side. 47 locations. See TOOL4_TAX_INCENTIVE_RULES.md |
+| 5 | Tax Incentive Information | ✅ Working | 47 locations. Georgia + Nevada + Cyprus detailed. All others summary. See TOOL5_TAX_INFO_RULES.md |
 
 ---
 
@@ -76,19 +76,22 @@ All currency inputs use type="text" inputmode="numeric" with live comma formatti
 
 ## TOOL 4 — TAX INCENTIVE CALCULATOR
 
-- 46 locations, 13 production types including Competition
+- 47 locations, 13 production types including Competition
 - Rate transparency in result card
 - Unified Options & Uplifts section
 - Optional show title field
 - Excel/CSV export with 2 decimal places and commas
 - Data Status button in tool header
-- Known stale data: New Zealand min spend changed, UK program renamed to AVEC
+
+**Fixed in v30:**
+- New Zealand min spend updated: NZ$4M for live action (was NZ$15M, effective Jan 1 2026)
+- UK program renamed to AVEC (Audio-Visual Expenditure Credit), IFTC note added
+- Cyprus added as new location
 
 **Pending v-next items:**
 - In Excel export, replace static "Headline Rate" with calculated "Effective Rate Applied"
-- Add Cyprus as new location
-- Update New Zealand min spend (NZ$15M → NZ$4M for live action, eff. Jan 1 2026)
-- Update UK program name to AVEC and add IFTC note
+- Add Cyprus official PDF URL to URL registry (film.investcyprus.org.cy)
+- Update New Zealand min spend flag text — note live action vs TV distinction more clearly
 
 ---
 
@@ -98,15 +101,20 @@ All currency inputs use type="text" inputmode="numeric" with live comma formatti
 - Indigo dot = detailed. Green dot = summary.
 - Georgia: full detail including expandable GDOR expenditure YES/NO chart
 - Nevada: full detail including Kim Spurgeon contact
+- Cyprus: full detail including application process, audit rules, local hiring requirements, scheme sunset date
 - All others: summary panel
 - Excel export per location
 
+**Fixed in v30:**
+- Cyprus added as new detailed location
+- New Zealand summary updated with new min spend note
+- UK summary updated to AVEC with IFTC note
+
 **Pending v-next items:**
-- Add Cyprus as new location (up to 45% cash rebate, official PDF available)
 - Add New York at summary level (30% base, $700M/year through 2036)
 - Upgrade Ireland to detailed (32% + new 8% Scéal Uplift = 40%, eff. March 2025)
 - Upgrade Greece to detailed (40% cash rebate, new law 5105/2024)
-- Update New Zealand and UK data
+- Update New Zealand and UK to detailed when PDFs available
 
 ---
 
@@ -122,9 +130,8 @@ When Marc asks "how are the tax incentive files going?":
 - If not: say "paste DATA_REGISTRY.md and TOOL4_TOOL5_URL_REGISTRY.md from GitHub and I'll give you the full picture"
 
 **Current data levels:**
-- Detailed: Georgia, Nevada
+- Detailed: Georgia, Nevada, Cyprus
 - Ready to upgrade to detailed: Ireland, Greece
-- Ready to add as new: Cyprus
 - Ready to add at summary: New York
 - Summary only: all other 44 current locations
 - Pending/not in system: ~13 remaining US states
@@ -133,8 +140,37 @@ When Marc asks "how are the tax incentive files going?":
 **Dead URLs still needing corrected addresses:**
 - Australia NSW, British Columbia, France, South Africa, UAE Abu Dhabi
 
-**US state URLs logged but not yet fetched (blocked this session — fetch next session):**
+**US state URLs logged but not yet fetched:**
 New Mexico, Missouri, Oregon, Pennsylvania, Rhode Island, South Carolina, Utah, Virginia, Wisconsin, Wyoming, North Carolina, Ohio, Vermont
+
+---
+
+## DATA GAP TRACKER
+
+Use this section to answer "what are we missing?" in any new chat without needing DATA_REGISTRY.md.
+
+### Locations NOT yet in the system (pending ingestion)
+Missouri, New Mexico, New York, North Carolina, Ohio, Oregon, Pennsylvania, Rhode Island, South Carolina, Utah, Vermont, Virginia, Wisconsin, Wyoming
+
+### Locations in system at SUMMARY level only (priority to upgrade)
+**Tier 1:** Louisiana, Texas, United Kingdom (AVEC), British Columbia, Ireland, California
+**Tier 2:** Arizona, Quebec, Massachusetts, Greece
+**Tier 3:** All remaining US states and international locations
+
+### Known data discrepancies (in system but needs update)
+- New Zealand: min spend updated Jan 1 2026 to NZ$4M live action — FIXED in v30
+- UK: renamed to AVEC, IFTC added — FIXED in v30
+
+### Dead URLs (need manual search to find current page)
+- Australia NSW — screen.nsw.gov.au returns 404
+- British Columbia — creativebc.com returns 404
+- France CNC — cnc.fr returns 404
+- South Africa DTIC — thedtic.gov.za returns 404
+- UAE Abu Dhabi — twofour54 restructured, incentives page gone
+
+### Blocked URLs (try PDF directly or manual download)
+- Ireland — screenireland.ie blocked (corrected URL found: screenireland.ie/filming/section-481-1)
+- Greece — ekome.media blocked (corrected URL found: filmcommission.gr/cash-rebate/)
 
 ---
 
@@ -145,6 +181,7 @@ New Mexico, Missouri, Oregon, Pennsylvania, Rhode Island, South Carolina, Utah, 
 - Visual polish pass: Tax calculator and Cost & Variance Report feel text-heavy
 - HTML file size: flag at 3,000 lines / 300KB
 - Excel export effective rate fix (v-next)
+- New York, Ireland, Greece still need to be built into the HTML (data fetched, not yet coded)
 
 ---
 
@@ -162,7 +199,7 @@ New Mexico, Missouri, Oregon, Pennsylvania, Rhode Island, South Carolina, Utah, 
 | TOOL5_TAX_INFO_RULES.md | Tax Incentive Information rules and ingestion workflow |
 | TAX_INCENTIVE_RULES (1).md | Detailed source rules for Tool 4 incentive logic |
 | incentives_data.json | Raw incentive data, 46 locations, March 2026 |
-| studiochief_v29.html | Current production frontend |
+| studiochief_v30.html | Current production frontend |
 | app.py | Flask backend |
 | requirements.txt | Python dependencies |
 | render.yaml | Render config |
@@ -178,7 +215,7 @@ New Mexico, Missouri, Oregon, Pennsylvania, Rhode Island, South Carolina, Utah, 
 **Tool 3:** CLAUDE_CONTEXT.md + TOOL3_RISK_RULES.md
 **Tool 4:** CLAUDE_CONTEXT.md + TOOL4_TAX_INCENTIVE_RULES.md + DATA_REGISTRY.md + URL_REGISTRY
 **Tool 5:** CLAUDE_CONTEXT.md + TOOL5_TAX_INFO_RULES.md + DATA_REGISTRY.md + URL_REGISTRY
-**Frontend/architecture:** CLAUDE_CONTEXT.md + studiochief_v29.html
+**Frontend/architecture:** CLAUDE_CONTEXT.md + studiochief_vXX.html
 
 ---
 
@@ -195,6 +232,8 @@ Every session ending with a new HTML version, tool status change, or new data in
 - Claude does not ask questions it can answer from context files.
 - Claude builds everything. No developer available.
 - Claude always sends the full airtight package at session end.
+- When Marc pastes large amounts of HTML or code, always ask first: "Hey Marc, do you have the actual file? That would be easier."
+- When something will take a long time or risk breaking things, flag it and ask Marc if there's a simpler path (like uploading a file instead of pasting).
 
 ---
 

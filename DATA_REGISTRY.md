@@ -20,7 +20,7 @@ When Marc sends new PDFs, Claude updates this registry and returns an updated fi
 
 ## SECTION 1: SUMMARY SOURCE DOCUMENTS (EP Guides)
 
-These documents power all 46 current locations at summary level in both Tool 4 and Tool 5.
+These documents power all current locations at summary level in both Tool 4 and Tool 5.
 
 | Source | Coverage | Date Range | Notes |
 |---|---|---|---|
@@ -31,6 +31,8 @@ These documents power all 46 current locations at summary level in both Tool 4 a
 ## SECTION 2: DETAILED SOURCE DOCUMENTS (State/Country PDFs)
 
 Documents received beyond the EP summaries, organized by location.
+
+---
 
 ### 🇺🇸 GEORGIA — DETAILED ✅
 Data level upgraded to: **Detailed**
@@ -80,26 +82,25 @@ Last updated: April 9, 2026
 
 **Key details now in system (beyond EP summary):**
 - Contact: Kim Spurgeon, Director — info@film.nv.gov — 877-638-3456 — film.nv.gov
-- Credit issued: Within 45 days of audit completion (fastest turnaround in dataset — major competitive advantage)
+- Credit issued: Within 45 days of audit completion (fastest turnaround in dataset)
 - No application fee, no registration fee
-- No state income tax (significant business advantage)
-- Public hearing required: Application is public record; production representative must attend
-- Proof of financing: 70% of budget must be secured (or corporate credit rating of "lower medium grade" or higher)
+- No state income tax
+- Public hearing required: Application is public record
+- Proof of financing: 70% of budget must be secured
 - Application timing: Must be submitted BEFORE start of principal photography
 - Pre-qualifying costs: Can be incurred up to 90 days before application submission date
-- Photography start: Must begin within 90 days of approval (90-day extension possible)
+- Photography start: Must begin within 90 days of approval
 - Completion deadline: 18 months from first day of principal photography
-- Audit submission: Within 270 days of project completion (30-day extension possible)
-- Non-resident BTL: Confirmed ZERO (not just "not listed")
-- Resident bonus (5%): Requires more than 50% of BTL crew (by workdays, not headcount) to be NV residents
+- Audit submission: Within 270 days of project completion
+- Non-resident BTL: Confirmed ZERO
+- Resident bonus (5%): More than 50% of BTL crew (by workdays) are NV residents
 - Rural bonus (5%): More than 50% of filming days outside Clark County
 - Nevada resident definition: Lived in NV at least 6 months OR holds valid NV driver's license
 - Producer ATL cap: NV resident producers capped at 10% of total NV expenditures; non-NV producers at 5%
 - Per individual/loan-out cap: $750,000
-- Film Nevada logo required in end credits (or other acknowledgment for productions without end credits)
-- Transfer: Must notify state in writing before any transfer and before expiration date
+- Film Nevada logo required in end credits
 - Airfare: Qualifies only if purchased through a Nevada travel agency or agent
-- Fringes: Qualify as labor (employer taxes, union dues, health insurance, pension, workers comp)
+- Fringes: Qualify as labor
 - Payroll handling fees: Qualify only if payroll company is a Nevada business
 - Mileage: Qualifies only for miles driven in Nevada
 - Per diem: Qualifies only for days worked in Nevada
@@ -108,6 +109,51 @@ Last updated: April 9, 2026
 **What's still missing for Nevada:**
 - Current funding availability (annual cap is $10M but actual remaining balance unknown)
 - List of approved CPA auditors
+
+---
+
+### 🇨🇾 CYPRUS — DETAILED ✅
+Data level: **Detailed**
+Last updated: April 9, 2026
+
+| Document | Source | Date | Key Content |
+|---|---|---|---|
+| CYPRUS_FILM_SCHEME_-_2025_-_ENG_-_29_SEP_2025.pdf | Cyprus Film Commission / Invest Cyprus | September 2025 | Full scheme document: all three incentives (cash rebate, tax credit, infrastructure deduction), eligibility criteria, application process, qualifying expenditure list, cultural test framework, maximum aid table, pre-approval and final approval checklists |
+
+**Key details now in system:**
+- Administering body: Cyprus Film Commission (CFC), implemented by Invest Cyprus (CIPA)
+- Application portal: film.investcyprus.org.cy
+- Scheme end date: June 30, 2027 — all applications and approvals must be completed by this date
+- Annual budget: €25M across all productions
+- Cash rebate rate: 45% of eligible expenditure Below the Line, 25% of eligible expenditure Above the Line
+- Tax credit alternative: 25%–35% (non-transferable, choose either cash rebate OR tax credit, not both)
+- Infrastructure/equipment deduction: up to 20% for SMEs (separate incentive III)
+- Maximum aid per project: €5M (70%+ shoot days + budget in Cyprus), €3.5M (35–69%), €1.5M (20–34%)
+- Minimum spend: €200K feature, €65K/ep TV series (min €180K for up to 2 eps), €100K all other
+- Minimum activity threshold: 20% of production days AND 20% of budget must be in Cyprus
+- ATL cap: ATL spend capped at 30% of total Cyprus budget for rebate; minimum ATL is 25% (12% for docs/reality)
+- Pre/post cap: Combined pre-production and post-production aid cannot exceed 20% of eligible expenditure
+- Proof of funds: 50% of eligible Cyprus expenditure
+- Application timing: Must apply BEFORE start of filming. Pre-approval certificate within 90 days.
+- Production must commence within 24 weeks of pre-approval certificate
+- Eligible types: Feature films (60+ min), TV drama/series (max 12 eps/600 min/year), animation, creative documentaries, reality shows promoting Cyprus culture
+- Ineligible: Short films, sports, game shows (except qualifying reality shows), current affairs, educational, advertising
+- Reality shows: Eligible if they promote Cyprus and culture, filming must be less than 50% studio
+- Local hiring required: 1 Cyprus resident ATL (production team), 2 Cyprus residents ATL total, 8 Cyprus residents BTL (not extras), 4 Cyprus residents as interns
+- Per diem maximum: €100/person/day
+- Payment timeline: Cash rebate paid within 120 calendar days of accepted payment request
+- Audit: Full statutory audit by Cyprus-licensed CPA required before payment. Audit costs not eligible.
+- Every invoice must have proof of payment attached or it is ineligible
+- VAT, customs duties, bank interest, completion bond costs not eligible
+- Screening requirement: Production must arrange special screening of final cut for Commission members before payment
+- Credit requirement: Must include "The Production is made with the support of financial incentives granted by the Government of the Republic of Cyprus" + Film in Cyprus logo in end credits
+- Cyprus bank account: Must open a zero-balance Cyprus bank account for each production
+
+**What's still missing for Cyprus:**
+- Direct contact name and phone at Cyprus Film Commission (only portal URL known: film.investcyprus.org.cy)
+- Current funding availability within the €25M annual budget
+- List of approved Cyprus CPA auditors
+- Cultural test scoring sheet (Appendix 4 Form 3 was marked "FOR INTERNAL USE" in PDF)
 
 ---
 
@@ -143,7 +189,7 @@ Last updated: April 9, 2026
 
 | Location | Data Level | Notes |
 |---|---|---|
-| Missouri | Pending | — |
+| Missouri | Pending | Historically on/off — verify active status |
 | New Mexico | Pending | — |
 | New York | Pending | High priority — major production state |
 | North Carolina | Pending | — |
@@ -151,12 +197,12 @@ Last updated: April 9, 2026
 | Oregon | Pending | — |
 | Pennsylvania | Pending | — |
 | Rhode Island | Pending | — |
-| South Carolina | Pending | — |
+| South Carolina | Pending | Limited/allocation-based |
 | Utah | Pending | — |
-| Vermont | Pending | — |
+| Vermont | Pending | No active statewide program (grants only) |
 | Virginia | Pending | — |
-| Wisconsin | Pending | — |
-| Wyoming | Pending | — |
+| Wisconsin | Pending | Program largely discontinued |
+| Wyoming | Pending | Small grant-style program |
 
 ### International
 
@@ -168,13 +214,14 @@ Last updated: April 9, 2026
 | Australia – Victoria | ✅ | ❌ | Summary | Low |
 | Australia – Western Australia | ✅ | ❌ | Summary | Low |
 | British Columbia | ✅ | ❌ | Summary | High — high traffic |
+| **Cyprus** | ✅ | ✅ | **Detailed** | Done |
 | France | ✅ | ❌ | Summary | Medium |
-| Greece | ✅ | ❌ | Summary | Low |
-| Ireland | ✅ | ❌ | Summary | High — popular US production destination |
+| Greece | ✅ | ❌ | Summary | High — data fetched, ready to build |
+| Ireland | ✅ | ❌ | Summary | High — data fetched, ready to build |
 | Israel | ✅ | ❌ | Summary | Low |
 | Malaysia | ✅ | ❌ | Summary | Low |
 | Morocco | ✅ | ❌ | Summary | Medium |
-| New Zealand | ✅ | ❌ | Summary | Medium |
+| New Zealand | ✅ | ❌ | Summary | Medium — min spend updated Jan 2026 |
 | Norway | ✅ | ❌ | Summary | Low |
 | Philippines | ✅ | ❌ | Summary | Low |
 | Quebec | ✅ | ❌ | Summary | High — high traffic |
@@ -185,30 +232,58 @@ Last updated: April 9, 2026
 | Thailand | ✅ | ❌ | Summary | Low |
 | Turkey | ✅ | ❌ | Summary | Low |
 | UAE – Abu Dhabi | ✅ | ❌ | Summary | Low |
-| United Kingdom | ✅ | ❌ | Summary | High — complex multi-program, high traffic |
+| United Kingdom | ✅ | ❌ | Summary | High — complex multi-program, AVEC rename done |
 
 ---
 
 ## SECTION 4: UPGRADE PRIORITY LIST
 
-Based on production traffic, program complexity, and data gaps, these locations are most valuable to upgrade next:
-
 **Tier 1 — Upgrade ASAP**
 1. Louisiana — complex program, loan-out nuance, high production traffic
 2. Texas — high traffic, grant program, multiple uplifts
 3. New York — not yet in system, major production state
-4. United Kingdom — complex multi-program, currently contact-for-details only
+4. United Kingdom — complex multi-program, AVEC rename done in v30, detailed data still needed
 5. British Columbia — highest effective rate in dataset, high traffic
-6. Ireland — extremely popular for US productions, clean program
+6. Ireland — extremely popular for US productions, Scéal uplift now 40%, data fetched
 
 **Tier 2 — Upgrade when available**
 7. California — sunset alert, multiple sub-programs, high traffic
 8. Arizona — 100% buy-back, strong program
 9. Quebec — stacked program, high traffic
-10. Massachusetts — strong buy-back, popular
+10. Greece — 40% cash rebate, data fetched, ready to build
 
 **Tier 3 — Lower priority**
 - Remaining US states and international locations
+
+---
+
+## SECTION 5: KNOWN DATA DISCREPANCIES
+
+| Location | Issue | Source | Status |
+|---|---|---|---|
+| New Zealand | Minimum spend for live action dropped from NZ$15M to NZ$4M effective January 1, 2026 | nzfilm.co.nz fetched April 9 2026 | ✅ FIXED in v30 — Tool 4 flag and Tool 5 summary updated |
+| United Kingdom | Program renamed from Film Tax Relief to AVEC. New IFTC for films under £15M core expenditure, effective April 2025 | bfi.org.uk fetched April 9 2026 | ✅ FIXED in v30 — Tool 4 and Tool 5 updated |
+
+---
+
+## SECTION 6: URL FETCH STATUS
+
+See TOOL4_TOOL5_URL_REGISTRY.md for full URL tracking.
+
+Dead URLs found April 9 2026 (Marc needs to find updated pages):
+- Australia NSW — screen.nsw.gov.au URL returned 404
+- British Columbia — creativebc.com URL returned 404
+- France CNC — cnc.fr URL returned 404
+- South Africa DTIC — thedtic.gov.za URL returned 404
+- UAE Abu Dhabi — twofour54 site restructured, incentives page gone
+
+Blocked (try PDF links directly or manual download):
+- Ireland — corrected URL found: screenireland.ie/filming/section-481-1
+- Greece — corrected URL found: filmcommission.gr/cash-rebate/
+
+Not yet fetched (pending next session):
+- Alabama, Arkansas, California, Colorado, Connecticut, Hawaii, Kentucky, Louisiana, Maine, Maryland, Massachusetts, Minnesota, Oklahoma, Puerto Rico, Tennessee, Texas, Washington
+- Australia NT/SA/Victoria/WA, Israel, Malaysia, Morocco, Norway, Philippines, Quebec, Romania, South Korea, Spain, Thailand, Turkey
 
 ---
 
@@ -224,35 +299,3 @@ When Marc uploads new PDFs for a location:
 ---
 
 *Update this file every time new source documents are ingested for any location.*
-
----
-
-## SECTION 5: KNOWN DATA DISCREPANCIES (discovered April 9, 2026)
-
-These locations have confirmed program changes that differ from our current EP summary data (March 2026). Update Tool 4 calculator data and Tool 5 panels when possible.
-
-| Location | Issue | Source | Action Needed |
-|---|---|---|---|
-| New Zealand | Minimum spend for live action dropped from NZ$15M to NZ$4M effective January 1, 2026 | nzfilm.co.nz fetched April 9 2026 | Update Tool 4 + Tool 5 summary — significant eligibility change |
-| United Kingdom | Program renamed from Film Tax Relief to Audio-Visual Expenditure Credit (AVEC). New Independent Film Tax Credit (IFTC) added for films under £15M core expenditure, effective April 2025 | bfi.org.uk fetched April 9 2026 | Update Tool 4 + Tool 5 — program name and structure changed |
-
----
-
-## SECTION 6: URL FETCH STATUS
-
-See TOOL4_TOOL5_URL_REGISTRY.md for full URL tracking.
-
-Dead URLs found April 9 2026 (Marc needs to find updated pages):
-- Australia NSW — screen.nsw.gov.au URL returned 404
-- British Columbia — creativebc.com URL returned 404
-- France CNC — cnc.fr URL returned 404
-- South Africa DTIC — thedtic.gov.za URL returned 404
-- UAE Abu Dhabi — twofour54 site restructured, incentives page moved
-
-Blocked (try PDF links directly or manual download):
-- Ireland — screenireland.ie blocked
-- Greece — ekome.media blocked
-
-Not yet fetched (pending next session):
-- Alabama, Arkansas, California, Colorado, Connecticut, Hawaii, Kentucky, Louisiana, Maine, Maryland, Massachusetts, Minnesota, Oklahoma, Puerto Rico, Tennessee, Texas, Washington
-- Australia NT/SA/Victoria/WA, Israel, Malaysia, Morocco, Norway, Philippines, Quebec, Romania, South Korea, Spain, Thailand, Turkey
