@@ -26,7 +26,7 @@ Frontend is plain HTML/CSS/vanilla JavaScript. NOT React, NOT a build system. Al
 
 ## CURRENT FRONTEND FILE
 
-**studiochief_v26.html** — current production frontend as of April 9, 2026.
+**studiochief_v27.html** — current production frontend as of April 9, 2026.
 
 Always use the highest-numbered studiochief_vXX.html unless this file says otherwise.
 
@@ -34,7 +34,21 @@ Always use the highest-numbered studiochief_vXX.html unless this file says other
 
 ## FILE SIZE NOTE
 
-v26 is ~1,791 lines. Watch this. Flag proactively when approaching 3,000 lines or 300KB — at that point recommend splitting tools into separate HTML files.
+v27 is ~1,831 lines. Flag proactively when approaching 3,000 lines or 300KB — at that point recommend splitting tools into separate HTML files.
+
+---
+
+## GLOBAL CURRENCY FORMATTING RULE
+
+ALL currency inputs across ALL tools must display commas as the user types (e.g. 19,562,322 not 19562322). This is enforced via three shared utility functions defined once in the JS before the Tool 4 section:
+
+- formatWithCommas(value): adds commas to a numeric string
+- parseCurrency(value): strips commas/symbols and returns a float
+- onCurrencyInput(el, callback): called oninput on any currency text field — formats display, calls callback with raw number
+
+All currency inputs use type="text" inputmode="numeric" (not type="number") so formatting works correctly. Never use type="number" for currency fields in this codebase.
+
+This rule applies to: Tax Incentive Calculator spend inputs, total budget field, audit fee field, Cash Flow budget section totals, and any future currency input in any tool.
 
 ---
 
@@ -55,28 +69,22 @@ v26 is ~1,791 lines. Watch this. Flag proactively when approaching 3,000 lines o
 - App order: Tax Incentive Calculator → Tax Incentive Information (soon) → Cash Flow Generator → Cost & Variance Report → Risk & Diligence Scanner → Coming Soon
 - Tagline: "Built and trained for the way productions actually work."
 - StudioChief nav logo: 26px
-- Tax Incentive Information shown as Coming Soon on dashboard
+- Tax Incentive Information shown as Coming Soon
 
 ---
 
-## TOOL 4 CURRENT FEATURE STATE (v26)
+## TOOL 4 CURRENT FEATURE STATE (v27)
 
-- Dynamic bucket modes: simple / labor_spend / full / nocalc (see TOOL4_TAX_INCENTIVE_RULES.md)
-- Rate transparency: result card shows "Rates applied: X% base + Y% uplift = Z% effective" inline above gross incentive line
-- Unified "Options & Uplifts" section: uplifts + contingency toggle + audit fee toggle all in one block, checkbox after checkbox
-- Optional show title field at top of Step 3 (single field, appears on Excel export)
-- Excel export button (green, below columns): downloads CSV with all locations, spend inputs, rates, and calculations
+- Dynamic bucket modes: simple / labor_spend / full / nocalc
+- Rate transparency: "Rates applied: X% base + Y% uplift = Z% effective" shown inline in result card
+- Unified "Options & Uplifts" section: one block, all checkboxes together
+- Optional show title field at top of Step 3
+- Excel export (CSV): filename "Tax_Incentive_Comparison.csv" or "[ShowTitle]_TaxIncentiveComparison.csv", numbers formatted to 2 decimal places with commas
+- All spend inputs: type="text" inputmode="numeric" with live comma formatting
 - Total production budget → Effective Budget After Incentive in green
-- Contingency toggle (10%, on by default), audit/CPA fee toggle (off by default, shows est. amount)
-- Data Status button in tool header: panel showing 46 current + 14 pending locations
+- Contingency toggle (10%, on by default), audit/CPA fee toggle (off by default)
+- Data Status panel accessible via button in tool header
 - 46 locations, 13 production types including Competition
-- Attribution: "publicly available incentive data, March 2026"
-
----
-
-## TOOL 5 PLAN — TAX INCENTIVE INFORMATION
-
-One location at a time. Search/filter left, full detail right. Excel export per location. See TOOL5_TAX_INFO_RULES.md.
 
 ---
 
@@ -84,7 +92,7 @@ One location at a time. Search/filter left, full detail right. Excel export per 
 
 - Pricing and structure: free founding member period, future paid tier, pricing page
 - Login / email capture: preview-then-prompt modal at Generate click
-- Visual polish pass: Tax calculator and Cost & Variance Report feel text-heavy — planned
+- Visual polish pass: Tax calculator and Cost & Variance Report feel text-heavy
 - HTML file size: flag at 3,000 lines / 300KB
 
 ---
@@ -103,7 +111,7 @@ One location at a time. Search/filter left, full detail right. Excel export per 
 | incentives_data.json | Raw incentive data, 46 locations, March 2026 |
 | tax-incentive-calculator.jsx | Original JSX — reference only |
 | studiochief_domain_rules.md | Legacy rules — superseded, kept for reference |
-| studiochief_v26.html | Current production frontend |
+| studiochief_v27.html | Current production frontend |
 | app.py | Flask backend |
 | requirements.txt | Python dependencies |
 | render.yaml | Render config |
@@ -118,7 +126,7 @@ One location at a time. Search/filter left, full detail right. Excel export per 
 **Tool 3:** CLAUDE_CONTEXT.md + TOOL3_RISK_RULES.md
 **Tool 4:** CLAUDE_CONTEXT.md + TOOL4_TAX_INCENTIVE_RULES.md (+ TAX_INCENTIVE_RULES (1).md + incentives_data.json if working on incentive logic)
 **Tool 5:** CLAUDE_CONTEXT.md + TOOL5_TAX_INFO_RULES.md
-**Frontend/architecture:** CLAUDE_CONTEXT.md + studiochief_v26.html
+**Frontend/architecture:** CLAUDE_CONTEXT.md + studiochief_v27.html
 
 ---
 

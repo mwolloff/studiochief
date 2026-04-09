@@ -157,3 +157,9 @@ The Cash Flow Generator takes a production budget (uploaded as an Excel file) an
 ---
 
 *Update this file whenever new spread rules are established, new phase types are identified, output behavior changes, or known issues are resolved.*
+
+---
+
+## GLOBAL CURRENCY FORMATTING RULE (applies to all tools)
+
+All currency inputs must use type="text" inputmode="numeric" with live comma formatting via the shared onCurrencyInput() utility. Never use type="number" for currency fields. Users must see commas as they type (e.g. 19,562,322 not 19562322). Parse raw values with parseCurrency() before calculations. This rule was established in v27 and applies to every tool going forward.

@@ -1,0 +1,1831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudioChief — Production Management Suite</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#111213;--surface:#1e2124;--surface2:#252a2e;
+--border:#2e3338;--border2:#3a4048;
+--text:#f0ede8;--text2:#a8a49e;--text3:#8e8a85;
+--amber:#e8a020;--amber-glow:rgba(232,160,32,0.12);
+--green:#3db87a;--green-dim:rgba(61,184,122,0.08);
+--red:#e05252;--blue:#4a8fe8;--purple:#8b5cf6;
+--indigo:#5c6bc0;--indigo-glow:rgba(92,107,192,0.12);
+--font-d:'Playfair Display',Georgia,serif;
+--font-b:'Outfit',system-ui,sans-serif;
+--font-m:'DM Mono',monospace;
+--r:4px;--rl:8px;
+--ease:cubic-bezier(0.25,0.46,0.45,0.94);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:15px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:1000;opacity:0.5}
+.view{display:none;min-height:100vh}.view.active{display:block}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;height:56px;background:rgba(17,18,19,0.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 32px}
+.nav-logo{font-family:var(--font-d);font-size:26px;font-weight:700;color:var(--text);cursor:pointer;transition:color .15s;flex-shrink:0;letter-spacing:-.5px}
+.nav-logo:hover,.nav-logo span{color:var(--amber)}
+.nav-div{width:1px;height:20px;background:var(--border);margin:0 18px;flex-shrink:0}
+.nav-crumb{font-family:var(--font-m);font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase}
+.nav-sp{flex:1}
+.nav-badge{display:flex;align-items:center;gap:6px;font-family:var(--font-m);font-size:10px;color:var(--green);letter-spacing:1px;text-transform:uppercase;background:var(--green-dim);border:1px solid rgba(61,184,122,0.15);padding:5px 12px;border-radius:2px}
+.nav-badge::before{content:'';width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+#view-dash{padding-top:56px}
+.hero{padding:72px 32px 48px;max-width:1100px;margin:0 auto}
+.eyebrow{font-family:var(--font-m);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--amber);margin-bottom:18px;animation:fadeUp .5s var(--ease) both}
+.hero h1{font-family:var(--font-d);font-size:clamp(38px,5.5vw,64px);font-weight:900;line-height:1.0;letter-spacing:-2px;color:var(--text);margin-bottom:20px;animation:fadeUp .5s .08s var(--ease) both}
+.hero h1 em{font-style:normal;color:var(--amber)}
+.hero p{font-size:17px;color:var(--text2);font-weight:300;max-width:520px;line-height:1.7;animation:fadeUp .5s .16s var(--ease) both}
+.priv-badge{display:inline-flex;align-items:flex-start;gap:12px;margin-top:28px;padding:14px 18px;background:var(--green-dim);border:1px solid rgba(61,184,122,0.2);border-radius:var(--r);font-size:13px;color:var(--text2);line-height:1.5;max-width:540px;animation:fadeUp .5s .24s var(--ease) both}
+.priv-badge .ico{font-size:18px;flex-shrink:0;margin-top:1px}
+.priv-badge strong{color:var(--green);font-weight:600}
+.tools-wrap{max-width:1100px;margin:0 auto;padding:0 32px 80px}
+.sec-label{font-family:var(--font-m);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.grid-tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:26px;cursor:pointer;transition:all .2s var(--ease);position:relative;overflow:hidden;animation:fadeUp .5s var(--ease) both}
+.card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--amber-glow) 0%,transparent 60%);opacity:0;transition:opacity .3s}
+.card:hover::before{opacity:1}
+.card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 12px 36px rgba(0,0,0,.4)}
+.card.live{border-color:rgba(232,160,32,.3)}
+.card.live::after{content:'LIVE';position:absolute;top:14px;right:14px;font-family:var(--font-m);font-size:9px;letter-spacing:2px;color:var(--amber);background:var(--amber-glow);border:1px solid rgba(232,160,32,.25);padding:3px 8px;border-radius:2px}
+.card.soon{opacity:.55;cursor:default}
+.card.soon:hover{transform:none;box-shadow:none}
+.card.soon::after{content:'COMING SOON';position:absolute;top:14px;right:14px;font-family:var(--font-m);font-size:9px;letter-spacing:2px;color:var(--text3);background:var(--surface2);border:1px solid var(--border);padding:3px 8px;border-radius:2px}
+.card:nth-child(1){animation-delay:.04s}.card:nth-child(2){animation-delay:.08s}
+.card:nth-child(3){animation-delay:.12s}.card:nth-child(4){animation-delay:.16s}
+.card:nth-child(5){animation-delay:.20s}.card:nth-child(6){animation-delay:.24s}
+.cico{width:42px;height:42px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:19px;margin-bottom:16px;position:relative;z-index:1}
+.ci-a{background:var(--amber-glow);border:1px solid rgba(232,160,32,.2)}
+.ci-b{background:rgba(74,143,232,.08);border:1px solid rgba(74,143,232,.2)}
+.ci-r{background:rgba(224,82,82,.08);border:1px solid rgba(224,82,82,.2)}
+.ci-g{background:var(--green-dim);border:1px solid rgba(61,184,122,.2)}
+.ci-i{background:var(--indigo-glow);border:1px solid rgba(92,107,192,.2)}
+.ci-x{background:var(--surface2);border:1px solid var(--border)}
+.cname{font-family:var(--font-d);font-size:18px;font-weight:700;color:var(--text);margin-bottom:7px;position:relative;z-index:1}
+.cdesc{font-size:13px;color:var(--text2);line-height:1.6;font-weight:300;position:relative;z-index:1}
+.ctags{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px;position:relative;z-index:1;align-items:center}
+.tag{font-family:var(--font-m);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);background:var(--surface2);border:1px solid var(--border);padding:3px 8px;border-radius:2px}
+.tag.a{color:var(--amber);background:var(--amber-glow);border-color:rgba(232,160,32,.2)}
+.tag.i{color:var(--indigo);background:var(--indigo-glow);border-color:rgba(92,107,192,.2)}
+.arr{margin-left:auto;color:var(--amber);font-size:16px;opacity:0;transform:translateX(-6px);transition:all .2s var(--ease)}
+.card:hover .arr{opacity:1;transform:translateX(0)}
+.dfooter{border-top:1px solid var(--border);padding:24px 32px;max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+.dbrand{font-family:var(--font-d);font-size:14px;color:var(--text3)}.dbrand span{color:var(--amber)}
+.dcopy{font-family:var(--font-m);font-size:10px;color:var(--text3);letter-spacing:1px}
+#view-cf,#view-vr,#view-risk,#view-ti{padding-top:56px}
+.tool-hdr{border-bottom:1px solid var(--border);padding:22px 32px 18px;max-width:1400px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:20px}
+.tool-hdr h2{font-family:var(--font-d);font-size:26px;font-weight:700;color:var(--text);letter-spacing:-.5px;margin-bottom:4px}
+.tool-hdr p{font-size:15px;color:var(--text2);font-weight:300;max-width:560px;line-height:1.6}
+.back-btn{display:flex;align-items:center;gap:6px;font-family:var(--font-m);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);background:transparent;border:1px solid var(--border);padding:8px 14px;border-radius:var(--r);cursor:pointer;transition:all .15s;flex-shrink:0}
+.back-btn:hover{color:var(--text);border-color:var(--border2)}
+.tc{max-width:1100px;margin:0 auto;padding:26px 32px 80px}
+.step{font-family:var(--font-m);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--amber);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.step::after{content:'';flex:1;height:1px;background:var(--border)}
+.step-opt{font-size:10px;color:var(--text3);font-family:var(--font-m);letter-spacing:0;text-transform:none;margin-left:8px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:22px;margin-bottom:16px}
+.imp-zone{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:22px;margin-bottom:16px}
+.imp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.imp-grid.single{grid-template-columns:1fr;max-width:480px;margin:0 auto 14px;}
+.imp-box{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;background:var(--surface2);border:1px dashed var(--border);border-radius:var(--r);padding:18px;transition:border-color .15s;position:relative;min-height:120px;justify-content:center}
+.imp-box.has-file{border-color:rgba(61,184,122,.4);border-style:solid}
+.imp-box.parsing{border-color:var(--amber);border-style:solid}
+.imp-drop{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.imp-ico{font-size:22px}
+.imp-lbl{font-family:var(--font-m);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2)}
+.imp-hint{font-size:12px;color:var(--text3);line-height:1.4}
+.imp-stat{font-family:var(--font-m);font-size:10px;letter-spacing:.5px;display:none;max-width:100%;text-align:center;line-height:1.4}
+.imp-stat.ok{color:var(--green);display:block}
+.imp-stat.warn{color:var(--amber);display:block}
+.imp-stat.err{color:var(--red);display:block}
+.imp-clear{display:none;margin-top:6px;background:transparent;border:1px solid var(--border);color:var(--text3);font-family:var(--font-m);font-size:9px;letter-spacing:1px;padding:3px 10px;border-radius:2px;cursor:pointer;transition:all .15s;position:relative;z-index:10}
+.imp-clear:hover{border-color:var(--red);color:var(--red)}
+.imp-clear.show{display:inline-block}
+.imp-spinner{display:none;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--amber);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
+.imp-spinner.show{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.imp-note{font-family:var(--font-m);font-size:12px;color:var(--text3);text-align:center;padding-top:14px;border-top:1px solid var(--border);line-height:1.6;letter-spacing:.3px}
+.imp-note strong{color:var(--green)}
+.ai-status{font-family:var(--font-m);font-size:12px;color:var(--amber);text-align:center;padding:10px 14px;background:var(--amber-glow);border:1px solid rgba(232,160,32,.2);border-radius:var(--r);margin-top:12px;display:none}
+.ai-status.show{display:block}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-family:var(--font-m);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)}
+.field input,.field select{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font-m);font-size:13px;padding:9px 12px;border-radius:var(--r);outline:none;transition:border-color .15s;width:100%}
+.field input[type=date]{color-scheme:dark}
+.field input:focus,.field select:focus{border-color:var(--amber)}
+.phases-wrap{display:flex;flex-direction:column;gap:8px}
+.ph-block{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--text3);border-radius:var(--r);padding:12px 14px}
+.ph-row{display:grid;grid-template-columns:170px 1fr 1fr auto auto;gap:10px;align-items:center}
+.ph-pmt{display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);grid-column:1/-1}
+.ph-pmt.open{display:grid;grid-template-columns:170px 1fr;gap:10px;align-items:center}
+.ph-pmt-lbl{font-family:var(--font-m);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);padding-left:2px}
+.ph-toggle{background:transparent;border:none;font-family:var(--font-m);font-size:9px;letter-spacing:1px;color:var(--text3);cursor:pointer;padding:2px 6px;border-radius:2px;transition:color .15s;white-space:nowrap;text-transform:uppercase}
+.ph-toggle:hover{color:var(--amber)}.ph-toggle.active{color:var(--amber)}
+.ph-name{background:transparent;border:none;border-bottom:1px solid transparent;font-family:var(--font-m);font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);outline:none;width:100%;padding:2px 0;transition:border-color .15s}
+.ph-name:focus{color:var(--text);border-bottom-color:var(--border2)}
+.ph-rem{background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:0 6px;border-radius:var(--r);transition:color .15s;line-height:1}
+.ph-rem:hover{color:var(--red)}
+.add-ph{display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--font-m);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--amber);background:transparent;border:1px dashed rgba(232,160,32,0.4);padding:11px;border-radius:var(--r);cursor:pointer;transition:all .15s;width:100%;margin-top:8px}
+.add-ph:hover{border-color:var(--amber);background:var(--amber-glow)}
+.bud-note{font-family:var(--font-m);font-size:13px;color:var(--text3);margin-bottom:14px;padding:10px 14px;background:var(--amber-glow);border-left:2px solid var(--amber);border-radius:2px;line-height:1.6}
+.sections-grid{display:flex;flex-direction:column;gap:6px}
+.section-row{display:grid;grid-template-columns:110px 1fr 160px 140px;gap:10px;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px}
+.section-row.ai-filled{border-color:rgba(61,184,122,.3);background:rgba(61,184,122,.03)}
+.section-acct{font-family:var(--font-m);font-size:10px;color:var(--text3);letter-spacing:.5px}
+.section-label{font-family:var(--font-m);font-size:11px;color:var(--text2);font-weight:500;letter-spacing:.5px}
+.section-total{font-family:var(--font-m);font-size:12px;color:var(--text);text-align:right;background:transparent;border:none;border-bottom:1px solid var(--border);outline:none;width:100%;padding:2px 4px;transition:border-color .15s}
+.section-total:focus{border-bottom-color:var(--amber);color:var(--amber)}
+.section-spread{font-family:var(--font-m);font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:3px 6px}
+.sections-hdr{display:grid;grid-template-columns:110px 1fr 160px 140px;gap:10px;padding:0 12px 6px;font-family:var(--font-m);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)}
+.total-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);margin-top:10px}
+.total-bar-lbl{font-family:var(--font-m);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)}
+.total-bar-val{font-family:var(--font-m);font-size:18px;font-weight:500;color:var(--amber);letter-spacing:1px}
+.gen-btn{width:100%;padding:16px;background:var(--amber);color:#0d0f14;border:none;border-radius:var(--r);font-family:var(--font-d);font-size:16px;font-weight:700;cursor:pointer;transition:all .15s var(--ease);margin-top:6px}
+.gen-btn:hover{background:#f0b030;transform:translateY(-1px);box-shadow:0 8px 28px rgba(232,160,32,.28)}
+.gen-btn:active{transform:translateY(0)}
+.gen-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.dl-btn{width:100%;padding:16px;background:var(--green);color:#0d0f14;border:none;border-radius:var(--r);font-family:var(--font-d);font-size:16px;font-weight:700;cursor:pointer;transition:all .15s var(--ease);margin-top:12px;display:none;text-align:center;text-decoration:none}
+.dl-btn:hover{background:#4ecf8a;transform:translateY(-1px)}
+.dl-btn.show{display:block}
+.status{display:none;margin-top:12px;padding:12px 16px;border-radius:var(--r);font-family:var(--font-m);font-size:12px;letter-spacing:.3px}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);max-width:680px;width:100%;max-height:90vh;overflow-y:auto;padding:36px;position:relative}
+.modal-close{position:absolute;top:16px;right:16px;background:transparent;border:none;color:var(--text3);font-size:22px;cursor:pointer;line-height:1;transition:color .15s}
+.modal-close:hover{color:var(--text)}
+.modal h2{font-family:var(--font-d);font-size:28px;font-weight:700;color:var(--text);letter-spacing:-.5px;margin-bottom:8px}
+.modal-lead{font-size:17px;color:var(--green);font-weight:500;margin-bottom:24px;line-height:1.5}
+.modal h3{font-family:var(--font-m);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--amber);margin:24px 0 10px}
+.modal p{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:10px}
+.modal ul{list-style:none;padding:0;margin-bottom:10px}
+.modal ul li{font-size:14px;color:var(--text2);line-height:1.7;padding:4px 0 4px 18px;position:relative}
+.modal ul li::before{content:'✓';position:absolute;left:0;color:var(--green);font-weight:700}
+.modal a{color:var(--amber);text-decoration:none}
+.modal a:hover{text-decoration:underline}
+.modal-disclaimer{margin-top:24px;padding:16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);font-size:12px;color:var(--text3);line-height:1.6}
+.nav-privacy{font-family:var(--font-m);font-size:10px;color:var(--text3);cursor:pointer;letter-spacing:1px;transition:color .15s;background:transparent;border:none;padding:0 0 0 16px}
+.nav-privacy:hover{color:var(--text)}
+.status.ok{background:var(--green-dim);border:1px solid rgba(61,184,122,.2);color:var(--green);display:block}
+.status.warn{background:var(--amber-glow);border:1px solid rgba(232,160,32,.3);color:var(--amber);display:block}
+.status.err{background:rgba(224,82,82,.08);border:1px solid rgba(224,82,82,.2);color:var(--red);display:block}
+.thresh-wrap{display:flex;align-items:flex-start;gap:32px;flex-wrap:wrap}
+.thresh-input{display:flex;flex-direction:column;gap:8px;min-width:160px}
+.thresh-input label{font-family:var(--font-m);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)}
+.thresh-input input{background:var(--surface2);border:1px solid var(--border);color:var(--amber);font-family:var(--font-m);font-size:22px;font-weight:500;padding:10px 14px;border-radius:var(--r);outline:none;width:120px;text-align:center}
+.thresh-input input:focus{border-color:var(--amber)}
+.color-key{display:flex;flex-direction:column;gap:8px}
+.color-key-row{display:flex;align-items:center;gap:10px;font-family:var(--font-m);font-size:12px;color:var(--text2)}
+.color-swatch{width:18px;height:18px;border-radius:3px;flex-shrink:0}
+
+/* ── TAX INCENTIVE TOOL STYLES ─────────────────────────────────────────────── */
+.ti-wrap{max-width:1400px;margin:0 auto;padding:26px 32px 80px}
+.ti-step{font-family:var(--font-m);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--indigo);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.ti-step::after{content:'';flex:1;height:1px;background:var(--border)}
+.ti-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:22px;margin-bottom:20px}
+/* Production type chips */
+.pt-grid{display:flex;flex-wrap:wrap;gap:8px}
+.pt-chip{font-family:var(--font-m);font-size:11px;letter-spacing:1px;padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;transition:all .15s}
+.pt-chip:hover{border-color:var(--indigo);color:var(--text)}
+.pt-chip.active{border:2px solid var(--indigo);background:var(--indigo-glow);color:var(--text);font-weight:600}
+/* Location search */
+.loc-search-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.loc-search{flex:1;min-width:160px;padding:8px 12px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--font-m);font-size:13px;outline:none}
+.loc-search:focus{border-color:var(--indigo)}
+.region-btn{padding:7px 14px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-family:var(--font-m);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
+.region-btn.active{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.loc-grid{display:flex;flex-wrap:wrap;gap:7px;max-height:220px;overflow-y:auto;padding-bottom:4px}
+.loc-chip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text2);transition:all .15s;font-family:var(--font-m)}
+.loc-chip:hover{border-color:var(--indigo)}
+.loc-chip.selected{border:2px solid var(--indigo);background:var(--indigo-glow);color:var(--text)}
+.loc-chip.ineligible{opacity:.45;color:var(--text3)}
+.loc-chip.disabled{opacity:.3;cursor:not-allowed}
+.loc-hint{font-family:var(--font-m);font-size:11px;color:var(--text3);margin-top:8px}
+/* Comparison columns */
+.ti-cols{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.ti-col{flex:1;min-width:290px}
+/* Spend input card */
+.spend-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:18px;margin-bottom:12px}
+.spend-card-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.spend-card-name{font-size:15px;font-weight:700;font-family:var(--font-d)}
+.spend-card-cur{font-family:var(--font-m);font-size:11px;color:var(--text3)}
+.bucket-lbl-row{display:flex;justify-content:space-between;margin-bottom:3px}
+.bucket-lbl{font-family:var(--font-m);font-size:11px;color:var(--text2)}
+.bucket-rate{font-family:var(--font-m);font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;background:var(--indigo-glow);color:var(--indigo)}
+.bucket-rate.zero{background:var(--surface2);color:var(--text3)}
+.bucket-input{width:100%;padding:7px 10px;border-radius:var(--r);font-size:13px;border:1px solid var(--border);background:var(--surface2);color:var(--text);outline:none;font-family:var(--font-m);margin-bottom:8px;transition:border-color .15s}
+.bucket-input:focus{border-color:var(--indigo)}
+.bucket-input:disabled{background:var(--surface);color:var(--text3);cursor:not-allowed}
+/* Uplift prompts */
+.uplift-hdr{font-family:var(--font-m);font-size:10px;font-weight:700;color:var(--indigo);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px}
+.uplift-row{display:flex;align-items:flex-start;gap:10px;padding:9px 11px;background:var(--surface2);border-radius:var(--r);margin-bottom:6px;border:1px solid var(--border)}
+.uplift-cb{margin-top:2px;accent-color:var(--indigo);cursor:pointer;flex-shrink:0}
+.uplift-name{font-size:12px;font-weight:600;color:var(--text);margin:0}
+.uplift-q{font-size:11px;color:var(--text3);margin:2px 0 0}
+/* Result card */
+.result-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.result-hdr{background:var(--indigo);padding:14px 16px}
+.result-hdr-top{display:flex;justify-content:space-between;align-items:center}
+.result-region{font-family:var(--font-m);font-size:10px;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:1px;margin:0}
+.result-name{font-size:18px;font-weight:800;color:#fff;margin:2px 0 0;font-family:var(--font-d)}
+.result-hl-lbl{font-family:var(--font-m);font-size:10px;color:rgba(255,255,255,.65);text-align:right;margin:0}
+.result-hl{font-size:14px;font-weight:700;color:#fff;margin:0;font-family:var(--font-m)}
+.result-mon{font-family:var(--font-m);font-size:11px;color:rgba(255,255,255,.75);margin:6px 0 0}
+.result-body{padding:14px 16px}
+.result-date{font-family:var(--font-m);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin:0 0 12px}
+.no-calc-box{background:#fff3cd;border:1px solid #ffc107;border-radius:var(--r);padding:12px;margin-bottom:12px}
+.no-calc-ttl{font-size:12px;font-weight:700;color:#856404;margin:0}
+.no-calc-msg{font-size:11px;color:#856404;margin:4px 0 0}
+.empty-result{text-align:center;padding:24px 0;color:var(--text3);font-size:13px;font-family:var(--font-m)}
+.calc-box{background:var(--surface2);border-radius:var(--r);padding:12px;margin-bottom:8px}
+.calc-row{display:flex;justify-content:space-between;margin-bottom:4px}
+.calc-lbl{font-size:12px;color:var(--text2);flex:1}
+.calc-val{font-size:12px;color:var(--text);font-family:var(--font-m)}
+.calc-val.bold{font-weight:700}
+.calc-val.accent{color:var(--indigo);font-weight:700}
+.calc-val.muted{color:var(--text3)}
+.calc-div{border-top:1px solid var(--border);margin:8px 0}
+.uplift-applied{font-size:11px;color:var(--indigo);margin-bottom:8px}
+.flag-badge{border-radius:var(--r);padding:6px 8px;margin-bottom:4px;display:flex;gap:6px;align-items:flex-start}
+.flag-ico{font-size:10px;margin-top:1px;flex-shrink:0}
+.flag-txt{font-size:11px;line-height:1.4}
+.flag-red{background:#fff5f5;border:1px solid #fed7d7}
+.flag-red .flag-txt{color:#c53030}
+.flag-yel{background:#fffbeb;border:1px solid #fef3c7}
+.flag-yel .flag-txt{color:#92400e}
+.flag-blu{background:#ebf8ff;border:1px solid #bee3f8}
+.flag-blu .flag-txt{color:#2a4365}
+.result-notes{font-size:11px;color:var(--text3);font-style:italic;margin:8px 0 0}
+/* Disclaimer */
+.ti-disclaimer{margin-top:32px;padding:16px 20px;background:var(--surface);border-radius:var(--r);border:1px solid var(--border);font-size:11px;color:var(--text3);line-height:1.6;font-family:var(--font-m)}
+
+@media(max-width:700px){
+.hero{padding:44px 20px 36px}.tools-wrap{padding:0 20px 60px}
+.grid-tools{grid-template-columns:1fr}.g2{grid-template-columns:1fr}
+.imp-grid{grid-template-columns:1fr}.tc{padding:18px 20px 60px}
+.tool-hdr{padding:16px 20px;flex-direction:column;align-items:flex-start}
+.nav{padding:0 20px}.nav-badge{display:none}
+.section-row{grid-template-columns:1fr 1fr}
+.sections-hdr{display:none}
+.thresh-wrap{flex-direction:column;gap:16px}
+.ti-wrap{padding:18px 16px 60px}
+.ti-cols{flex-direction:column}
+.ti-col{min-width:100%}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo" onclick="showDash()">Studio<span>Chief</span></div>
+  <div class="nav-div"></div>
+  <div class="nav-crumb" id="crumb">Dashboard</div>
+  <div class="nav-sp"></div>
+  <div class="nav-badge">Private by design</div>
+  <button class="nav-privacy" onclick="openPrivacy()">🔒 Privacy &amp; Legal</button>
+</nav>
+
+<!-- DASHBOARD -->
+<div id="view-dash" class="view active">
+  <div class="hero">
+    <div class="eyebrow">Production Management Suite</div>
+    <h1>Run your<br>production<br>like a <em>chief.</em></h1>
+    <p>Professional tools for production executives, line producers, UPMs, and coordinators. Built and trained for the way productions actually work.</p>
+    <div class="priv-badge">
+      <span class="ico">🔒</span>
+      <div><strong>Private by design.</strong> Your files are never stored by StudioChief. They are processed privately through Anthropic's API and immediately discarded. <span style="cursor:pointer;text-decoration:underline;color:var(--green);" onclick="openPrivacy()">Learn more →</span></div>
+    </div>
+  </div>
+  <div class="tools-wrap">
+    <div class="sec-label">Production Tools</div>
+    <div class="grid-tools">
+      <div class="card live" onclick="showTool('ti')">
+        <div class="cico ci-i">🗺️</div>
+        <div class="cname">Tax Incentive Calculator</div>
+        <div class="cdesc">Compare film and TV tax incentives across up to 3 locations side by side. 46 US and international locations. Net value after monetization and contingency.</div>
+        <div class="ctags"><span class="tag i">46 Locations</span><span class="tag i">Client-Side</span><span class="arr">→</span></div>
+      </div>
+      <div class="card soon">
+        <div class="cico ci-i">📖</div>
+        <div class="cname">Tax Incentive Information</div>
+        <div class="cdesc">Pick any state or country and get the full picture — rates, eligibility, minimums, caps, application windows, audit requirements, film office contacts, and more.</div>
+        <div class="ctags"><span class="tag">46+ Locations</span><span class="tag">Reference</span></div>
+      </div>
+      <div class="card live" onclick="showTool('cf')">
+        <div class="cico ci-a">💰</div>
+        <div class="cname">Cash Flow Generator</div>
+        <div class="cdesc">Import your budget top sheet and production calendar. AI reads both together and builds a network-quality cash flow spreadsheet from your actual sections (that you can edit).</div>
+        <div class="ctags"><span class="tag a">AI-Powered</span><span class="tag a">Excel Output</span><span class="arr">→</span></div>
+      </div>
+      <div class="card live" onclick="showTool('vr')">
+        <div class="cico ci-b">📊</div>
+        <div class="cname">Cost &amp; Variance Report</div>
+        <div class="cdesc">Import a cost report PDF. AI reads every line, color-codes what's hot, and generates a clean network-ready variance report, editable in Excel.</div>
+        <div class="ctags"><span class="tag a">AI-Powered</span><span class="tag a">Excel Output</span><span class="arr">→</span></div>
+      </div>
+      <div class="card live" onclick="showTool('risk')">
+        <div class="cico ci-r">🔍</div>
+        <div class="cname">Risk &amp; Diligence Scanner</div>
+        <div class="cdesc">Import any script, beat sheet, pitch deck, or treatment. AI flags IP issues, stunts, logos, safety concerns, and legal red flags — sorted two ways.</div>
+        <div class="ctags"><span class="tag a">AI-Powered</span><span class="tag a">Excel Output</span><span class="arr">→</span></div>
+      </div>
+      <div class="card soon">
+        <div class="cico ci-x">🔧</div>
+        <div class="cname">Coming Soon</div>
+        <div class="cdesc">Another production tool is on the way. The suite grows as the industry needs it.</div>
+        <div class="ctags"><span class="tag">2026</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="dfooter">
+    <div class="dbrand">Studio<span>Chief</span></div>
+    <div class="dcopy">© 2026 STUDIOCHIEF.COM &nbsp;·&nbsp; <span style="cursor:pointer;text-decoration:underline;" onclick="openPrivacy()">Privacy &amp; Legal</span></div>
+  </div>
+</div>
+
+<!-- CASH FLOW TOOL -->
+<div id="view-cf" class="view">
+  <div class="tool-hdr">
+    <div>
+      <h2>Cash Flow Generator</h2>
+      <p>Drop in your budget top sheet and production calendar. AI reads both together and builds a cash flow from your actual budget sections.</p>
+    </div>
+    <button class="back-btn" onclick="showDash()">← All Tools</button>
+  </div>
+  <div class="tc">
+    <div class="step">01 — Import Documents <span class="step-opt">Drop both files — AI reads them together for the best result</span></div>
+    <div class="imp-zone">
+      <div class="imp-grid">
+        <div class="imp-box" id="budBox">
+          <input class="imp-drop" type="file" accept=".pdf" onchange="onFileDropped('bud', this)">
+          <div class="imp-ico" id="budIco">📄</div>
+          <div class="imp-lbl">Budget PDF</div>
+          <div class="imp-hint" id="budHint">Full budget or top sheet PDF — AI reads all sections automatically</div>
+          <div class="imp-spinner" id="budSpinner"></div>
+          <div class="imp-stat" id="budStat"></div>
+          <button class="imp-clear" id="budClear" onclick="clearFile('bud')">✕ Remove</button>
+        </div>
+        <div class="imp-box" id="calBox">
+          <input class="imp-drop" type="file" accept=".pdf" onchange="onFileDropped('cal', this)">
+          <div class="imp-ico" id="calIco">📅</div>
+          <div class="imp-lbl">Production Calendar</div>
+          <div class="imp-hint" id="calHint">PDF calendar — AI extracts all phases and date ranges</div>
+          <div class="imp-spinner" id="calSpinner"></div>
+          <div class="imp-stat" id="calStat"></div>
+          <button class="imp-clear" id="calClear" onclick="clearFile('cal')">✕ Remove</button>
+        </div>
+      </div>
+      <div class="ai-status" id="aiStatus">AI is reading your documents — this takes 20-40 seconds...</div>
+      <div class="imp-note"><strong>Private by design</strong> — files are sent only to the AI. Nothing is stored by StudioChief.<br>AI processing takes <strong style="color:var(--amber);">20-40 seconds</strong> — please wait after dropping your files.</div>
+    </div>
+    <div class="step">02 — Show Information</div>
+    <div class="panel">
+      <div class="g2">
+        <div class="field"><label>Show Title</label><input type="text" id="showTitle" placeholder=""></div>
+        <div class="field"><label>Production Company</label><input type="text" id="prodCo" placeholder=""></div>
+        <div class="field"><label>Network / Studio</label><input type="text" id="network" placeholder=""></div>
+        <div class="field"><label>Number of Episodes</label><input type="number" id="numEps" min="1" max="200"></div>
+      </div>
+    </div>
+    <div class="step">03 — Production Phases <span class="step-opt">Auto-filled from calendar — or enter dates manually</span></div>
+    <div class="panel">
+      <div style="font-family:var(--font-m);font-size:13px;color:var(--text3);line-height:1.6;margin-bottom:14px;padding:10px 14px;background:var(--surface2);border-radius:var(--r);border-left:2px solid var(--border);">
+        Phase dates are required to generate a cash flow. Upload a calendar to auto-fill, or enter dates manually below.
+      </div>
+      <div class="phases-wrap" id="phasesWrap"></div>
+      <button class="add-ph" onclick="addPhase()">+ Add Phase</button>
+    </div>
+    <div class="step">04 — Budget Sections <span class="step-opt">Auto-filled from your top sheet — review AI spread assignments</span></div>
+    <div class="panel" id="budgetPanel">
+      <div class="bud-note" id="budNote">Upload a budget PDF above and AI will read your actual sections automatically. You can also enter sections manually below.</div>
+      <div class="sections-hdr" id="sectionsHdr" style="display:none;grid-template-columns:90px 1fr 150px 130px 28px;">
+        <span>ACCT #</span><span>SECTION</span><span style="text-align:right">TOTAL</span><span style="text-align:center">PHASE SPREAD</span><span></span>
+      </div>
+      <div class="sections-grid" id="sectionsGrid"></div>
+      <div class="total-bar">
+        <span class="total-bar-lbl">Budget Total</span>
+        <span class="total-bar-val" id="totalBudgetDisplay">$0</span>
+      </div>
+      <button onclick="addManualSection()" style="margin-top:10px;font-family:var(--font-m);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--amber);background:transparent;border:1px dashed rgba(232,160,32,.4);padding:8px 16px;border-radius:var(--r);cursor:pointer;width:100%;">+ Add Section Manually</button>
+    </div>
+    <button class="gen-btn" id="genBtn" onclick="generate()" disabled>Add phase dates to continue</button>
+    <div class="status" id="statusBar"></div>
+  </div>
+</div>
+
+<!-- VARIANCE REPORT TOOL -->
+<div id="view-vr" class="view">
+  <div class="tool-hdr">
+    <div>
+      <h2>Cost &amp; Variance Report</h2>
+      <p>Drop in your cost report PDF. AI reads every line and generates a color-coded Hot Sheet plus a network-ready variance report, both in one Excel file.</p>
+    </div>
+    <button class="back-btn" onclick="showDash()">← All Tools</button>
+  </div>
+  <div class="tc">
+    <div class="step">01 — Import Cost Report <span class="step-opt">PDF only — Movie Magic or any standard cost report format</span></div>
+    <div class="imp-zone">
+      <div class="imp-grid single">
+        <div class="imp-box" id="vrBox">
+          <input class="imp-drop" type="file" accept=".pdf" onchange="onVrFile(this)">
+          <div class="imp-ico" id="vrIco">📋</div>
+          <div class="imp-lbl">Cost Report PDF</div>
+          <div class="imp-hint" id="vrHint">Movie Magic cost report, any period, any format</div>
+          <div class="imp-spinner" id="vrSpinner"></div>
+          <div class="imp-stat" id="vrStat"></div>
+          <button class="imp-clear" id="vrClear" onclick="clearVrFile()">✕ Remove</button>
+        </div>
+      </div>
+      <div class="imp-note">
+        <strong>Private by design</strong> — your cost report is sent only to the AI. Nothing is stored.<br>
+        Processing takes <strong style="color:var(--amber);">60-120 seconds</strong> — AI reads the report in two passes. For large cost reports it may take up to 3 minutes. Please wait after clicking Generate.
+      </div>
+    </div>
+    <div class="step">02 — Show Information <span class="step-opt">Auto-filled from your cost report</span></div>
+    <div class="panel">
+      <div class="g2">
+        <div class="field"><label>Show Title</label><input type="text" id="vrShowTitle" placeholder=""></div>
+        <div class="field"><label>Production Company</label><input type="text" id="vrProdCo" placeholder=""></div>
+        <div class="field"><label>Network / Studio</label><input type="text" id="vrNetwork" placeholder=""></div>
+        <div class="field"><label>Cost Report Period</label><input type="text" id="vrPeriod" placeholder=""></div>
+      </div>
+    </div>
+    <div class="step">03 — Flag Threshold</div>
+    <div class="panel">
+      <p style="font-family:var(--font-m);font-size:13px;color:var(--text3);line-height:1.6;margin-bottom:18px;">The Hot Sheet colors lines based on how far over budget they are. Set the base threshold — anything above this gets flagged yellow. Lines further over get progressively warmer colors.</p>
+      <div class="thresh-wrap">
+        <div class="thresh-input">
+          <label>Base Threshold (%)</label>
+          <input type="number" id="vrThreshold" value="10" min="1" max="50">
+        </div>
+        <div class="color-key">
+          <div class="color-key-row"><div class="color-swatch" style="background:#FF4444"></div>31%+ over budget</div>
+          <div class="color-key-row"><div class="color-swatch" style="background:#FF7733"></div>21-30% over budget</div>
+          <div class="color-key-row"><div class="color-swatch" style="background:#FFB300"></div>11-20% over budget</div>
+          <div class="color-key-row"><div class="color-swatch" style="background:#FFE566"></div>1-10% over budget</div>
+          <div class="color-key-row"><div class="color-swatch" style="background:#99CCFF"></div>10%+ under budget</div>
+          <div class="color-key-row"><div class="color-swatch" style="background:#333;border:1px solid #555"></div>Within threshold</div>
+        </div>
+      </div>
+    </div>
+    <button class="gen-btn" id="vrGenBtn" onclick="generateVariance()" disabled style="opacity:.4;cursor:not-allowed;">Drop a cost report above to generate</button>
+    <a class="dl-btn" id="vrDlBtn" href="#" download>⬇ Download Variance Report — Excel (2 tabs: Hot Sheet + Variance Report)</a>
+    <div class="status" id="vrStatusBar"></div>
+  </div>
+</div>
+
+<!-- RISK & DILIGENCE SCANNER -->
+<div id="view-risk" class="view">
+  <div class="tool-hdr">
+    <div>
+      <h2>Risk &amp; Diligence Scanner</h2>
+      <p>Upload your script, beat sheet, pitch deck, or treatment. AI reads the entire document and flags every risk, sorted by where it appears and by category.</p>
+    </div>
+    <button class="back-btn" onclick="showDash()">← All Tools</button>
+  </div>
+  <div class="tc">
+    <div class="step">01 — Import Document <span class="step-opt">PDF only — script, beat sheet, pitch deck, or treatment</span></div>
+    <div class="imp-zone">
+      <div class="imp-grid single">
+        <div class="imp-box" id="riskBox">
+          <input class="imp-drop" type="file" accept=".pdf" onchange="onRiskFile(this)">
+          <div class="imp-ico" id="riskIco">🔍</div>
+          <div class="imp-lbl">Script / Document</div>
+          <div class="imp-hint" id="riskHint">PDF only — script, beat sheet, pitch deck, or treatment</div>
+          <div class="imp-spinner" id="riskSpinner"></div>
+          <div class="imp-stat" id="riskStat"></div>
+          <button class="imp-clear" id="riskClear" onclick="clearRiskFile()">✕ Remove</button>
+        </div>
+      </div>
+      <div class="imp-note">
+        <strong>Accepted format: PDF only.</strong> Have a Word doc? Save it as PDF first: File → Save As → PDF.<br>
+        Processing takes <strong style="color:var(--amber);">30-60 seconds</strong> for short documents, <strong style="color:var(--amber);">up to 5 minutes</strong> for full-length scripts.<br>
+        <span style="color:var(--text3);">Note: pitch decks will generate flags, but many may not apply to your actual production.</span>
+      </div>
+    </div>
+    <div class="step">02 — Show Information <span class="step-opt">Auto-filled if found in document — edit as needed</span></div>
+    <div class="panel">
+      <div class="g2">
+        <div class="field"><label>Show Title</label><input type="text" id="riskShowTitle" placeholder=""></div>
+        <div class="field"><label>Production Company</label><input type="text" id="riskProdCo" placeholder=""></div>
+        <div class="field"><label>Network / Studio</label><input type="text" id="riskNetwork" placeholder=""></div>
+        <div class="field"><label>Document Type</label><input type="text" id="riskDocType" placeholder=""></div>
+      </div>
+    </div>
+    <button class="gen-btn" id="riskGenBtn" onclick="generateRisk()" disabled style="opacity:.4;cursor:not-allowed;">Drop a document above to scan</button>
+    <a class="dl-btn" id="riskDlBtn" href="#" download>⬇ Download Risk Report — Excel (2 tabs: Document Order + By Category)</a>
+    <div class="status" id="riskStatusBar"></div>
+  </div>
+</div>
+
+<!-- TAX INCENTIVE CALCULATOR -->
+<div id="view-ti" class="view">
+  <div class="tool-hdr" style="max-width:1400px;">
+    <div>
+      <h2>Tax Incentive Calculator</h2>
+      <p>Compare film and TV incentives across up to 3 locations. Net value after monetization and contingency. 46 locations — US and international.</p>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-shrink:0;">
+      <button onclick="toggleDataStatus()" style="font-family:var(--font-m);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--indigo);background:var(--indigo-glow);border:1px solid rgba(92,107,192,.3);padding:8px 14px;border-radius:var(--r);cursor:pointer;transition:all .15s;" id="dataStatusBtn">📋 Data Status</button>
+      <button class="back-btn" onclick="showDash()">← All Tools</button>
+    </div>
+  </div>
+
+  <!-- DATA STATUS PANEL -->
+  <div id="dataStatusPanel" style="display:none;max-width:1400px;margin:0 auto;padding:0 32px 0;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:22px;margin-bottom:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div>
+          <h3 style="font-family:var(--font-d);font-size:18px;font-weight:700;color:var(--text);margin:0;">Data Status Tracker</h3>
+          <p style="font-family:var(--font-m);font-size:11px;color:var(--text3);margin:4px 0 0;">What incentive data we have, what level of detail, and what's still missing.</p>
+        </div>
+        <div style="display:flex;gap:12px;font-family:var(--font-m);font-size:11px;">
+          <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--green);display:inline-block;"></span>Summary data</span>
+          <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--indigo);display:inline-block;"></span>Detailed data</span>
+          <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--border2);display:inline-block;"></span>Pending</span>
+        </div>
+      </div>
+      <div id="dataStatusGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;"></div>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);font-family:var(--font-m);font-size:11px;color:var(--text3);line-height:1.6;">
+        <strong style="color:var(--text2);">Summary data</strong> = EP incentive guides (rates, eligibility, caps, uplifts, flags). &nbsp;
+        <strong style="color:var(--text2);">Detailed data</strong> = Full state/country PDFs ingested (application windows, deadlines, film office contacts, full rule text). &nbsp;
+        <strong style="color:var(--text2);">Pending</strong> = Not yet in the system — contact Marc to prioritize.
+      </div>
+    </div>
+  </div>
+  <div class="ti-wrap">
+
+    <!-- Step 1: Production Type -->
+    <div class="ti-step">01 — Production Type <span style="font-size:10px;color:var(--text3);font-family:var(--font-m);letter-spacing:0;text-transform:none;margin-left:8px;">Required — affects eligibility and rates</span></div>
+    <div class="ti-panel">
+      <div class="pt-grid" id="ptGrid"></div>
+      <p id="ptConfirm" style="margin-top:10px;font-size:12px;color:var(--indigo);font-weight:600;font-family:var(--font-m);display:none;"></p>
+    </div>
+
+    <!-- Step 2: Location Selection -->
+    <div class="ti-step">02 — Select Locations to Compare <span style="font-size:10px;color:var(--text3);font-family:var(--font-m);letter-spacing:0;text-transform:none;margin-left:8px;">Maximum 3 locations at a time</span></div>
+    <div class="ti-panel">
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--indigo-glow);border:1px solid rgba(92,107,192,.3);border-radius:var(--r);margin-bottom:14px;font-family:var(--font-m);font-size:12px;color:var(--indigo);font-weight:600;">
+        🗺️ Pick up to 3 locations — they will appear side by side for comparison. Click a selected location again to deselect it.
+      </div>
+      <div class="loc-search-row">
+        <input class="loc-search" id="locSearch" type="text" placeholder="Search locations..." oninput="renderLocGrid()">
+        <button class="region-btn active" id="rbAll" onclick="setRegion('All')">All</button>
+        <button class="region-btn" id="rbUS" onclick="setRegion('US')">US</button>
+        <button class="region-btn" id="rbIntl" onclick="setRegion('International')">International</button>
+      </div>
+      <div class="loc-grid" id="locGrid"></div>
+      <p class="loc-hint">Maximum 3 locations. Once you have 3 selected, deselect one before choosing another. ✕ = ineligible for your production type.</p>
+      <p id="locConfirm" style="margin-top:6px;font-size:12px;color:var(--indigo);font-weight:600;font-family:var(--font-m);display:none;"></p>
+    </div>
+
+    <!-- Step 3: Spend + Results -->
+    <div id="tiStep3Wrap" style="display:none;">
+      <div class="ti-step">03 — Enter Spend &amp; View Results <span style="font-size:10px;color:var(--text3);font-family:var(--font-m);letter-spacing:0;text-transform:none;margin-left:8px;">Amounts in each location's native currency</span></div>
+
+      <!-- Optional show title for export -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <div style="font-family:var(--font-m);font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;flex-shrink:0;">Show Title <span style="color:var(--text3);font-weight:400;">(optional — appears on Excel export)</span></div>
+        <input type="text" placeholder="e.g. Project Greenlight S4" value=""
+          style="flex:1;min-width:200px;padding:8px 12px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--font-m);font-size:13px;outline:none;"
+          oninput="tiShowTitle=this.value">
+      </div>
+
+      <div class="ti-cols" id="tiCols"></div>
+
+      <!-- Export button — only shows when there's data to export -->
+      <div id="tiExportWrap" style="display:none;margin-top:20px;text-align:center;">
+        <button onclick="exportTiExcel()" style="padding:14px 32px;background:var(--green);color:#0d0f14;border:none;border-radius:var(--r);font-family:var(--font-d);font-size:15px;font-weight:700;cursor:pointer;transition:all .15s;">
+          ⬇ Download Comparison — Excel
+        </button>
+        <div style="font-family:var(--font-m);font-size:11px;color:var(--text3);margin-top:8px;">Includes all locations, spend inputs, rates applied, and net incentive calculations</div>
+      </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="ti-disclaimer">
+      <strong style="color:var(--text2);">Disclaimer:</strong> Estimates based on publicly available incentive data current as of March 2026. Incentive rates and program rules change frequently. All calculations apply a 10% contingency deduction. Transferable tax credits default to 85¢ on the dollar unless a known state buy-back rate applies. This tool does not constitute legal, tax, or financial advice. Verify all figures with the relevant film office and your tax advisor before making production decisions.<br><br>
+      <strong style="color:var(--text2);">Known limitations:</strong> UK rates require sub-program selection not yet implemented. Indiana cannot be calculated (non-transferable, non-refundable). Oklahoma and Australia — Northern Territory are discretionary. Australian Federal program not yet ingested. Approximately 14 additional US states pending.
+    </div>
+  </div>
+</div>
+
+<!-- PRIVACY & LEGAL MODAL -->
+<div class="modal-overlay" id="privacyModal" onclick="closePrivacyIfOutside(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closePrivacy()">×</button>
+    <h2>Privacy &amp; Legal</h2>
+    <div class="modal-lead">Your files are never stored by StudioChief. Ever.</div>
+    <h3>What happens to your files</h3>
+    <ul>
+      <li>Files are read locally in your browser and sent directly to Anthropic's Claude AI for processing.</li>
+      <li>StudioChief does not store, log, or retain your files, budgets, scripts, or cost reports — not even temporarily.</li>
+      <li>Anthropic processes your data under their API privacy policy. They do not use API inputs to train their models and do not retain your data beyond the immediate processing window.</li>
+      <li>Once your session ends, your data is gone from StudioChief entirely.</li>
+    </ul>
+    <h3>Anthropic's privacy policy</h3>
+    <p>StudioChief uses Anthropic's Claude API to power its AI features. For details on how Anthropic handles API data, see <a href="https://www.anthropic.com/privacy" target="_blank">anthropic.com/privacy</a>.</p>
+    <h3>No data sold. No ads. Ever.</h3>
+    <p>StudioChief does not sell, share, or monetize your data in any way. There are no advertisers. Your production information stays yours.</p>
+    <div class="modal-disclaimer">
+      <strong style="color:var(--text2);">Disclaimer.</strong> StudioChief is a production assistance tool. All outputs are AI-generated and should be reviewed by a qualified professional before use in any financial, legal, or production decision. StudioChief makes no representations as to the accuracy or completeness of any output and is not responsible for errors, omissions, or decisions made based on tool outputs.
+    </div>
+  </div>
+</div>
+
+<script>
+const BACKEND = 'https://studiochief.onrender.com';
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let budB64      = null;
+let calB64      = null;
+let userPhases  = [];
+let userSections= [];
+let vrFileB64   = null;
+let vrFileName  = '';
+let vrBlobUrl   = null;
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+function showDash() {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-dash').classList.add('active');
+  document.getElementById('crumb').textContent = 'Dashboard';
+  window.scrollTo(0,0);
+}
+function showTool(id) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  const labels = {cf:'Cash Flow Generator',vr:'Cost & Variance Report',risk:'Risk & Diligence Scanner',ti:'Tax Incentive Calculator'};
+  document.getElementById('crumb').textContent = labels[id]||id;
+  window.scrollTo(0,0);
+}
+
+// ── FILE HELPERS ──────────────────────────────────────────────────────────────
+function fileToBase64(file) {
+  return new Promise((res,rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+function setBoxState(prefix, state, msg) {
+  const box=document.getElementById(prefix+'Box'),spinner=document.getElementById(prefix+'Spinner'),
+        stat=document.getElementById(prefix+'Stat'),clear=document.getElementById(prefix+'Clear'),
+        hint=document.getElementById(prefix+'Hint');
+  box.classList.remove('has-file','parsing');
+  spinner.classList.remove('show');
+  stat.className='imp-stat'; stat.style.display='none'; stat.textContent='';
+  clear.classList.remove('show');
+  if(state==='loading'){box.classList.add('parsing');spinner.classList.add('show');if(hint)hint.style.display='none';}
+  if(state==='ok'){box.classList.add('has-file');stat.className='imp-stat ok';stat.textContent=msg;stat.style.display='block';clear.classList.add('show');if(hint)hint.style.display='none';}
+  if(state==='warn'){stat.className='imp-stat warn';stat.textContent=msg;stat.style.display='block';clear.classList.add('show');if(hint)hint.style.display='none';}
+  if(state==='err'){stat.className='imp-stat err';stat.textContent=msg;stat.style.display='block';clear.classList.add('show');if(hint)hint.style.display='block';}
+  if(state==='idle'){if(hint)hint.style.display='block';}
+}
+
+async function onFileDropped(prefix, input) {
+  const f = input.files[0]; if(!f) return;
+  setBoxState(prefix,'loading','Reading file...');
+  try {
+    const b64 = await fileToBase64(f);
+    if(prefix==='bud'){budB64=b64;document.getElementById('budIco').textContent='📄';await parseBudget(b64,f.name);}
+    else{calB64=b64;document.getElementById('calIco').textContent='📅';await parseCalendar(b64,f.name);}
+  } catch(err){setBoxState(prefix,'err','Could not read file: '+err.message);}
+}
+
+async function parseBudget(b64,filename) {
+  const aiStatus=document.getElementById('aiStatus');
+  aiStatus.textContent='AI is reading your budget top sheet — 20-40 seconds...';aiStatus.classList.add('show');
+  try {
+    const resp=await fetch(`${BACKEND}/parse-both`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({budget_base64:b64,calendar_base64:null})});
+    if(!resp.ok){const e=await resp.json().catch(()=>({}));throw new Error(e.error||'Backend error '+resp.status);}
+    const result=await resp.json();
+    if(!result.ok) throw new Error(result.error||'Parse failed');
+    const data=result.data;
+    if(data.showTitle){const el=document.getElementById('showTitle');if(!el.value)el.value=data.showTitle;}
+    if(data.network){const el=document.getElementById('network');if(!el.value)el.value=data.network;}
+    if(data.prodCo){const el=document.getElementById('prodCo');if(!el.value)el.value=data.prodCo;}
+    if(data.numEps){const el=document.getElementById('numEps');if(!el.value)el.value=data.numEps;}
+    const SKIP_LABELS=['TOTAL','SUBTOTAL','GRAND','ABOVE THE LINE','BELOW THE LINE'];
+    const filtered=(data.sections||[]).filter(s=>{const lbl=(s.label||'').toUpperCase();return!SKIP_LABELS.some(t=>lbl.includes(t));});
+    if(filtered.length>0){
+      userSections=filtered.map(s=>({acct:s.acct||'',label:s.label||'',total:parseInt(String(s.total||0).replace(/[^0-9]/g,''))||0,spread_type:s.spread_type||'full'}));
+      renderSections();setBoxState('bud','ok',`✓ ${filtered.length} sections found — review totals and spread assignments below`);
+    } else{setBoxState('bud','warn','Could not read sections — enter manually below');}
+  } catch(err){setBoxState('bud','err','AI parse failed: '+err.message);}
+  finally{aiStatus.classList.remove('show');updateGenerateButton();}
+}
+
+async function parseCalendar(b64,filename) {
+  const aiStatus=document.getElementById('aiStatus');
+  aiStatus.textContent='AI is reading your production calendar — 15-30 seconds...';aiStatus.classList.add('show');
+  try {
+    const resp=await fetch(`${BACKEND}/parse-both`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({budget_base64:null,calendar_base64:b64})});
+    if(!resp.ok){const e=await resp.json().catch(()=>({}));throw new Error(e.error||'Backend error '+resp.status);}
+    const result=await resp.json();if(!result.ok) throw new Error(result.error||'Parse failed');
+    const phases=(result.data||{}).phases||[];
+    if(phases.length>0){
+      userPhases=phases.map(p=>({name:p.name.toUpperCase(),start:p.start||'',end:p.end||'',payDate:'',removable:true}));
+      renderPhases();setBoxState('cal','ok',`✓ ${phases.length} phases found — dates populated in Step 03`);
+    } else{setBoxState('cal','warn','Could not read phases — enter dates manually in Step 03');}
+  } catch(err){setBoxState('cal','err','AI parse failed: '+err.message);}
+  finally{aiStatus.classList.remove('show');updateGenerateButton();}
+}
+
+const SPREAD_LABELS={'full':'Full Run','week1':'Week 1','casting':'Casting','prep':'Prep','prep_shoot':'Prep > Shoot','production':'Production','shoot_plus2':'Shoot +2wk','shoot_plus4':'Shoot +4wk','post':'Post','post_plus2':'Post +2wk','graphics':'Split'};
+
+function renderSections() {
+  const grid=document.getElementById('sectionsGrid'),hdr=document.getElementById('sectionsHdr');
+  grid.innerHTML='';
+  if(userSections.length>0)hdr.style.display='grid';
+  userSections.forEach((s,i)=>{
+    const row=document.createElement('div');
+    row.className='section-row'+(s.total>0?' ai-filled':'');
+    row.style.gridTemplateColumns='90px 1fr 150px 130px 28px';
+    row.innerHTML=`<span class="section-acct">${s.acct}</span><span class="section-label">${s.label}</span>
+      <input class="section-total" type="text" inputmode="numeric" value="${s.total>0?s.total.toLocaleString():''}" placeholder="0"
+        oninput="onCurrencyInput(this, v => { userSections[${i}].total=v; updateBudgetTotal(); })">
+      <select style="font-family:var(--font-m);font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:3px 6px;cursor:pointer;" onchange="userSections[${i}].spread_type=this.value">
+        ${Object.entries(SPREAD_LABELS).map(([val,lbl])=>`<option value="${val}" ${s.spread_type===val?'selected':''}>${lbl}</option>`).join('')}
+      </select>
+      <button onclick="removeSection(${i})" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0;line-height:1;transition:color .15s;" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text3)'">×</button>`;
+    grid.appendChild(row);
+  });
+  updateBudgetTotal();
+}
+function addManualSection(){userSections.push({acct:'',label:'New Section',total:0,spread_type:'full'});renderSections();}
+function removeSection(i){userSections.splice(i,1);renderSections();}
+function updateBudgetTotal(){
+  const total=userSections.reduce((sum,s)=>sum+(parseCurrency(String(s.total))||0),0);
+  const el=document.getElementById('totalBudgetDisplay');if(el)el.textContent='$'+total.toLocaleString();
+}
+
+const PH_COLORS={CASTING:'#8b5cf6',PREP:'#4a8fe8','LOAD IN':'#e8a020',SHOOT:'#e05252',PRODUCTION:'#e05252',POST:'#3db87a',WRAP:'#3db87a'};
+function phColor(name){return PH_COLORS[name.toUpperCase()]||'#6b6660';}
+
+function renderPhases(){
+  const wrap=document.getElementById('phasesWrap');wrap.innerHTML='';
+  userPhases.forEach((ph,i)=>{
+    const d=document.createElement('div');d.className='ph-block';d.style.borderLeftColor=phColor(ph.name);
+    const hasPay=ph.payDate&&ph.payDate.length>0;
+    d.innerHTML=`<div class="ph-row">
+      <input class="ph-name" type="text" value="${ph.name}" oninput="userPhases[${i}].name=this.value;this.closest('.ph-block').style.borderLeftColor=phColor(this.value)" placeholder="Phase name">
+      <div class="field"><label>Start</label><input type="date" value="${ph.start}" style="font-size:12px;padding:7px 10px;" oninput="userPhases[${i}].start=this.value;updateGenerateButton()"></div>
+      <div class="field"><label>End</label><input type="date" value="${ph.end}" style="font-size:12px;padding:7px 10px;" oninput="userPhases[${i}].end=this.value;updateGenerateButton()"></div>
+      <button class="ph-toggle${hasPay?' active':''}" id="pmt-toggle-${i}" onclick="togglePayDate(${i})">${hasPay?'💰 Payment date set':'+ Payment date'}</button>
+      ${ph.removable?`<button class="ph-rem" onclick="removePhase(${i})" title="Remove">×</button>`:'<div></div>'}
+    </div>
+    <div class="ph-pmt${hasPay?' open':''}" id="pmt-row-${i}">
+      <div class="ph-pmt-lbl">Optional — when you need funds before this phase starts.</div>
+      <div class="field"><label>Payment date</label><input type="date" value="${ph.payDate||''}" style="font-size:12px;padding:7px 10px;" oninput="userPhases[${i}].payDate=this.value;updatePayToggle(${i})"></div>
+    </div>`;
+    wrap.appendChild(d);
+  });
+  updateGenerateButton();
+}
+function togglePayDate(i){
+  const row=document.getElementById('pmt-row-'+i),btn=document.getElementById('pmt-toggle-'+i);
+  const isOpen=row.classList.contains('open');
+  if(isOpen){row.classList.remove('open');btn.classList.remove('active');userPhases[i].payDate='';btn.textContent='+ Payment date';}
+  else{row.classList.add('open');btn.classList.add('active');row.querySelector('input[type=date]').focus();}
+}
+function updatePayToggle(i){
+  const btn=document.getElementById('pmt-toggle-'+i);if(!btn)return;
+  if(userPhases[i].payDate){btn.textContent='💰 Payment date set';btn.classList.add('active');}
+  else{btn.textContent='+ Payment date';btn.classList.remove('active');}
+}
+function addPhase(){
+  const last=userPhases[userPhases.length-1];
+  userPhases.push({name:'NEW PHASE',start:last?last.end:'',end:last?last.end:'',payDate:'',removable:true});
+  renderPhases();
+  const inputs=document.querySelectorAll('.ph-name');if(inputs.length){inputs[inputs.length-1].select();inputs[inputs.length-1].focus();}
+}
+function removePhase(i){userPhases.splice(i,1);renderPhases();}
+
+function updateGenerateButton(){
+  const btn=document.getElementById('genBtn');
+  const hasValidPhase=userPhases.some(p=>p.start&&p.start.length>=8&&p.end&&p.end.length>=8);
+  if(hasValidPhase){btn.disabled=false;btn.style.opacity='1';btn.style.cursor='pointer';btn.textContent='Download Cash Flow — Excel';}
+  else{btn.disabled=true;btn.style.opacity='.4';btn.style.cursor='not-allowed';btn.textContent='Add phase dates to continue';}
+}
+
+async function generate(){
+  const btn=document.getElementById('genBtn');
+  const phases=userPhases.filter(p=>p.start&&p.start.length>=8&&p.end&&p.end.length>=8);
+  if(!phases.length){showCfStatus('err','Add phase dates in Step 03 to continue.');return;}
+  if(!userSections.length){showCfStatus('err','No budget sections found. Upload a budget PDF or add sections manually.');document.getElementById('budgetPanel').scrollIntoView({behavior:'smooth'});return;}
+  btn.disabled=true;btn.textContent='Generating...';showCfStatus('warn','Building your cash flow spreadsheet...');
+  const showInfo={showTitle:document.getElementById('showTitle').value||'Untitled Show',network:document.getElementById('network').value||'',prodCo:document.getElementById('prodCo').value||'',numEps:parseInt(document.getElementById('numEps').value)||0};
+  try {
+    const resp=await fetch(`${BACKEND}/generate-cashflow`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({showInfo,phases,sections:userSections.map(s=>({...s,total:parseCurrency(String(s.total))||0}))})});
+    if(!resp.ok){const e=await resp.json().catch(()=>({}));throw new Error(e.error||'Server error '+resp.status);}
+    const blob=await resp.blob();const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=(showInfo.showTitle||'CashFlow').replace(/[^\w\s]/g,'').trim().replace(/\s+/g,'_')+'_CashFlow.xlsx';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+    showCfStatus('ok','Cash flow downloaded. Check your Downloads folder.');
+  } catch(err){showCfStatus('err','Error: '+err.message);}
+  finally{btn.disabled=false;btn.textContent='Download Cash Flow — Excel';updateGenerateButton();}
+}
+function showCfStatus(type,msg){const bar=document.getElementById('statusBar');bar.className='status '+type;bar.textContent=msg;bar.scrollIntoView({behavior:'smooth',block:'nearest'});}
+
+async function onVrFile(input){
+  const f=input.files[0];if(!f)return;
+  document.getElementById('vrIco').textContent='📋';setBoxState('vr','loading','Reading file...');
+  try{const b64=await fileToBase64(f);vrFileB64=b64;vrFileName=f.name;setBoxState('vr','ok','✓ '+f.name+' — ready. Click Generate below.');const btn=document.getElementById('vrGenBtn');btn.disabled=false;btn.style.opacity='1';btn.style.cursor='pointer';btn.textContent='Generate Variance Report — Excel';}
+  catch(err){setBoxState('vr','err','Could not read file: '+err.message);}
+}
+function clearVrFile(){vrFileB64=null;vrFileName='';if(vrBlobUrl){URL.revokeObjectURL(vrBlobUrl);vrBlobUrl=null;}document.getElementById('vrIco').textContent='📋';setBoxState('vr','idle','');const drop=document.querySelector('#vrBox .imp-drop');if(drop)drop.value='';const btn=document.getElementById('vrGenBtn');btn.disabled=true;btn.style.opacity='.4';btn.style.cursor='not-allowed';btn.textContent='Drop a cost report above to generate';document.getElementById('vrDlBtn').classList.remove('show');const bar=document.getElementById('vrStatusBar');bar.className='status';bar.textContent='';}
+async function generateVariance(){
+  if(!vrFileB64)return;
+  const btn=document.getElementById('vrGenBtn'),dlBtn=document.getElementById('vrDlBtn'),bar=document.getElementById('vrStatusBar');
+  btn.disabled=true;btn.style.opacity='.5';btn.textContent='AI is reading your cost report — 60-120 seconds...';
+  dlBtn.classList.remove('show');bar.className='status warn';bar.textContent='Sending to AI — reading in two passes, please wait...';bar.style.display='block';
+  const manualInfo={showTitle:document.getElementById('vrShowTitle').value,network:document.getElementById('vrNetwork').value,prodCo:document.getElementById('vrProdCo').value,period:document.getElementById('vrPeriod').value,threshold:parseInt(document.getElementById('vrThreshold').value)||10};
+  try{
+    const resp=await fetch(`${BACKEND}/parse-variance`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pdf_base64:vrFileB64,show_info:manualInfo})});
+    if(!resp.ok){const e=await resp.json().catch(()=>({}));throw new Error(e.error||'Backend error '+resp.status);}
+    const blob=await resp.blob();if(vrBlobUrl)URL.revokeObjectURL(vrBlobUrl);vrBlobUrl=URL.createObjectURL(blob);
+    dlBtn.href=vrBlobUrl;dlBtn.download=vrFileName.replace(/\.pdf$/i,'')+'_VarianceReport.xlsx';dlBtn.textContent='⬇ Download Variance Report — Excel';dlBtn.classList.add('show');
+    bar.className='status ok';bar.textContent='✓ Report ready — click the green button to download.';btn.textContent='Re-generate Report';btn.disabled=false;btn.style.opacity='1';
+  } catch(err){bar.className='status err';bar.textContent='Failed: '+err.message;btn.disabled=false;btn.style.opacity='1';btn.textContent='Try Again';}
+}
+
+let riskFileB64=null,riskFileName='',riskBlobUrl=null;
+async function onRiskFile(input){
+  const f=input.files[0];if(!f)return;
+  if(!f.name.toLowerCase().endsWith('.pdf')){setBoxState('risk','err','PDF only — please save your document as a PDF and re-upload.');return;}
+  document.getElementById('riskIco').textContent='🔍';setBoxState('risk','loading','Reading file...');
+  try{const b64=await fileToBase64(f);riskFileB64=b64;riskFileName=f.name;setBoxState('risk','ok','✓ '+f.name+' — ready. Click Generate below.');const btn=document.getElementById('riskGenBtn');btn.disabled=false;btn.style.opacity='1';btn.style.cursor='pointer';btn.textContent='Generate Risk Report — Excel';}
+  catch(err){setBoxState('risk','err','Could not read file: '+err.message);}
+}
+function clearRiskFile(){riskFileB64=null;riskFileName='';if(riskBlobUrl){URL.revokeObjectURL(riskBlobUrl);riskBlobUrl=null;}document.getElementById('riskIco').textContent='🔍';setBoxState('risk','idle','');const drop=document.querySelector('#riskBox .imp-drop');if(drop)drop.value='';const btn=document.getElementById('riskGenBtn');btn.disabled=true;btn.style.opacity='.4';btn.style.cursor='not-allowed';btn.textContent='Drop a document above to scan';document.getElementById('riskDlBtn').classList.remove('show');const bar=document.getElementById('riskStatusBar');bar.className='status';bar.textContent='';}
+async function generateRisk(){
+  if(!riskFileB64)return;
+  const btn=document.getElementById('riskGenBtn'),dlBtn=document.getElementById('riskDlBtn'),bar=document.getElementById('riskStatusBar');
+  btn.disabled=true;btn.style.opacity='.5';btn.textContent='AI is scanning your document — 30-60 seconds...';
+  dlBtn.classList.remove('show');bar.className='status warn';bar.textContent='Scanning document for risks — please wait...';bar.style.display='block';
+  const showInfo={showTitle:document.getElementById('riskShowTitle').value,network:document.getElementById('riskNetwork').value,prodCo:document.getElementById('riskProdCo').value};
+  try{
+    const resp=await fetch(`${BACKEND}/parse-risk`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({show_info:showInfo,pdf_base64:riskFileB64})});
+    if(!resp.ok){const e=await resp.json().catch(()=>({}));throw new Error(e.error||'Backend error '+resp.status);}
+    const blob=await resp.blob();if(riskBlobUrl)URL.revokeObjectURL(riskBlobUrl);riskBlobUrl=URL.createObjectURL(blob);
+    dlBtn.href=riskBlobUrl;dlBtn.download=riskFileName.replace(/[.](pdf|docx)$/i,'')+'_RiskScan.xlsx';dlBtn.textContent='⬇ Download Risk Report — Excel (2 tabs: Document Order + By Category)';dlBtn.classList.add('show');
+    bar.className='status ok';bar.textContent='✓ Risk scan complete — click the green button to download.';btn.textContent='Re-scan Document';btn.disabled=false;btn.style.opacity='1';
+  } catch(err){bar.className='status err';bar.textContent='Failed: '+err.message;btn.disabled=false;btn.style.opacity='1';btn.textContent='Try Again';}
+}
+
+function openPrivacy(){document.getElementById('privacyModal').classList.add('open');document.body.style.overflow='hidden';}
+function closePrivacy(){document.getElementById('privacyModal').classList.remove('open');document.body.style.overflow='';}
+function closePrivacyIfOutside(e){if(e.target===document.getElementById('privacyModal'))closePrivacy();}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// GLOBAL CURRENCY INPUT FORMATTER
+// ═══════════════════════════════════════════════════════════════════════════════
+// All currency fields use type="text" with this formatter so commas appear as
+// the user types. Raw numeric value is extracted with parseCurrency().
+
+function formatWithCommas(value) {
+  // Strip everything except digits and decimal point
+  const raw = String(value).replace(/[^0-9.]/g, '');
+  if (!raw) return '';
+  const parts = raw.split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return parts.join('.');
+}
+
+function parseCurrency(value) {
+  return parseFloat(String(value).replace(/[^0-9.]/g, '')) || 0;
+}
+
+// Called oninput on any currency text field
+function onCurrencyInput(el, callback) {
+  const raw = parseCurrency(el.value);
+  const pos = el.selectionStart;
+  const oldLen = el.value.length;
+  el.value = formatWithCommas(el.value);
+  // Restore cursor position accounting for added commas
+  const newLen = el.value.length;
+  el.selectionStart = el.selectionEnd = pos + (newLen - oldLen);
+  if (callback) callback(raw);
+}
+
+// ── TAX INCENTIVE CALCULATOR — TOOL 4
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const TI_PRODUCTION_TYPES = [
+  "Feature Film","Scripted Television","Reality Television",
+  "Unscripted / Non-Scripted","Documentary","Competition",
+  "Game Show","Animation","Commercial","Pilot","Post Only","Talk Show","Video Game"
+];
+
+const TI_BUCKET_LABELS = {
+  residentATL:"Resident ATL",residentBTL:"Resident BTL",
+  nonresidentATL:"Non-Resident ATL",nonresidentBTL:"Non-Resident BTL",
+  spend:"Qualifying Spend",spendPost:"Post-Production Spend (separate rate)"
+};
+
+const TI_CONTINGENCY = 0.10;
+
+// Full 46-location dataset
+const TI_LOCATIONS = [
+  {id:"us-alabama",name:"Alabama",flag:"🇺🇸",region:"US",currency:"USD",dataDate:"03/08/2026",incentiveType:"refundable_tax_credit",monetizationRate:1.00,monetizationLabel:"Refundable — paid directly",headline:"25%–35%",eligible:["Animation","Commercials","Documentaries","Feature Films","Pilots","Post Only","Reality Television","Scripted Television","Video Games"],ineligible:["Game Shows","Talk Shows"],buckets:{residentATL:0.35,residentBTL:0.35,nonresidentATL:0.25,nonresidentBTL:0.25,spend:0.25},uplifts:[],minSpend:500000,projectCap:null,compensationCapATL:1000000,compensationCapBTL:500000,annualCap:20000000,sunsetDate:"Dec 31, 2028",flags:{red:[],yellow:["Compensation cap: $1M ATL, $500K BTL per individual"],blue:[]},notes:"Marketing and distribution expenses do not qualify."},
+  {id:"us-arizona",name:"Arizona",flag:"🇺🇸",region:"US",currency:"USD",dataDate:"03/09/2026",incentiveType:"refundable_tax_credit",monetizationRate:1.00,monetizationLabel:"Refundable — 100% buy-back with state",headline:"15%–20% (tiered)",eligible:["Commercials","Documentaries","Feature Films","Pilots","Reality Television","Scripted Television"],ineligible:["Animation","Game Shows","Post Only","Talk Shows","Video Games"],buckets:{residentATL:"tiered",residentBTL:"tiered",nonresidentATL:"tiered",nonresidentBTL:"tiered",spend:"tiered"},tiers:[{max:9999999,rate:0.15},{max:34999999,rate:0.175},{max:null,rate:0.20}],uplifts:[],minSpend:null,projectCap:null,annualCap:125000000,sunsetDate:"Dec 31, 2043",flags:{red:[],yellow:["Tiered rate: <$10M=15%, $10M–$35M=17.5%, $35M+=20%","Must film >50% at qualified production facility or practical location + all preproduction/editing in AZ"],blue:["Credits cash out at 100% with state — best buy-back in US dataset"]},notes:"27.5% headline in EP guide implies undocumented uplift — verify with AZ Film Office."},
+  {id:"us-arkansas",name:"Arkansas",flag:"🇺🇸",region:"US",currency:"USD",dataDate:"03/09/2026",incentiveType:"transferable_tax_credit",monetizationRate:0.85,monetizationLabel:"Transferable credit — 85¢ default",headline:"25%–30%",eligible:["Animation","Documentaries","Feature Films","Pilots","Post Only","Scripted Television","Video Games"],ineligible:["Commercials","Game Shows","Reality Television","Talk Shows"],buckets:{residentATL:0.25,residentBTL:0.30,nonresidentATL:0.25,nonresidentBTL:0.25,spend:0.25},uplifts:[],minSpend:200000,compensationCap:500000,annualCap:4000000,sunsetDate:"Jun 30, 2032",flags:{red:[],yellow:["Annual cap is only $4M — very low","Resident BTL (30%) is higher than ATL (25%) — unusual"],blue:[]},notes:""},
+  {id:"us-california",name:"California",flag:"🇺🇸",region:"US",currency:"USD",dataDate:"03/08/2026",incentiveType:"transferable_tax_credit",monetizationRate:0.85,monetizationLabel:"Transferable credit — 85¢ default",headline:"20%–30% (BTL only)",eligible:["Feature Films","Pilots","Scripted Television"],ineligible:["Animation","Commercials","Documentaries","Game Shows","Post Only","Reality Television","Talk Shows","Video Games"],buckets:{residentATL:0,residentBTL:0.25,nonresidentATL:0,nonresidentBTL:0.25,spend:0},uplifts:[],minSpend:1000000,annualCap:330000000,sunsetDate:"Jun 30, 2025",flags:{red:["SUNSET ALERT: Program 3.0 sunset was June 30, 2025 — verify current status","NO ATL COVERAGE — above the line labor does not qualify","Competitive allocation — application does not guarantee approval"],yellow:["Reality TV not eligible","Must complete 75% of principal photography days in California"],blue:[]},notes:"Multiple sub-programs exist. Contact California Film Commission."},
+  {id:"us-colorado",name:"Colorado",flag:"🇺🇸",region:"US",currency:"USD",dataDate:"03/08/2026",incentiveType:"refundable_tax_credit",monetizationRate:1.00,monetizationLabel:"Refundable — paid directly",headline:"20%–22%",eligible:["Animation","Commercials","Documentaries","Feature Films","Pilots","Post Only","Reality Television","Scripted Television","Video Games"],ineligible:["Game Shows","Talk Shows"],buckets:{residentATL:0.20,residentBTL:0.20,nonresidentATL:0.20,nonresidentBTL:0.20,spend:0.20},uplifts:[{id:"co-rural",label:"Rural/Marginalized Urban Center (+2%)",amount:0.02,maxRate:0.22,prompt:"Is this production filming in a rural community or marginalized urban center in Colorado?"}],minSpend:1000000,compensationCap:1000000,annualCap:5000000,sunsetDate:"Dec 31, 2034",flags:{red:[],yellow:["Annual cap is only $5M — may be exhausted early","Crew must consist of at least 50% Colorado residents","Production must be at least 80% funded"],blue:[]},notes:""},
+  {id:"us-connecticut",name:"Connecticut",flag:"🇺🇸",region:"US",currency:"USD",dataDate:"03/08/2026",incentiveType:"transferable_tax_credit",monetizationRate:0.85,monetizationLabel:"Transferable credit — 85¢ default",headline:"10%–30% (tiered)",eligible:["Animation","Commercials","Documentaries","Game Shows","Pilots","Post Only","Reality Television","Scripted Television","Talk Shows","Video Games"],ineligible:[],buckets:{residentATL:"tiered",residentBTL:"tiered",nonresidentATL:"tiered",nonresidentBTL:"tiered",spend:"tiered"},tiers:[{max:499999,rate:0.10},{max:999999,rate:0.15},{max:null,rate:0.30}],uplifts:[],minSpend:100000,compensationCap:20000000,sunsetDate:null,flags:{red:["Theatrical feature films ineligible — moratorium since 2017"],yellow:["Tiered: $100K=10%, $500K=15%, $1M+=30%"],blue:["No project cap, no annual cap"]},notes:"Films made for TV and streaming still eligible."},
+  {id:"us-georgia",name:"Georgia",flag:"🇺🇸",region:"US",currency:"USD",dataDate:"03/08/2026",incentiveType:"transferable_tax_credit",monetizationRate:0.85,monetizationLabel:"Transferable credit — 85¢ default",headline:"20%–30%",eligible:["Animation","Commercials","Documentaries","Feature Films","Game Shows","Pilots","Post Only","Reality Television","Scripted Television","Talk Shows","Video Games"],ineligible:[],buckets:{residentATL:0.20,residentBTL:0.20,nonresidentATL:0.20,nonresidentBTL:0.20,spend:0.20},uplifts:[{id:"ga-logo",label:"Georgia Promotional Logo / End Title Credit (+10%)",amount:0.10,maxRate:0.30,prompt:"Will this production include the Georgia promotional logo or end title credit?"}],minSpend:500000,compensationCap:500000,sunsetDate:null,flags:{red:[],yellow:["$500K compensation cap per individual — but NO cap for loan-outs"],blue:["No project cap, no annual cap — very production-friendly"]},notes:"Developmental costs and marketing/distribution do not qualify."},
+  {id:"us-hawaii",name:"Hawaii",flag:"🇺🇸",region:"US",currency:"USD",dataDate:"03/08/2026",incentiveType:"refundable_tax_credit",monetizationRate:1.00,monetizationLabel:"Refundable — paid directly",headline:"22% (Oahu) / 27% (Neighbor Islands)",eligible:["Animation","Commercials","Documentaries","Feature Films","Game Shows","Pilots","Post Only","Reality Television","Scripted Television","Talk Shows","Video Games"],ineligible:[],buckets:{residentATL:0.22,residentBTL:0.22,nonresidentATL:0.22,nonresidentBTL:0.22,spend:0.22},uplifts:[{id:"hi-neighbor",label:"Filming on Neighbor Islands (+5%)",amount:0.05,maxRate:0.27,prompt:"Is this production filming primarily on Neighbor Islands (not Oahu)?"}],minSpend:100000,projectCap:17000000,annualCap:50000000,sunsetDate:"Dec 31, 2032",flags:{red:[],yellow:["Rate depends on island — Oahu=22%, Neighbor Islands=27%"],blue:[]},notes:"Productions must make reasonable efforts to hire local talent and crew."},
+  {id:"us-indiana",name:"Indiana",flag:"🇺🇸",region:"US",currency:"USD",dataDate:"03/09/2026",incentiveType:"non_transferable_non_refundable",monetizationRate:null,monetizationLabel:"NON-TRANSFERABLE & NON-REFUNDABLE",headline:"20%–25%",eligible:["Animation","Documentaries","Feature Films","Game Shows","Pilots","Scripted Television","Video Games"],ineligible:["Commercials","Post Only","Reality Television","Talk Shows"],buckets:{residentATL:0.20,residentBTL:0.25,nonresidentATL:0.20,nonresidentBTL:0.20,spend:0.20},uplifts:[],minSpend:null,compensationCap:500000,annualCap:5000000,sunsetDate:null,flags:{red:["CRITICAL: Non-transferable AND non-refundable — zero value without Indiana tax liability. Consult tax advisor."],yellow:["Application only during specific windows"],blue:[]},notes:""},
+  {id:"us-kentucky",name:"Kentucky",flag:"🇺🇸",region:"US",currency:"USD",dataDate:"03/08/2026",incentiveType:"refundable_tax_credit",monetizationRate:1.00,monetizationLabel:"Refundable — paid directly",headline:"30%–35%",eligible:["Animation","Documentaries","Feature Films","Game Shows","Pilots","Post Only","Reality Television","Scripted Television","Talk Shows","Video Games"],ineligible:["Commercials"],buckets:{residentATL:0.35,residentBTL:0.35,nonresidentATL:0.30,nonresidentBTL:0.30,spend:0.30},uplifts:[{id:"ky-rural",label:"Kentucky Rural/Incentive Zone (+5%)",amount:0.05,maxRate:0.35,prompt:"Is this production filming in a designated Kentucky rural or incentive zone?"}],minSpend:125000,projectCap:10000000,compensationCap:1000000,annualCap:75000000,sunsetDate:null,flags:{red:[],yellow:["KEDFA monthly board meeting required — timing affects production schedule"],blue:[]},notes:""},
+  {id:"us-louisiana",name:"Louisiana",flag:"🇺🇸",region:"US",currency:"USD",dataDate:"03/08/2026",incentiveType:"refundable_tax_credit",monetizationRate:0.90,monetizationLabel:"State buy-back at 90% (88% after 2% transfer fee)",headline:"25%–40%",eligible:["Animation","Commercials","Documentaries","Feature Films","Game Shows","Pilots","Post Only","Reality Television","Scripted Television","Talk Shows","Video Games"],ineligible:[],buckets:{residentATL:0.25,residentBTL:0.25,nonresidentATL:0.25,nonresidentBTL:0.25,spend:0.25},uplifts:[{id:"la-labor",label:"Louisiana Resident Labor Uplift (up to +15%)",amount:0.15,maxRate:0.40,prompt:"Does this production qualify for the Louisiana resident labor uplift? (Loan-outs do NOT qualify — they stay at 25%.)"},{id:"la-vfx",label:"Louisiana VFX Spend Uplift (+5%)",amount:0.05,maxRate:null,prompt:"Does this production have qualifying VFX spend in Louisiana?"}],minSpend:300000,projectCap:20000000,compensationCap:3000000,annualCap:125000000,sunsetDate:"Jun 30, 2031",flags:{red:[],yellow:["Loan-out labor stays at base 25% — labor uplift does not apply to loan-outs"],blue:["State buy-back at 90% — better than open market default"]},notes:""},
+  {id:"us-maine",name:"Maine",flag:"🇺🇸",region:"US",currency:"USD",dataDate:"03/09/2026",incentiveType:"dual_program",monetizationRate:null,monetizationLabel:"Dual program: wage rebate (100¢) + spend credit (no value without ME tax liability)",headline:"5%–17%",eligible:["Animation","Commercials","Documentaries","Feature Films","Game Shows","Pilots","Post Only","Reality Television","Scripted Television","Talk Shows","Video Games"],ineligible:[],buckets:{residentATL:0.12,residentBTL:0.12,nonresidentATL:0.10,nonresidentBTL:0.10,spend:0.05},uplifts:[],minSpend:75000,compensationCap:50000,sunsetDate:null,flags:{red:[],yellow:["5% spend credit is non-refundable and non-transferable — only valuable with Maine tax liability","Compensation cap of $50K is very low"],blue:[]},notes:"Wage rebate (labor rates) paid directly. Spend credit separate."},
+  {id:"us-maryland",name:"Maryland",flag:"🇺🇸",region:"US",currency:"USD",dataDate:"03/09/2026",incentiveType:"refundable_tax_credit",monetizationRate:1.00,monetizationLabel:"Refundable — paid directly",headline:"28%–30%",eligible:["Documentaries","Feature Films","Pilots","Reality Television","Scripted Television"],ineligible:["Animation","Commercials","Game Shows","Post Only","Talk Shows","Video Games"],buckets:{residentATL:0.28,residentBTL:0.28,nonresidentATL:0.28,nonresidentBTL:0.28,spend:0.28},uplifts:[{id:"md-tv",label:"TV Series Uplift (+2%)",amount:0.02,maxRate:0.30,prompt:"Is this production a TV series?"}],minSpend:250000,projectCap:10000000,compensationCap:500000,annualCap:15000000,sunsetDate:null,flags:{red:["CRITICAL: $500K compensation cap disqualifies ENTIRE individual compensation — not just the overage above $500K"],yellow:["50% of principal photography must occur in Maryland"],blue:[]},notes:""},
+  {id:"us-massachusetts",name:"Massachusetts",flag:"🇺🇸",region:"US",currency:"USD",dataDate:"03/09/2026",incentiveType:"partially_refundable",monetizationRate:0.90,monetizationLabel:"State buy-back at 90% of face value",headline:"25%",eligible:["Animation","Commercials","Documentaries","Feature Films","Pilots","Post Only","Reality Television","Scripted Television"],ineligible:["Game Shows","Talk Shows","Video Games"],buckets:{residentATL:0.25,residentBTL:0.25,nonresidentATL:0.25,nonresidentBTL:0.25,spend:0.25},uplifts:[],minSpend:50000,sunsetDate:null,flags:{red:[],yellow:["75% of total PP days must be in Massachusetts (for Production Credit)"],blue:["State buy-back at 90% — better than open market default","No project cap, no annual cap"]},notes:"Equipment purchased outside MA can qualify. Qualifying cost is depreciation, not purchase price."},
+  {id:"us-minnesota",name:"Minnesota",flag:"🇺🇸",region:"US",currency:"USD",dataDate:"03/09/2026",incentiveType:"transferable_tax_credit",monetizationRate:0.85,monetizationLabel:"Transferable credit — 85¢ default",headline:"20%–25%",eligible:["Animation","Documentaries","Feature Films","Pilots","Post Only","Reality Television","Scripted Television"],ineligible:["Commercials","Game Shows","Talk Shows","Video Games"],buckets:{residentATL:0.25,residentBTL:0.25,nonresidentATL:0.25,nonresidentBTL:0.20,spend:0.25},uplifts:[],minSpend:1000000,annualCap:25000000,sunsetDate:"Dec 31, 2030",flags:{red:["CRITICAL: Non-resident ATL limited to ONE producer and ONE director per project — each capped at first $500K in wages"],yellow:["Non-resident BTL rate is 20%, lower than resident (25%)","MN withholding taxes must be remitted for ATL to qualify"],blue:[]},notes:"If one person holds two ATL roles, they only qualify once."},
+  {id:"us-nevada",name:"Nevada",flag:"🇺🇸",region:"US",currency:"USD",dataDate:"03/08/2026",incentiveType:"transferable_tax_credit",monetizationRate:0.85,monetizationLabel:"Transferable credit — 85¢ default",headline:"12%–15%",eligible:["Animation","Commercials","Documentaries","Feature Films","Game Shows","Pilots","Reality Television","Scripted Television","Talk Shows","Video Games"],ineligible:["Post Only"],buckets:{residentATL:0.15,residentBTL:0.15,nonresidentATL:0.12,nonresidentBTL:0.15,spend:0.15},uplifts:[],minSpend:500000,projectCap:6000000,compensationCap:750000,annualCap:10000000,sunsetDate:null,flags:{red:[],yellow:["CRITICAL: 60% of total production budget must be incurred in Nevada","Non-Resident ATL (12%) is lower than Resident ATL (15%)","Project cap of $6M is relatively low"],blue:[]},notes:""},
+  {id:"us-oklahoma",name:"Oklahoma",flag:"🇺🇸",region:"US",currency:"USD",dataDate:"03/08/2026",incentiveType:"discretionary_rebate",monetizationRate:1.00,monetizationLabel:"Rebate — paid directly (IF approved)",headline:"20%–30% (discretionary)",eligible:["Animation","Documentaries","Feature Films","Game Shows","Pilots","Post Only","Reality Television","Scripted Television","Talk Shows"],ineligible:["Commercials","Video Games"],buckets:{residentATL:0.30,residentBTL:0.30,nonresidentATL:0,nonresidentBTL:0.20,spend:0.20},uplifts:[],minSpend:50000,annualCap:30000000,sunsetDate:"Jun 30, 2031",flags:{red:["CRITICAL: Discretionary rebate — acceptance is NOT guaranteed. OF+MO evaluates based on economic benefit to Oklahoma."],yellow:["Mandatory apprentice hiring based on QPE spend level","Non-resident ATL rate not listed — verify with film office"],blue:[]},notes:""},
+  {id:"us-puerto_rico",name:"Puerto Rico",flag:"🇺🇸",region:"US",currency:"USD",dataDate:"03/08/2026",incentiveType:"transferable_tax_credit",monetizationRate:0.85,monetizationLabel:"Transferable credit — 85¢ default",headline:"20%–40%",eligible:["Animation","Commercials","Documentaries","Feature Films","Game Shows","Pilots","Post Only","Reality Television","Scripted Television","Talk Shows","Video Games"],ineligible:[],buckets:{residentATL:0.40,residentBTL:0.40,nonresidentATL:0.20,nonresidentBTL:0.20,spend:0.40},uplifts:[],minSpend:50000,annualCap:38000000,sunsetDate:null,flags:{red:[],yellow:["Significant gap between resident (40%) and non-resident (20%) rates — crew residency matters greatly"],blue:["Highest resident rate in entire US dataset at 40%","Non-residents who live in Puerto Rico for 183+ days become residents"]},notes:""},
+  {id:"us-tennessee",name:"Tennessee",flag:"🇺🇸",region:"US",currency:"USD",dataDate:"03/08/2026",incentiveType:"grant",monetizationRate:1.00,monetizationLabel:"Grant — paid directly",headline:"25%–30%",eligible:["Feature Films","Pilots","Scripted Television"],ineligible:["Animation","Commercials","Documentaries","Game Shows","Post Only","Reality Television","Talk Shows","Video Games"],buckets:{residentATL:0.25,residentBTL:0.25,nonresidentATL:0,nonresidentBTL:0,spend:0.25},uplifts:[{id:"tn-logo",label:"Filmed in Tennessee Logo (+5% on resident labor, scripted TV only)",amount:0.05,maxRate:0.30,prompt:"Is this a scripted TV project that will include the Filmed in Tennessee logo?",appliesToResidentOnly:true}],minSpend:200000,compensationCap:250000,sunsetDate:null,flags:{red:["CRITICAL: Non-resident ATL and BTL only qualify for Scripted TV — all other formats get zero on non-resident labor"],yellow:["Annual funding determined annually — not a fixed cap","Compensation caps are low: $250K per resident, $2M total non-resident per season"],blue:[]},notes:""},
+  {id:"us-texas",name:"Texas",flag:"🇺🇸",region:"US",currency:"USD",dataDate:"03/08/2026",incentiveType:"grant",monetizationRate:1.00,monetizationLabel:"Grant — paid directly",headline:"5%–22.5% (tiered + uplifts)",eligible:["Animation","Commercials","Documentaries","Feature Films","Game Shows","Pilots","Reality Television","Scripted Television","Talk Shows","Video Games"],ineligible:["Post Only"],buckets:{residentATL:"tiered",residentBTL:"tiered",nonresidentATL:0,nonresidentBTL:0,spend:"tiered"},tiers:[{max:999999,rate:0.05},{max:3499999,rate:0.10},{max:null,rate:0.20}],uplifts:[{id:"tx-rural",label:"Rural/Designated Area Uplift (+2.5%)",amount:0.025,prompt:"Will at least 25% of this production occur in a Texas rural or designated area?"},{id:"tx-veteran",label:"Texas Resident Veteran Uplift (+2.5%)",amount:0.025,prompt:"Will at least 5% of total paid crew and cast be Texas Resident Veterans?"},{id:"tx-post",label:"Post-Production Uplift (+2.5%)",amount:0.025,prompt:"Will at least 10% of total eligible in-state spending be on qualified post-production costs?"}],minSpend:250000,compensationCap:1000000,sunsetDate:null,flags:{red:[],yellow:["Annual cap not published — contact Texas Film Commission for availability","60% of total production days must be in Texas","55% of paid crew AND 55% of paid cast must be Texas residents","Non-resident rates not listed in EP guide — verify with TFC"],blue:[]},notes:""},
+  {id:"us-washington",name:"Washington",flag:"🇺🇸",region:"US",currency:"USD",dataDate:"03/08/2026",incentiveType:"rebate",monetizationRate:1.00,monetizationLabel:"Rebate — paid directly",headline:"15%–45%",eligible:["Animation","Feature Films","Pilots","Scripted Television"],ineligible:["Commercials","Game Shows","Post Only","Talk Shows","Video Games"],buckets:{residentATL:0.30,residentBTL:0.30,nonresidentATL:0,nonresidentBTL:0.15,spend:0.30},uplifts:[{id:"wa-episodic",label:"Episodic Series Uplift (+5%)",amount:0.05,prompt:"Is this an episodic series with at least 6 episodes?"},{id:"wa-rural",label:"Rural/Underrepresented Community Uplift (+10%)",amount:0.10,prompt:"Is this production filming in a Washington rural county OR telling the story of a historically underrepresented community?"}],minSpend:300000,compensationCapNonresident:50000,annualCap:15000000,sunsetDate:"Jun 30, 2030",flags:{red:[],yellow:["Application window opens Q1 ONLY each year — timing critical","Reality TV and Docs are case-by-case only","Non-resident labor comp cap is extremely low at $50K"],blue:["Up to 45% achievable with both uplifts stacked"]},notes:""},
+  // International
+  {id:"intl-british_columbia",name:"British Columbia",flag:"🇨🇦",region:"International",currency:"CAD",dataDate:"03/08/2026",incentiveType:"refundable_stacked",monetizationRate:1.00,monetizationLabel:"Refundable — paid directly (provincial + federal stacked)",headline:"46.2% effective on qualifying labour",eligible:["Animation","Documentaries","Feature Films","Pilots","Post Only","Reality Television","Scripted Television"],ineligible:["Commercials","Game Shows","Talk Shows","Video Games"],buckets:{residentATL:0.462,residentBTL:0.462,nonresidentATL:0,nonresidentBTL:0,spend:0},uplifts:[],minSpend:1000000,sunsetDate:null,flags:{red:[],yellow:["LABOUR ONLY — credit applies to qualifying BC labour expenditure, not general spend","Federal 16% applies to labour NET of provincial assistance — not simply additive"],blue:["Highest effective rate in entire dataset at 46.2%","No caps of any kind","Currency is CAD"]},notes:"36% provincial + 16% federal on net labour = 46.2% effective rate."},
+  {id:"intl-france",name:"France",flag:"🇫🇷",region:"International",currency:"EUR",dataDate:"03/08/2026",incentiveType:"rebate",monetizationRate:1.00,monetizationLabel:"Rebate (TRIP) — paid directly",headline:"30%–40%",eligible:["Animation","Feature Films","Pilots","Scripted Television"],ineligible:["Commercials","Documentaries","Game Shows","Post Only","Reality Television","Talk Shows","Video Games"],buckets:{residentATL:0.30,residentBTL:0.30,nonresidentATL:0,nonresidentBTL:0,spend:0.30},uplifts:[{id:"fr-vfx",label:"VFX Uplift (+10%)",amount:0.10,maxRate:0.40,prompt:"Does this production have more than €2M in VFX-related eligible French expenses?"}],minSpend:250000,projectCap:30000000,sunsetDate:null,flags:{red:[],yellow:["Requires French production services company (PSC) to apply","Qualifying spend starts AFTER provisional application reception — do not spend before application"],blue:["Currency is EUR"]},notes:""},
+  {id:"intl-greece",name:"Greece",flag:"🇬🇷",region:"International",currency:"EUR",dataDate:"03/08/2026",incentiveType:"rebate",monetizationRate:1.00,monetizationLabel:"Rebate — paid directly",headline:"40%",eligible:["Animation","Documentaries","Feature Films","Post Only","Scripted Television","Video Games"],ineligible:["Commercials","Game Shows","Reality Television","Talk Shows"],buckets:{residentATL:0.40,residentBTL:0.40,nonresidentATL:0.40,nonresidentBTL:0.40,spend:0.40},uplifts:[],minSpend:100000,projectCap:12000000,annualCap:75000000,sunsetDate:null,flags:{red:[],yellow:["Eligible costs may NOT exceed 80% of total costs","Non-resident cast/crew must be subject to Greek taxation and insurance","ATL compensation cap = 35% of eligible Greek spend (percentage-based, not fixed dollar)"],blue:["40% flat across all buckets","Currency is EUR"]},notes:""},
+  {id:"intl-ireland",name:"Ireland",flag:"🇮🇪",region:"International",currency:"EUR",dataDate:"03/08/2026",incentiveType:"rebate",monetizationRate:1.00,monetizationLabel:"Rebate (Section 481) — paid directly",headline:"32%",eligible:["Animation","Documentaries","Feature Films","Pilots","Post Only","Scripted Television"],ineligible:["Commercials","Game Shows","Reality Television","Talk Shows","Video Games"],buckets:{residentATL:0.32,residentBTL:0.32,nonresidentATL:0.32,nonresidentBTL:0.32,spend:0.32},uplifts:[],minSpend:125000,projectCap:125000000,sunsetDate:"Dec 31, 2028",flags:{red:[],yellow:["Requires local Irish producer company","Cultural test required via BFI"],blue:["32% flat across ALL buckets including non-resident ATL/BTL — cleanest international structure","Up to 90% claimable mid-production","No compensation cap, no annual cap","Currency is EUR"]},notes:"Includes post-production and VFX in qualifying spend."},
+  {id:"intl-israel",name:"Israel",flag:"🇮🇱",region:"International",currency:"NIS",dataDate:"03/08/2026",incentiveType:"rebate",monetizationRate:1.00,monetizationLabel:"Rebate — 80% during filming, 20% on completion",headline:"30%",eligible:["Documentaries","Feature Films","Post Only","Scripted Television"],ineligible:["Animation","Commercials","Game Shows","Pilots","Reality Television","Talk Shows","Video Games"],buckets:{residentATL:0,residentBTL:0,nonresidentATL:0,nonresidentBTL:0,spend:0.30},uplifts:[],minSpend:500000,annualCap:45000000,sunsetDate:null,flags:{red:[],yellow:["Must apply through an Israeli producer","Applicant must have 2+ feature films or TV series in past 5 years"],blue:["80% of rebate paid DURING filming — cash flow advantage","Currency is NIS"]},notes:""},
+  {id:"intl-malaysia",name:"Malaysia",flag:"🇲🇾",region:"International",currency:"MYR",dataDate:"03/08/2026",incentiveType:"rebate",monetizationRate:1.00,monetizationLabel:"Rebate — paid directly",headline:"30%–35%",eligible:["Animation","Documentaries","Feature Films","Pilots","Post Only","Reality Television","Scripted Television"],ineligible:["Commercials","Game Shows","Talk Shows","Video Games"],buckets:{residentATL:0.30,residentBTL:0.30,nonresidentATL:0.30,nonresidentBTL:0.30,spend:0.30},uplifts:[{id:"my-cultural",label:"Cultural Test Uplift (+5% on production spend)",amount:0.05,maxRate:0.35,prompt:"Does this production expect to pass the Malaysia Cultural Test?"}],minSpend:5000000,compensationCap:7500000,sunsetDate:null,flags:{red:[],yellow:["30% of production crew must be Malaysian citizens or permanent residents"],blue:["Covers non-resident ATL and BTL at same 30% rate as residents — very accessible for US productions","Currency is MYR"]},notes:""},
+  {id:"intl-morocco",name:"Morocco",flag:"🇲🇦",region:"International",currency:"MAD",dataDate:"03/08/2026",incentiveType:"rebate",monetizationRate:1.00,monetizationLabel:"Rebate — paid directly",headline:"30%",eligible:["Documentaries","Feature Films","Scripted Television"],ineligible:["Animation","Commercials","Game Shows","Pilots","Post Only","Reality Television","Talk Shows","Video Games"],buckets:{residentATL:0.30,residentBTL:0.30,nonresidentATL:0,nonresidentBTL:0,spend:0.30},uplifts:[],minSpend:10000000,minFilmingDays:18,sunsetDate:null,flags:{red:["Qualifying expenses cannot exceed 90% of total budget invested in Morocco"],yellow:["Commission meets only twice a year — application timing critical","Minimum 18 filming days"],blue:["Currency is MAD (Moroccan Dirham)"]},notes:""},
+  {id:"intl-new_zealand",name:"New Zealand",flag:"🇳🇿",region:"International",currency:"NZD",dataDate:"03/08/2026",incentiveType:"rebate",monetizationRate:1.00,monetizationLabel:"Rebate — paid directly",headline:"20%–25%",eligible:["Animation","Documentaries","Feature Films","Pilots","Post Only","Reality Television","Scripted Television"],ineligible:["Commercials","Game Shows","Talk Shows","Video Games"],buckets:{residentATL:0.20,residentBTL:0.20,nonresidentATL:0.20,nonresidentBTL:0.20,spend:0.20},uplifts:[{id:"nz-econ",label:"Significant Economic Benefit Uplift (+5%)",amount:0.05,maxRate:0.25,prompt:"Does this production meet the criteria for significant economic benefit to New Zealand?"}],minSpend:4000000,sunsetDate:null,flags:{red:[],yellow:["Minimum spend NZ$15M for film, NZ$4M for TV","Must register with NZFC before start of principal photography"],blue:["Non-NZ crew qualify if working in NZ for at least 14 days total","Currency is NZD"]},notes:""},
+  {id:"intl-norway",name:"Norway",flag:"🇳🇴",region:"International",currency:"NOK",dataDate:"03/08/2026",incentiveType:"grant",monetizationRate:1.00,monetizationLabel:"Grant — paid directly",headline:"25%",eligible:["Documentaries","Feature Films","Scripted Television"],ineligible:["Animation","Commercials","Game Shows","Pilots","Post Only","Reality Television","Talk Shows","Video Games"],buckets:{residentATL:0.25,residentBTL:0.25,nonresidentATL:0,nonresidentBTL:0,spend:0.25},uplifts:[],minSpend:10000000,sunsetDate:null,flags:{red:[],yellow:["30% of financing must come from international sources outside Norway","Must document international distribution agreement","Most restrictive eligible type list in international set"],blue:["Currency is NOK"]},notes:""},
+  {id:"intl-philippines",name:"Philippines",flag:"🇵🇭",region:"International",currency:"PHP",dataDate:"03/08/2026",incentiveType:"rebate",monetizationRate:1.00,monetizationLabel:"Rebate — paid directly",headline:"20%–25%",eligible:["Animation","Documentaries","Feature Films","Pilots","Post Only","Reality Television","Scripted Television"],ineligible:["Commercials","Game Shows","Talk Shows","Video Games"],buckets:{residentATL:0.20,residentBTL:0.20,nonresidentATL:0,nonresidentBTL:0,spend:0.20},uplifts:[{id:"ph-cultural",label:"Cultural Test Uplift (+5%)",amount:0.05,maxRate:0.25,prompt:"Does this production expect to pass the Philippines Cultural Test? (Uplift capped at PHP 30M.)"}],minSpend:3000000,projectCap:25000000,sunsetDate:null,flags:{red:[],yellow:["Must submit provisional application BEFORE spending any money in Philippines","Cultural test uplift capped at PHP 30M"],blue:["Currency is PHP"]},notes:""},
+  {id:"intl-quebec",name:"Quebec",flag:"🇨🇦",region:"International",currency:"CAD",dataDate:"03/08/2026",incentiveType:"refundable_stacked",monetizationRate:1.00,monetizationLabel:"Refundable — paid directly (provincial + federal stacked)",headline:"37% effective on qualifying labour",eligible:["Animation","Documentaries","Feature Films","Pilots","Post Only","Scripted Television"],ineligible:["Commercials","Game Shows","Reality Television","Talk Shows","Video Games"],buckets:{residentATL:0.37,residentBTL:0.37,nonresidentATL:0,nonresidentBTL:0,spend:0.25},uplifts:[{id:"qc-anim",label:"Animation/Special Effects Labour Uplift (+16%)",amount:0.16,prompt:"Does this production have qualifying animation or special effects Quebec labour?"}],minSpend:250000,sunsetDate:null,flags:{red:[],yellow:["Federal 16% applies to labour NET of provincial assistance — not simply additive"],blue:["No caps of any kind","Currency is CAD"]},notes:"25% provincial + 16% federal on net labour = 37% effective on qualifying labour."},
+  {id:"intl-romania",name:"Romania",flag:"🇷🇴",region:"International",currency:"EUR",dataDate:"03/08/2026",incentiveType:"rebate",monetizationRate:1.00,monetizationLabel:"Rebate — first-come, first-served",headline:"35%–45%",eligible:["Animation","Documentaries","Feature Films","Pilots","Scripted Television"],ineligible:["Commercials","Game Shows","Post Only","Reality Television","Talk Shows","Video Games"],buckets:{residentATL:0.35,residentBTL:0.35,nonresidentATL:0,nonresidentBTL:0,spend:0.35},uplifts:[{id:"ro-promo",label:"Romania Promotional Uplift (+10%)",amount:0.10,maxRate:0.45,prompt:"Does this project explicitly promote Romania — country, region, city, or landmarks?"}],minSpend:100000,projectCap:10000000,annualCap:50000000,sunsetDate:null,flags:{red:[],yellow:["First-come, first-served — annual €50M cap can be exhausted"],blue:["Very low minimum spend of €100K — accessible for smaller productions","35% + 10% = 45% potential — tied for highest ceiling in dataset","Currency is EUR"]},notes:""},
+  {id:"intl-south_africa",name:"South Africa",flag:"🇿🇦",region:"International",currency:"ZAR",dataDate:"03/08/2026",incentiveType:"rebate",monetizationRate:1.00,monetizationLabel:"Rebate — paid directly",headline:"20%–25%",eligible:["Documentaries","Feature Films","Pilots","Post Only","Scripted Television"],ineligible:["Animation","Commercials","Game Shows","Reality Television","Talk Shows","Video Games"],buckets:{residentATL:0.25,residentBTL:0.25,nonresidentATL:0,nonresidentBTL:0,spend:0.25,spendPost:0.20},uplifts:[],minSpend:12000000,projectCap:50000000,sunsetDate:null,flags:{red:[],yellow:["TWO RATES: Production spend (QSAPE) at 25%, Post-production spend (QSAPPE) at 20%","Minimum 21 calendar days AND 50% of principal photography"],blue:["Currency is ZAR"]},notes:"Post spend entered in separate bucket at 20%."},
+  {id:"intl-south_korea",name:"South Korea",flag:"🇰🇷",region:"International",currency:"KRW",dataDate:"03/08/2026",incentiveType:"rebate",monetizationRate:1.00,monetizationLabel:"Rebate — paid directly",headline:"25%–30% (tiered)",eligible:["Documentaries","Feature Films","Scripted Television"],ineligible:["Animation","Commercials","Game Shows","Pilots","Post Only","Reality Television","Talk Shows","Video Games"],buckets:{residentATL:"tiered",residentBTL:"tiered",nonresidentATL:0,nonresidentBTL:0,spend:"tiered"},tiers:[{max:49999999,rate:0.25},{max:null,rate:0.30}],uplifts:[],minSpend:50000000,projectCap:700000000,sunsetDate:null,flags:{red:["CRITICAL: Post costs OR cast/crew labor cannot exceed 50% of total QPE","CRITICAL: Main cast costs cannot exceed 30% of total labor costs"],yellow:["Review Committee approval required — evaluates tourism promotion and industry contribution"],blue:["Currency is KRW"]},notes:""},
+  {id:"intl-spain",name:"Spain",flag:"🇪🇸",region:"International",currency:"EUR",dataDate:"03/08/2026",incentiveType:"rebate",monetizationRate:1.00,monetizationLabel:"Rebate — paid directly",headline:"25%–30% (tiered)",eligible:["Animation","Feature Films","Pilots","Scripted Television"],ineligible:["Commercials","Documentaries","Game Shows","Post Only","Reality Television","Talk Shows","Video Games"],buckets:{residentATL:"spain_tiered",residentBTL:"spain_tiered",nonresidentATL:0,nonresidentBTL:0,spend:"spain_tiered"},spainTier:{firstMillionRate:0.30,subsequentRate:0.25},uplifts:[],minSpend:1000000,projectCap:20000000,sunsetDate:null,flags:{red:[],yellow:["TIERED: 30% on first €1M of local spend, 25% thereafter","Application window: July ONLY of year after filming ends","Must apply through a Spanish company"],blue:["Currency is EUR"]},notes:"Related programs: Canary Islands, Navarre, Biscay may offer different rates."},
+  {id:"intl-thailand",name:"Thailand",flag:"🇹🇭",region:"International",currency:"THB",dataDate:"03/08/2026",incentiveType:"rebate",monetizationRate:1.00,monetizationLabel:"Rebate — paid directly",headline:"15%–20%",eligible:["Animation","Documentaries","Feature Films","Pilots","Post Only","Reality Television","Scripted Television"],ineligible:["Commercials","Game Shows","Talk Shows","Video Games"],buckets:{residentATL:0.15,residentBTL:0.15,nonresidentATL:0,nonresidentBTL:0,spend:0.15},uplifts:[],minSpend:50000000,projectCap:75000000,sunsetDate:null,flags:{red:["CRITICAL: Foreigners working in Thailand are EXCLUDED from qualifying spend — non-resident labor does not qualify"],yellow:["Must obtain filming permit before applying","Must engage a local coordinator company — no individual fixers"],blue:["Currency is THB"]},notes:""},
+  {id:"intl-turkey",name:"Turkey",flag:"🇹🇷",region:"International",currency:"TRY",dataDate:"03/08/2026",incentiveType:"rebate",monetizationRate:1.00,monetizationLabel:"Cash rebate — paid directly",headline:"30%",eligible:["Documentaries","Feature Films","Scripted Television"],ineligible:["Animation","Commercials","Game Shows","Pilots","Post Only","Reality Television","Talk Shows","Video Games"],buckets:{residentATL:0.30,residentBTL:0.30,nonresidentATL:0,nonresidentBTL:0,spend:0.30},uplifts:[],minSpend:6000000,sunsetDate:null,flags:{red:["CRITICAL: All expenditures must be made AFTER the date of application submission — no retroactive qualifying"],yellow:["Commission meets quarterly — timing critical","Non-resident rates not specified — verify with Filming in Turkey","Currency is TRY (Turkish Lira) — highly volatile exchange rate"],blue:[]},notes:""},
+  {id:"intl-uae_abu_dhabi",name:"UAE – Abu Dhabi",flag:"🇦🇪",region:"International",currency:"USD",dataDate:"03/08/2026",incentiveType:"rebate",monetizationRate:1.00,monetizationLabel:"Rebate — paid directly (USD denominated)",headline:"30%",eligible:["Animation","Commercials","Documentaries","Feature Films","Game Shows","Pilots","Post Only","Scripted Television"],ineligible:["Reality Television","Talk Shows","Video Games"],buckets:{residentATL:0,residentBTL:0.30,nonresidentATL:0,nonresidentBTL:0,spend:0.30},uplifts:[],minSpend:50000,projectCap:1000000,sunsetDate:null,flags:{red:[],yellow:["Only Resident BTL listed for labor — ATL and non-resident not listed, verify with ADFC","Project cap: $5M film, $1M TV","Requires National Media Council approval — build in lead time"],blue:["Denominated in USD — no currency conversion needed"]},notes:""},
+  {id:"intl-united_kingdom",name:"United Kingdom",flag:"🇬🇧",region:"International",currency:"GBP",dataDate:"03/08/2026",incentiveType:"refundable_tax_credit",monetizationRate:1.00,monetizationLabel:"Refundable tax credit — multiple sub-programs",headline:"Varies by sub-program",eligible:["Documentaries","Feature Films","Pilots","Scripted Television"],ineligible:["Animation","Commercials","Game Shows","Post Only","Reality Television","Talk Shows","Video Games"],buckets:{residentATL:0,residentBTL:0,nonresidentATL:0,nonresidentBTL:0,spend:0},uplifts:[],minSpend:null,sunsetDate:null,flags:{red:["COMPLEX PROGRAM: UK has 4 separate sub-programs — contact British Film Commission for precise rates. Calculator cannot give accurate figures without sub-program PDFs."],yellow:["Cultural test required via BFI","Enhanced VFX rate of 29.25% available from April 2025 for qualifying productions"],blue:["Currency is GBP"]},notes:"Sub-programs: Feature Films, Independent Films, High End TV, Children's TV and Animation."},
+  // Australia
+  {id:"intl-australia-nsw",name:"Australia – NSW",flag:"🇦🇺",region:"International",currency:"AUD",dataDate:"03/08/2026",incentiveType:"grant_rebate",monetizationRate:1.00,monetizationLabel:"Grant/Rebate — contact Screen NSW for rate",headline:"Contact for details",eligible:["Animation","Documentaries","Feature Films","Pilots","Post Only","Reality Television","Scripted Television","Video Games"],ineligible:["Commercials","Game Shows","Talk Shows"],buckets:{spend:0},uplifts:[],minSpend:null,sunsetDate:null,flags:{red:["Rate not published — treat as contact-for-details location"],yellow:[],blue:["Made in NSW fund allocated AU$180M","Currency is AUD"]},notes:"Stacks with Australian Federal program."},
+  {id:"intl-australia-nt",name:"Australia – Northern Territory",flag:"🇦🇺",region:"International",currency:"AUD",dataDate:"03/08/2026",incentiveType:"discretionary_grant",monetizationRate:1.00,monetizationLabel:"Discretionary grant — amount at Screen Territory's discretion",headline:"Discretionary",eligible:["Documentaries","Feature Films","Scripted Television"],ineligible:["Animation","Commercials","Game Shows","Pilots","Post Only","Reality Television","Talk Shows","Video Games"],buckets:{spend:0},uplifts:[],minSpend:null,sunsetDate:null,flags:{red:["Fully discretionary — no published rate or guaranteed amount","Must be footloose — production cannot already be locked into NT"],yellow:[],blue:["Currency is AUD"]},notes:""},
+  {id:"intl-australia-sa",name:"Australia – South Australia",flag:"🇦🇺",region:"International",currency:"AUD",dataDate:"03/08/2026",incentiveType:"grant",monetizationRate:1.00,monetizationLabel:"Grant — paid directly",headline:"10%",eligible:["Animation","Documentaries","Feature Films","Pilots","Post Only","Scripted Television","Video Games"],ineligible:["Commercials","Game Shows","Reality Television","Talk Shows"],buckets:{residentATL:0.10,residentBTL:0.10,spend:0.10},uplifts:[],minSpend:null,sunsetDate:null,flags:{red:[],yellow:[],blue:["Stacks with Australian Federal","Currency is AUD"]},notes:""},
+  {id:"intl-australia-vic",name:"Australia – Victoria",flag:"🇦🇺",region:"International",currency:"AUD",dataDate:"03/08/2026",incentiveType:"grant",monetizationRate:1.00,monetizationLabel:"Grant — paid directly",headline:"10%",eligible:["Animation","Documentaries","Feature Films","Pilots","Post Only","Reality Television","Scripted Television","Video Games"],ineligible:["Commercials","Game Shows","Talk Shows"],buckets:{spend:0.10},uplifts:[],minSpend:null,sunsetDate:null,flags:{red:[],yellow:[],blue:["Stacks with Australian Federal","Currency is AUD"]},notes:""},
+  {id:"intl-australia-wa",name:"Australia – Western Australia",flag:"🇦🇺",region:"International",currency:"AUD",dataDate:"03/08/2026",incentiveType:"grant",monetizationRate:1.00,monetizationLabel:"Grant — minimum 10% of QWAE (negotiated)",headline:"Minimum 10% (negotiated)",eligible:["Animation","Documentaries","Feature Films","Pilots","Post Only","Scripted Television"],ineligible:["Commercials","Game Shows","Reality Television","Talk Shows","Video Games"],buckets:{spend:0},uplifts:[],minSpend:null,sunsetDate:null,flags:{red:["Rate is negotiated — minimum 10% but actual amount depends on project"],yellow:[],blue:["WA PDV Incentive: separate 20% rebate on qualifying WA post/VFX expenditure","Currency is AUD"]},notes:""}
+];
+
+// ── TI STATE ──────────────────────────────────────────────────────────────────
+let tiProductionType  = '';
+let tiSelectedIds     = [];
+let tiRegionFilter    = 'All';
+let tiSpendInputs     = {};   // { locId: { bucket: value } }
+let tiUpliftState     = {};   // { locId: { upliftId: bool } }
+let tiTotalBudget     = {};   // { locId: number }
+let tiContingency     = {};   // { locId: bool } — default true
+let tiAuditFee        = {};   // { locId: { enabled: bool, amount: number } }
+let tiShowTitle       = '';   // optional show title for Excel export
+
+// ── BUCKET MODE LOGIC ─────────────────────────────────────────────────────────
+// Determines how many spend fields to show per location.
+// simple:      One field — "Total Qualifying Spend" — flat rate applies to everything
+// labor_spend: Two fields — "Qualifying Labor" and "Non-Labor Qualifying Spend"
+// full:        All buckets shown — rates differ meaningfully by category
+
+function getBucketMode(loc) {
+  const b = loc.buckets;
+
+  // No-calc locations (contact for details, discretionary, non-transferable)
+  const noCalcTypes = ['non_transferable_non_refundable','discretionary_rebate','discretionary_grant','grant_rebate'];
+  if (noCalcTypes.includes(loc.incentiveType)) return 'nocalc';
+  if (Object.values(b).every(v => v === 0)) return 'nocalc';
+
+  // Collect unique non-zero rates
+  const rates = Object.entries(b)
+    .filter(([k,v]) => v !== 0 && v !== null)
+    .map(([k,v]) => {
+      if (v === 'tiered' || v === 'spain_tiered') return 'tiered';
+      return v;
+    });
+  const uniqueRates = [...new Set(rates)];
+
+  // If only one unique rate and it's not tiered: simple mode
+  // Exception: if spendPost exists at a different rate (South Africa), use full
+  if (b.spendPost && b.spendPost !== b.spend) return 'full';
+
+  // If all non-zero buckets have identical rates: simple mode
+  if (uniqueRates.length === 1) return 'simple';
+
+  // If labor buckets all match each other AND spend bucket is different: labor_spend
+  const laborBuckets  = ['residentATL','residentBTL','nonresidentATL','nonresidentBTL'];
+  const laborRates    = laborBuckets.map(k => b[k]).filter(v => v !== 0 && v !== null && v !== undefined);
+  const spendRate     = b.spend;
+  const laborUniq     = [...new Set(laborRates.map(v => v === 'tiered' ? 'tiered' : v))];
+
+  // If ALL labor is same rate and differs from spend: labor_spend
+  if (laborUniq.length === 1 && spendRate !== 0 && spendRate !== laborUniq[0]) return 'labor_spend';
+
+  // Otherwise full breakdown
+  return 'full';
+}
+
+// Audit fee defaults by location (where CPA audit is required and typical cost is known)
+const AUDIT_FEE_DEFAULTS = {
+  'us-georgia':      15000,
+  'us-alabama':      12000,
+  'us-louisiana':    10000,
+  'us-california':   20000,
+  'us-connecticut':  12000,
+  'us-hawaii':        8000,
+  'us-kentucky':     10000,
+  'us-maryland':     10000,
+  'us-massachusetts':15000,
+  'us-minnesota':    12000,
+  'us-nevada':       10000,
+  'us-oklahoma':     10000,
+  'us-puerto_rico':  12000,
+  'us-tennessee':    10000,
+  'us-colorado':      8000,
+  'us-arizona':      12000,
+  'us-arkansas':      8000,
+  'intl-ireland':    15000,
+  'intl-malaysia':   10000,
+  'intl-morocco':    10000,
+  'intl-new_zealand':12000,
+  'intl-south_africa':12000,
+};
+
+// ── TI HELPERS ────────────────────────────────────────────────────────────────
+const PT_MAP = {
+  "Feature Film":"Feature Films","Scripted Television":"Scripted Television",
+  "Reality Television":"Reality Television","Unscripted / Non-Scripted":"Reality Television",
+  "Documentary":"Documentaries","Competition":"Reality Television",
+  "Game Show":"Game Shows","Animation":"Animation",
+  "Commercial":"Commercials","Pilot":"Pilots","Post Only":"Post Only",
+  "Talk Show":"Talk Shows","Video Game":"Video Games"
+};
+
+function tiIsEligible(loc, pt) {
+  if (!pt) return true;
+  const mapped = PT_MAP[pt] || pt;
+  return !loc.ineligible.includes(mapped);
+}
+
+function tiGetRate(loc, bucket, totalSpend) {
+  const raw = loc.buckets[bucket];
+  if (raw === undefined || raw === null || raw === 0) return 0;
+  if (typeof raw === 'number') return raw;
+  if (raw === 'tiered' && loc.tiers) {
+    for (const tier of loc.tiers) {
+      if (tier.max === null || totalSpend <= tier.max) return tier.rate;
+    }
+    return loc.tiers[loc.tiers.length-1].rate;
+  }
+  if (raw === 'spain_tiered') return 'spain';
+  return 0;
+}
+
+function tiCalcSpainSplit(amount) {
+  if (amount <= 1000000) return amount * 0.30;
+  return 1000000 * 0.30 + (amount - 1000000) * 0.25;
+}
+
+function tiCalcGross(loc, inputs, activeUplifts, totalQualSpend) {
+  let total = 0;
+  const mode = getBucketMode(loc);
+
+  if (mode === 'simple') {
+    const amount = parseFloat(inputs['spend'] || 0);
+    if (!amount) return 0;
+    // Find the single applicable rate
+    const rate = Object.values(loc.buckets).find(v => v && v !== 0);
+    if (rate === 'spain_tiered') return tiCalcSpainSplit(amount);
+    if (typeof rate !== 'number') return 0;
+    let effectiveRate = rate;
+    for (const u of activeUplifts) {
+      effectiveRate = Math.min(effectiveRate + u.amount, u.maxRate || 1);
+    }
+    return amount * effectiveRate;
+  }
+
+  if (mode === 'labor_spend') {
+    const laborAmount = parseFloat(inputs['laborCombined'] || 0);
+    const spendAmount = parseFloat(inputs['spend'] || 0);
+    const laborRate   = loc.buckets.residentATL || loc.buckets.residentBTL || 0;
+    const spendRate   = loc.buckets.spend || 0;
+    let lr = typeof laborRate === 'number' ? laborRate : 0;
+    let sr = typeof spendRate === 'number' ? spendRate : 0;
+    for (const u of activeUplifts) {
+      lr = Math.min(lr + u.amount, u.maxRate || 1);
+      sr = Math.min(sr + u.amount, u.maxRate || 1);
+    }
+    return (laborAmount * lr) + (spendAmount * sr);
+  }
+
+  // Full mode — original logic
+  for (const bucket of Object.keys(loc.buckets)) {
+    const amount = parseFloat(inputs[bucket] || 0);
+    if (!amount) continue;
+    let rate = tiGetRate(loc, bucket, totalQualSpend);
+    if (rate === 'spain') { total += tiCalcSpainSplit(amount); continue; }
+    if (typeof rate !== 'number') continue;
+    let effectiveRate = rate;
+    for (const u of activeUplifts) {
+      if (u.appliesToResidentOnly && !['residentATL','residentBTL'].includes(bucket)) continue;
+      effectiveRate = Math.min(effectiveRate + u.amount, u.maxRate || 1);
+    }
+    total += amount * effectiveRate;
+  }
+  return total;
+}
+
+function tiFmtCurrency(n, currency) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  try {
+    return new Intl.NumberFormat('en-US', {style:'currency',currency:currency||'USD',maximumFractionDigits:0}).format(n);
+  } catch(e) {
+    return '$' + Math.round(n).toLocaleString();
+  }
+}
+
+// ── TI RENDER: PRODUCTION TYPE ────────────────────────────────────────────────
+function renderPtGrid() {
+  const grid = document.getElementById('ptGrid');
+  grid.innerHTML = '';
+  TI_PRODUCTION_TYPES.forEach(pt => {
+    const btn = document.createElement('button');
+    btn.className = 'pt-chip' + (tiProductionType === pt ? ' active' : '');
+    btn.textContent = pt;
+    btn.onclick = () => {
+      tiProductionType = pt;
+      renderPtGrid();
+      const el = document.getElementById('ptConfirm');
+      el.textContent = '✓ Production type: ' + pt;
+      el.style.display = 'block';
+      renderLocGrid();
+    };
+    grid.appendChild(btn);
+  });
+}
+
+// ── TI RENDER: LOCATION GRID ──────────────────────────────────────────────────
+function setRegion(r) {
+  tiRegionFilter = r;
+  ['All','US','International'].forEach(x => {
+    const el = document.getElementById('rb'+x.replace('/',''));
+    if (el) el.classList.toggle('active', x === r);
+  });
+  renderLocGrid();
+}
+
+function renderLocGrid() {
+  const grid    = document.getElementById('locGrid');
+  const search  = (document.getElementById('locSearch').value || '').toLowerCase();
+  grid.innerHTML = '';
+  TI_LOCATIONS.forEach(loc => {
+    if (tiRegionFilter !== 'All' && loc.region !== tiRegionFilter) return;
+    if (search && !loc.name.toLowerCase().includes(search)) return;
+    const sel      = tiSelectedIds.includes(loc.id);
+    const elig     = tiIsEligible(loc, tiProductionType);
+    const maxed    = !sel && tiSelectedIds.length >= 3;
+    const btn = document.createElement('button');
+    btn.className = 'loc-chip' + (sel ? ' selected' : '') + (!elig && tiProductionType ? ' ineligible' : '') + (maxed ? ' disabled' : '');
+    btn.textContent = loc.flag + ' ' + loc.name + (!elig && tiProductionType ? ' ✕' : '');
+    btn.disabled = maxed && !sel;
+    btn.onclick = () => {
+      if (maxed && !sel) return;
+      if (sel) { tiSelectedIds = tiSelectedIds.filter(x => x !== loc.id); }
+      else if (tiSelectedIds.length < 3) { tiSelectedIds.push(loc.id); }
+      renderLocGrid();
+      updateLocConfirm();
+      renderTiStep3();
+    };
+    grid.appendChild(btn);
+  });
+}
+
+function updateLocConfirm() {
+  const el = document.getElementById('locConfirm');
+  if (tiSelectedIds.length > 0) {
+    const names = tiSelectedIds.map(id => TI_LOCATIONS.find(l => l.id === id)?.name).filter(Boolean);
+    el.textContent = '✓ Selected: ' + names.join(' · ');
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+// ── TI RENDER: STEP 3 (SPEND + RESULTS) ──────────────────────────────────────
+function renderTiStep3() {
+  const wrap = document.getElementById('tiStep3Wrap');
+  const cols = document.getElementById('tiCols');
+  if (tiSelectedIds.length === 0) {
+    wrap.style.display = 'none';
+    return;
+  }
+  wrap.style.display = 'block';
+  cols.innerHTML = '';
+  tiSelectedIds.forEach(locId => {
+    const loc = TI_LOCATIONS.find(l => l.id === locId);
+    if (!loc) return;
+    if (!tiSpendInputs[locId])  tiSpendInputs[locId]  = {};
+    if (!tiUpliftState[locId])  tiUpliftState[locId]  = {};
+    if (!tiTotalBudget[locId])  tiTotalBudget[locId]  = 0;
+    if (tiContingency[locId] === undefined) tiContingency[locId] = true;
+    if (!tiAuditFee[locId]) {
+      tiAuditFee[locId] = { enabled: false, amount: AUDIT_FEE_DEFAULTS[locId] || 10000 };
+    }
+    const col = document.createElement('div');
+    col.className = 'ti-col';
+    col.id = 'ti-col-' + locId;
+    col.innerHTML = renderSpendCard(loc) + renderResultCard(loc);
+    cols.appendChild(col);
+  });
+  document.getElementById('tiExportWrap').style.display = tiSelectedIds.length > 0 ? 'block' : 'none';
+}
+
+function exportTiExcel() {
+  // Build CSV
+  const rows = [];
+  const showLabel = tiShowTitle ? tiShowTitle + ' — Tax Incentive Comparison' : 'Tax Incentive Comparison';
+  rows.push([showLabel]);
+  rows.push(['Data: publicly available incentive data, March 2026']);
+  rows.push([]);
+
+  tiSelectedIds.forEach(locId => {
+    const loc = TI_LOCATIONS.find(l => l.id === locId);
+    if (!loc) return;
+    const inputs      = tiSpendInputs[locId] || {};
+    const upliftState = tiUpliftState[locId] || {};
+    const totalBudget = tiTotalBudget[locId] || 0;
+    const useConting  = tiContingency[locId] !== false;
+    const auditFee    = tiAuditFee[locId] || { enabled: false, amount: 0 };
+    const activeUplifts = (loc.uplifts || []).filter(u => upliftState[u.id]);
+    const mode        = getBucketMode(loc);
+    const currency    = loc.currency || 'USD';
+
+    let totalQualSpend = 0;
+    if (mode === 'simple') totalQualSpend = parseFloat(inputs['spend'] || 0);
+    else if (mode === 'labor_spend') totalQualSpend = (parseFloat(inputs['laborCombined']||0)) + (parseFloat(inputs['spend']||0));
+    else totalQualSpend = Object.values(inputs).reduce((s,v) => s+(parseFloat(v)||0), 0);
+
+    rows.push([`LOCATION: ${loc.flag} ${loc.name}`, `Currency: ${currency}`]);
+    rows.push(['Headline Rate', loc.headline]);
+    rows.push(['Incentive Type', loc.monetizationLabel]);
+    rows.push([]);
+
+    if (totalBudget > 0) rows.push(['Total Production Budget', totalBudget]);
+
+    // Spend inputs
+    rows.push(['--- QUALIFYING SPEND ---']);
+    if (mode === 'simple') {
+      rows.push(['Total Qualifying Spend', parseFloat(inputs['spend']||0)]);
+    } else if (mode === 'labor_spend') {
+      rows.push(['Qualifying Labor', parseFloat(inputs['laborCombined']||0)]);
+      rows.push(['Non-Labor Qualifying Spend', parseFloat(inputs['spend']||0)]);
+    } else {
+      Object.keys(loc.buckets).forEach(b => {
+        if (loc.buckets[b] !== 0 && inputs[b]) {
+          rows.push([TI_BUCKET_LABELS[b]||b, parseFloat(inputs[b]||0)]);
+        }
+      });
+    }
+
+    // Calculation
+    if (totalQualSpend > 0 && mode !== 'nocalc') {
+      const gross        = tiCalcGross(loc, inputs, activeUplifts, totalQualSpend);
+      const contingency  = useConting ? gross * TI_CONTINGENCY : 0;
+      const afterConting = gross - contingency;
+      const net          = loc.monetizationRate ? afterConting * loc.monetizationRate : null;
+      const auditDeduct  = auditFee.enabled ? (auditFee.amount||0) : 0;
+      const netAfterAudit = net ? net - auditDeduct : null;
+      const effectiveBudget = totalBudget && netAfterAudit ? totalBudget - netAfterAudit : null;
+
+      rows.push([]);
+      rows.push(['--- CALCULATION ---']);
+      if (activeUplifts.length > 0) rows.push(['Uplifts Applied', activeUplifts.map(u=>u.label).join('; ')]);
+      rows.push(['Total Qualifying Spend', totalQualSpend]);
+      rows.push(['Gross Incentive at Rates', gross]);
+      if (useConting) { rows.push(['Less 10% Contingency', -contingency]); rows.push(['After Contingency', afterConting]); }
+      rows.push(['Monetization Rate', loc.monetizationRate ? (loc.monetizationRate*100).toFixed(0)+'%' : 'N/A']);
+      if (net) rows.push(['Net Incentive Value', net]);
+      if (auditDeduct) { rows.push(['Less Audit Fee', -auditDeduct]); rows.push(['Net After Audit Fee', netAfterAudit]); }
+      if (effectiveBudget) rows.push(['Effective Budget After Incentive', effectiveBudget]);
+    }
+
+    // Flags
+    const allFlags = [...(loc.flags?.red||[]).map(f=>'🔴 '+f), ...(loc.flags?.yellow||[]).map(f=>'🟡 '+f), ...(loc.flags?.blue||[]).map(f=>'🔵 '+f)];
+    if (allFlags.length) {
+      rows.push([]);
+      rows.push(['--- FLAGS ---']);
+      allFlags.forEach(f => rows.push([f]));
+    }
+    rows.push([]);
+    rows.push(['---']);
+    rows.push([]);
+  });
+
+  // Convert to CSV
+  const fmtNum = n => {
+    if (n === null || n === undefined || n === '') return '';
+    const num = parseFloat(n);
+    if (isNaN(num)) return String(n);
+    return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
+  const csv = rows.map(row => row.map(cell => {
+    // Format numbers with commas and 2 decimals
+    const s = typeof cell === 'number' ? fmtNum(cell) : String(cell ?? '');
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g,'""')}"` : s;
+  }).join(',')).join('\n');
+
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  const fname = tiShowTitle
+    ? tiShowTitle.replace(/[^\w\s]/g,'').trim().replace(/\s+/g,'_') + '_TaxIncentiveComparison'
+    : 'Tax_Incentive_Comparison';
+  a.download = fname + '.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function renderSpendCard(loc) {
+  const inputs      = tiSpendInputs[loc.id] || {};
+  const uplifts     = tiUpliftState[loc.id] || {};
+  const totalBudget = tiTotalBudget[loc.id] || '';
+  const useConting  = tiContingency[loc.id] !== false;
+  const audit       = tiAuditFee[loc.id] || { enabled: false, amount: 10000 };
+  const mode        = getBucketMode(loc);
+  const lid         = loc.id;
+
+  // Build mode explanation banner
+  const modeBanners = {
+    simple: {
+      color: 'rgba(61,184,122,0.1)', border: 'rgba(61,184,122,0.3)', textColor: '#3db87a',
+      text: `<strong>Flat rate — one field only.</strong> ${loc.name} applies its incentive rate across all qualifying production expenditures at the same rate. Enter your total qualifying spend as one number.`
+    },
+    labor_spend: {
+      color: 'rgba(92,107,192,0.1)', border: 'rgba(92,107,192,0.3)', textColor: '#5c6bc0',
+      text: `<strong>Two buckets: Labor and Non-Labor.</strong> ${loc.name} applies the same rate to both, but separating them keeps your records clean and matches how most cost reports are structured.`
+    },
+    full: {
+      color: 'rgba(232,160,32,0.1)', border: 'rgba(232,160,32,0.3)', textColor: '#e8a020',
+      text: `<strong>Full breakdown required.</strong> ${loc.name} applies different rates depending on who or what the spend went to. Fill in each category that applies to your production — leave others blank.`
+    },
+    nocalc: {
+      color: 'rgba(224,82,82,0.08)', border: 'rgba(224,82,82,0.2)', textColor: '#e05252',
+      text: `<strong>Cannot calculate automatically.</strong> This location requires direct contact with the film office for a rate or approval.`
+    }
+  };
+
+  const banner = modeBanners[mode];
+
+  // Build spend fields based on mode
+  let fieldsHtml = '';
+
+  if (mode === 'simple') {
+    // One field: total qualifying spend, rate shown once
+    const rate = Object.values(loc.buckets).find(v => v && v !== 0);
+    const rateDisplay = typeof rate === 'number' ? (rate * 100).toFixed(0) + '%' :
+      rate === 'tiered' ? 'Tiered' : rate === 'spain_tiered' ? '30%/25%' : '—';
+    fieldsHtml = `
+      <div class="bucket-lbl-row">
+        <span class="bucket-lbl" style="font-weight:600;color:var(--text);">Total Qualifying Spend</span>
+        <span class="bucket-rate">${rateDisplay}</span>
+      </div>
+      <div style="font-family:var(--font-m);font-size:10px;color:var(--text3);margin-bottom:6px;">
+        All qualifying production expenditures — labor, equipment, locations, services
+      </div>
+      <input class="bucket-input" type="text" inputmode="numeric" placeholder="Enter total qualifying spend"
+        value="${inputs['spend'] ? formatWithCommas(String(inputs['spend'])) : ''}"
+        oninput="onCurrencyInput(this, v => { tiSpendInputs['${lid}']['spend']=v; refreshTiResult('${lid}'); })">`;
+
+  } else if (mode === 'labor_spend') {
+    // Two fields: labor (ATL+BTL combined) and non-labor spend
+    const laborRate = loc.buckets.residentATL || loc.buckets.residentBTL || 0;
+    const spendRate = loc.buckets.spend || 0;
+    const lrDisplay = typeof laborRate === 'number' ? (laborRate*100).toFixed(0)+'%' : 'Tiered';
+    const srDisplay = typeof spendRate === 'number' ? (spendRate*100).toFixed(0)+'%' : 'Tiered';
+    fieldsHtml = `
+      <div class="bucket-lbl-row">
+        <span class="bucket-lbl" style="font-weight:600;color:var(--text);">Qualifying Labor</span>
+        <span class="bucket-rate">${lrDisplay}</span>
+      </div>
+      <div style="font-family:var(--font-m);font-size:10px;color:var(--text3);margin-bottom:6px;">
+        All cast and crew wages paid in-state (ATL + BTL combined)
+      </div>
+      <input class="bucket-input" type="text" inputmode="numeric" placeholder="Enter total qualifying labor"
+        value="${inputs['laborCombined'] ? formatWithCommas(String(inputs['laborCombined'])) : ''}"
+        oninput="onCurrencyInput(this, v => { tiSpendInputs['${lid}']['laborCombined']=v; refreshTiResult('${lid}'); })">
+      <div class="bucket-lbl-row" style="margin-top:4px;">
+        <span class="bucket-lbl" style="font-weight:600;color:var(--text);">Non-Labor Qualifying Spend</span>
+        <span class="bucket-rate">${srDisplay}</span>
+      </div>
+      <div style="font-family:var(--font-m);font-size:10px;color:var(--text3);margin-bottom:6px;">
+        Equipment, locations, vendors, hotels, services — everything not a paycheck
+      </div>
+      <input class="bucket-input" type="text" inputmode="numeric" placeholder="Enter non-labor qualifying spend"
+        value="${inputs['spend'] ? formatWithCommas(String(inputs['spend'])) : ''}"
+        oninput="onCurrencyInput(this, v => { tiSpendInputs['${lid}']['spend']=v; refreshTiResult('${lid}'); })">`;
+
+  } else if (mode === 'full') {
+    // Show each non-zero bucket with its label and rate
+    const activeBuckets = Object.keys(loc.buckets).filter(b => {
+      const v = loc.buckets[b];
+      return v !== 0 && v !== null && v !== undefined;
+    });
+    const bucketDescriptions = {
+      residentATL:    'ATL cast/crew who are residents of this state/country',
+      residentBTL:    'BTL crew who are residents of this state/country',
+      nonresidentATL: 'ATL cast/crew who are NOT residents of this state/country',
+      nonresidentBTL: 'BTL crew who are NOT residents of this state/country',
+      spend:          'Equipment, locations, vendors, services — non-paycheck spend',
+      spendPost:      'Post-production spend (separate rate from production spend)'
+    };
+    activeBuckets.forEach(bucket => {
+      const rawRate    = loc.buckets[bucket];
+      const rateDisplay = rawRate === 'tiered' ? 'Tiered' :
+        rawRate === 'spain_tiered' ? '30%/25%' :
+        typeof rawRate === 'number' ? (rawRate*100).toFixed(0)+'%' : '—';
+      const bucketKey  = bucket === 'spend' ? 'spend' : bucket;
+      fieldsHtml += `
+        <div class="bucket-lbl-row">
+          <span class="bucket-lbl" style="font-weight:600;color:var(--text);">${TI_BUCKET_LABELS[bucket] || bucket}</span>
+          <span class="bucket-rate">${rateDisplay}</span>
+        </div>
+        <div style="font-family:var(--font-m);font-size:10px;color:var(--text3);margin-bottom:6px;">
+          ${bucketDescriptions[bucket] || ''}
+        </div>
+        <input class="bucket-input" type="text" inputmode="numeric" placeholder="Enter amount (leave blank if none)"
+          value="${inputs[bucketKey] ? formatWithCommas(String(inputs[bucketKey])) : ''}"
+          oninput="onCurrencyInput(this, v => { tiSpendInputs['${lid}']['${bucketKey}']=v; refreshTiResult('${lid}'); })">`;
+    });
+
+  } else {
+    // nocalc — no fields
+    fieldsHtml = '';
+  }
+
+  // Unified Options section: uplifts + contingency + audit fee all together
+  const auditDefault = AUDIT_FEE_DEFAULTS[lid] || 10000;
+  const hasUplifts = loc.uplifts && loc.uplifts.length > 0 && mode !== 'nocalc';
+  let optionsHtml = '';
+
+  if (mode !== 'nocalc') {
+    optionsHtml = `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+      <div style="font-family:var(--font-m);font-size:10px;font-weight:700;color:var(--indigo);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Options &amp; Uplifts</div>`;
+
+    // Uplifts first
+    if (hasUplifts) {
+      loc.uplifts.forEach(u => {
+        const checked = uplifts[u.id] || false;
+        optionsHtml += `<label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:9px 11px;background:var(--surface2);border-radius:var(--r);margin-bottom:6px;border:1px solid var(--border);">
+          <input type="checkbox" class="uplift-cb" ${checked ? 'checked' : ''} style="margin-top:2px;accent-color:var(--indigo);cursor:pointer;flex-shrink:0;"
+            onchange="tiUpliftState['${lid}']['${u.id}']=this.checked;refreshTiResult('${lid}')">
+          <div>
+            <div style="font-size:12px;font-weight:600;color:var(--text);margin:0;">${u.label}</div>
+            <div style="font-size:11px;color:var(--text3);margin:2px 0 0;">${u.prompt}</div>
+          </div>
+        </label>`;
+      });
+    }
+
+    // Contingency
+    optionsHtml += `<label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:9px 11px;background:var(--surface2);border-radius:var(--r);margin-bottom:6px;border:1px solid var(--border);">
+      <input type="checkbox" ${useConting ? 'checked' : ''} style="accent-color:var(--indigo);cursor:pointer;flex-shrink:0;"
+        onchange="tiContingency['${lid}']=this.checked;refreshTiResult('${lid}')">
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--text);">Apply 10% contingency deduction</div>
+        <div style="font-size:11px;color:var(--text3);">Recommended conservative buffer before presenting to network</div>
+      </div>
+    </label>`;
+
+    // Audit fee
+    optionsHtml += `<label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:9px 11px;background:var(--surface2);border-radius:var(--r);margin-bottom:6px;border:1px solid var(--border);">
+      <input type="checkbox" ${audit.enabled ? 'checked' : ''} style="accent-color:var(--indigo);cursor:pointer;flex-shrink:0;"
+        onchange="tiAuditFee['${lid}'].enabled=this.checked;refreshTiResult('${lid}')">
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--text);">Deduct audit/CPA fee <span style="color:var(--text3);font-weight:400;">(est. ${tiFmtCurrency(auditDefault, loc.currency||'USD')})</span></div>
+        <div style="font-size:11px;color:var(--text3);">Required in most states before credit is issued. Typical range $8K–$20K.</div>
+      </div>
+    </label>`;
+
+    if (audit.enabled) {
+      optionsHtml += `<input class="bucket-input" type="text" inputmode="numeric" value="${formatWithCommas(String(audit.amount || auditDefault))}"
+        style="margin-top:2px;margin-bottom:6px;border-color:rgba(92,107,192,.3);"
+        placeholder="Audit fee amount"
+        oninput="onCurrencyInput(this, v => { tiAuditFee['${lid}'].amount=v; refreshTiResult('${lid}'); })">`;
+    }
+
+    optionsHtml += `</div>`;
+  }
+
+  return `<div class="spend-card">
+    <div class="spend-card-hdr">
+      <span class="spend-card-name">${loc.flag} ${loc.name}</span>
+      <span class="spend-card-cur">${loc.currency}</span>
+    </div>
+
+    <div style="padding:10px 12px;background:${banner.color};border:1px solid ${banner.border};border-radius:var(--r);margin-bottom:14px;font-family:var(--font-m);font-size:11px;color:${banner.textColor};line-height:1.5;">
+      ${banner.text}
+    </div>
+
+    <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);">
+      <div class="bucket-lbl-row" style="margin-bottom:4px;">
+        <span class="bucket-lbl" style="font-weight:700;color:var(--text);">Total Production Budget</span>
+        <span style="font-family:var(--font-m);font-size:10px;color:var(--text3);">Optional</span>
+      </div>
+      <input class="bucket-input" type="text" inputmode="numeric" placeholder="e.g. 19,000,000"
+        value="${totalBudget ? formatWithCommas(String(totalBudget)) : ''}"
+        style="border-color:rgba(92,107,192,.3);"
+        oninput="onCurrencyInput(this, v => { tiTotalBudget['${lid}']=v; refreshTiResult('${lid}'); })">
+      <div style="font-family:var(--font-m);font-size:10px;color:var(--text3);margin-top:-4px;">Enter your full budget to see effective budget after incentive</div>
+    </div>
+
+    ${mode !== 'nocalc' ? `<div style="font-family:var(--font-m);font-size:10px;font-weight:700;color:var(--indigo);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px;">Qualifying Spend (${loc.currency})</div>` : ''}
+    ${fieldsHtml}
+    ${optionsHtml}
+  </div>`;
+}
+
+function renderResultCard(loc) {
+  const inputs         = tiSpendInputs[loc.id] || {};
+  const upliftState    = tiUpliftState[loc.id] || {};
+  const totalBudget    = tiTotalBudget[loc.id] || 0;
+  const useContingency = tiContingency[loc.id] !== false;
+  const auditFee       = tiAuditFee[loc.id] || { enabled: false, amount: 15000 };
+  const activeUplifts  = (loc.uplifts || []).filter(u => upliftState[u.id]);
+  const mode           = getBucketMode(loc);
+  const currency       = loc.currency || 'USD';
+
+  // Calculate total qualifying spend entered
+  let totalQualSpend = 0;
+  if (mode === 'simple') {
+    totalQualSpend = parseFloat(inputs['spend'] || 0);
+  } else if (mode === 'labor_spend') {
+    totalQualSpend = (parseFloat(inputs['laborCombined'] || 0)) + (parseFloat(inputs['spend'] || 0));
+  } else {
+    totalQualSpend = Object.values(inputs).reduce((s,v) => s + (parseFloat(v)||0), 0);
+  }
+
+  const noCalc = mode === 'nocalc';
+
+  function monLabel(rate) {
+    if (rate === 1.00) return '100¢ — paid directly (refundable / rebate / grant)';
+    if (rate === 0.90) return '90¢ — known state buy-back rate';
+    if (rate === 0.85) return '85¢ — transferable credit market default';
+    return rate ? (rate*100).toFixed(0)+'¢' : 'N/A';
+  }
+
+  let calcHtml = '';
+  if (noCalc) {
+    const msg = loc.incentiveType === 'non_transferable_non_refundable'
+      ? 'Non-transferable and non-refundable. Value depends entirely on your company\'s tax liability in this jurisdiction. Consult your tax advisor.'
+      : 'Discretionary or contact-for-details program. Contact the film office directly for an estimate.';
+    calcHtml = `<div class="no-calc-box"><p class="no-calc-ttl">⚠️ Cannot Calculate Automatically</p><p class="no-calc-msg">${msg}</p></div>`;
+  } else if (totalQualSpend > 0) {
+    const gross         = tiCalcGross(loc, inputs, activeUplifts, totalQualSpend);
+    const contingencyAmt = useContingency ? gross * TI_CONTINGENCY : 0;
+    const afterContingency = gross - contingencyAmt;
+    const monRate       = loc.monetizationRate;
+    const net           = monRate ? afterContingency * monRate : null;
+    const auditDeduct   = auditFee.enabled && auditFee.amount ? auditFee.amount : 0;
+    const netAfterAudit = net ? net - auditDeduct : null;
+    const budgetBase    = totalBudget > 0 ? totalBudget : null;
+    const effectiveBudget = budgetBase && netAfterAudit ? budgetBase - netAfterAudit : null;
+
+    // Build rate summary string for transparency
+    let rateSummary = '';
+    if (mode === 'simple') {
+      const baseRate = Object.values(loc.buckets).find(v => v && v !== 0);
+      const baseRatePct = typeof baseRate === 'number' ? (baseRate*100).toFixed(0)+'%' : 'tiered';
+      const appliedUplifts = activeUplifts.map(u => `+${(u.amount*100).toFixed(1)}% ${u.label.split('(')[0].trim()}`).join(', ');
+      const totalRateNum = typeof baseRate === 'number'
+        ? baseRate + activeUplifts.reduce((s,u) => s + u.amount, 0)
+        : null;
+      const totalRatePct = totalRateNum ? (Math.min(totalRateNum,1)*100).toFixed(0)+'%' : '';
+      rateSummary = appliedUplifts
+        ? `${baseRatePct} base ${appliedUplifts} = <strong>${totalRatePct} effective</strong>`
+        : `Flat rate: <strong>${baseRatePct}</strong>`;
+    } else if (mode === 'labor_spend') {
+      const lr = loc.buckets.residentATL || loc.buckets.residentBTL || 0;
+      const sr = loc.buckets.spend || 0;
+      rateSummary = `Labor: <strong>${typeof lr==='number'?(lr*100).toFixed(0)+'%':'tiered'}</strong> · Non-labor: <strong>${typeof sr==='number'?(sr*100).toFixed(0)+'%':'tiered'}</strong>`;
+    } else if (mode === 'full') {
+      const activeBuckets = Object.entries(loc.buckets)
+        .filter(([k,v]) => v !== 0 && v !== null && parseFloat(inputs[k]||0) > 0);
+      rateSummary = activeBuckets.map(([k,v]) => {
+        const label = {residentATL:'Res ATL',residentBTL:'Res BTL',nonresidentATL:'Non-Res ATL',nonresidentBTL:'Non-Res BTL',spend:'Spend',spendPost:'Post'}[k] || k;
+        const rate = typeof v === 'number' ? (v*100).toFixed(0)+'%' : v === 'tiered' ? 'tiered' : '—';
+        return `${label}: <strong>${rate}</strong>`;
+      }).join(' · ') || 'Enter amounts above';
+    }
+
+    calcHtml = `<div class="calc-box">
+      ${budgetBase ? `<div class="calc-row"><span class="calc-lbl">Total Production Budget</span><span class="calc-val bold">${tiFmtCurrency(budgetBase,currency)}</span></div><div class="calc-div"></div>` : ''}
+      <div class="calc-row"><span class="calc-lbl">Total Qualifying Spend</span><span class="calc-val">${tiFmtCurrency(totalQualSpend,currency)}</span></div>
+      ${rateSummary ? `<div style="font-family:var(--font-m);font-size:10px;color:var(--text3);margin-bottom:6px;padding:5px 8px;background:var(--surface);border-radius:3px;border-left:2px solid var(--indigo);">Rates applied: ${rateSummary}</div>` : ''}
+      <div class="calc-row"><span class="calc-lbl">Gross Incentive at Rates</span><span class="calc-val">${tiFmtCurrency(gross,currency)}</span></div>
+      ${useContingency ? `<div class="calc-row"><span class="calc-lbl">Less 10% Contingency</span><span class="calc-val muted">(${tiFmtCurrency(contingencyAmt,currency)})</span></div>
+      <div class="calc-row"><span class="calc-lbl">After Contingency</span><span class="calc-val">${tiFmtCurrency(afterContingency,currency)}</span></div>` : ''}
+      <div class="calc-div"></div>
+      <div class="calc-row"><span class="calc-lbl">Monetization Rate</span><span class="calc-val muted" style="font-size:11px;">${monLabel(monRate)}</span></div>
+      <div class="calc-row"><span class="calc-lbl" style="font-weight:700;">Net Incentive Value</span><span class="calc-val accent bold">${net ? tiFmtCurrency(net,currency) : '—'}</span></div>
+      ${auditDeduct ? `<div class="calc-row"><span class="calc-lbl">Less Audit Fee</span><span class="calc-val muted">(${tiFmtCurrency(auditDeduct,currency)})</span></div>
+      <div class="calc-row"><span class="calc-lbl" style="font-weight:700;">Net After Audit Fee</span><span class="calc-val accent bold">${tiFmtCurrency(netAfterAudit,currency)}</span></div>` : ''}
+      <div class="calc-div"></div>
+      ${effectiveBudget
+        ? `<div class="calc-row"><span class="calc-lbl" style="font-weight:700;">Effective Budget After Incentive</span><span class="calc-val bold" style="color:var(--green);">${tiFmtCurrency(effectiveBudget,currency)}</span></div>
+           <div style="font-family:var(--font-m);font-size:10px;color:var(--text3);margin-top:4px;">Your ${tiFmtCurrency(budgetBase,currency)} budget effectively costs ${tiFmtCurrency(effectiveBudget,currency)} after the incentive</div>`
+        : `<div class="calc-row"><span class="calc-lbl">Effective Budget After Incentive</span><span class="calc-val muted" style="font-size:11px;">Enter total budget above to calculate</span></div>`}
+    </div>`;
+    if (activeUplifts.length > 0) {
+      calcHtml += `<div class="uplift-applied">✓ Uplifts applied: ${activeUplifts.map(u=>u.label).join(', ')}</div>`;
+    }
+  } else {
+    calcHtml = `<div class="empty-result">Enter qualifying spend amounts above to see calculation</div>`;
+  }
+
+  let flagsHtml = '';
+  (loc.flags?.red || []).forEach(f => {
+    flagsHtml += `<div class="flag-badge flag-red"><span class="flag-ico">🔴</span><span class="flag-txt">${f}</span></div>`;
+  });
+  (loc.flags?.yellow || []).forEach(f => {
+    flagsHtml += `<div class="flag-badge flag-yel"><span class="flag-ico">🟡</span><span class="flag-txt">${f}</span></div>`;
+  });
+  (loc.flags?.blue || []).forEach(f => {
+    flagsHtml += `<div class="flag-badge flag-blu"><span class="flag-ico">🔵</span><span class="flag-txt">${f}</span></div>`;
+  });
+
+  return `<div class="result-card">
+    <div class="result-hdr">
+      <div class="result-hdr-top">
+        <div>
+          <p class="result-region">${loc.flag} ${loc.region}</p>
+          <p class="result-name">${loc.name}</p>
+        </div>
+        <div style="text-align:right;">
+          <p class="result-hl-lbl">Headline Rate</p>
+          <p class="result-hl">${loc.headline}</p>
+        </div>
+      </div>
+      <p class="result-mon">${loc.monetizationLabel}</p>
+    </div>
+    <div class="result-body">
+      <p class="result-date">Data: publicly available incentive data, March 2026</p>
+      ${calcHtml}
+      ${flagsHtml}
+      ${loc.notes ? `<p class="result-notes">${loc.notes}</p>` : ''}
+    </div>
+  </div>`;
+}
+
+function refreshTiResult(locId) {
+  const loc = TI_LOCATIONS.find(l => l.id === locId);
+  if (!loc) return;
+  const col = document.getElementById('ti-col-' + locId);
+  if (!col) return;
+  // Re-render just the result card portion (second child)
+  const existingResult = col.querySelector('.result-card');
+  if (existingResult) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = renderResultCard(loc);
+    existingResult.replaceWith(tmp.firstElementChild);
+  }
+}
+
+// ── DATA STATUS ───────────────────────────────────────────────────────────────
+
+const DATA_STATUS = {
+  // US States — current in system (summary level from EP guides)
+  'us-alabama':        { name:'Alabama',               region:'US', level:'summary', dataDate:'03/08/2026' },
+  'us-arizona':        { name:'Arizona',               region:'US', level:'summary', dataDate:'03/09/2026' },
+  'us-arkansas':       { name:'Arkansas',              region:'US', level:'summary', dataDate:'03/09/2026' },
+  'us-california':     { name:'California',            region:'US', level:'summary', dataDate:'03/08/2026' },
+  'us-colorado':       { name:'Colorado',              region:'US', level:'summary', dataDate:'03/08/2026' },
+  'us-connecticut':    { name:'Connecticut',           region:'US', level:'summary', dataDate:'03/08/2026' },
+  'us-georgia':        { name:'Georgia',               region:'US', level:'summary', dataDate:'03/08/2026' },
+  'us-hawaii':         { name:'Hawaii',                region:'US', level:'summary', dataDate:'03/08/2026' },
+  'us-indiana':        { name:'Indiana',               region:'US', level:'summary', dataDate:'03/09/2026' },
+  'us-kentucky':       { name:'Kentucky',              region:'US', level:'summary', dataDate:'03/08/2026' },
+  'us-louisiana':      { name:'Louisiana',             region:'US', level:'summary', dataDate:'03/08/2026' },
+  'us-maine':          { name:'Maine',                 region:'US', level:'summary', dataDate:'03/09/2026' },
+  'us-maryland':       { name:'Maryland',              region:'US', level:'summary', dataDate:'03/09/2026' },
+  'us-massachusetts':  { name:'Massachusetts',         region:'US', level:'summary', dataDate:'03/09/2026' },
+  'us-minnesota':      { name:'Minnesota',             region:'US', level:'summary', dataDate:'03/09/2026' },
+  'us-nevada':         { name:'Nevada',                region:'US', level:'summary', dataDate:'03/08/2026' },
+  'us-oklahoma':       { name:'Oklahoma',              region:'US', level:'summary', dataDate:'03/08/2026' },
+  'us-puerto_rico':    { name:'Puerto Rico',           region:'US', level:'summary', dataDate:'03/08/2026' },
+  'us-tennessee':      { name:'Tennessee',             region:'US', level:'summary', dataDate:'03/08/2026' },
+  'us-texas':          { name:'Texas',                 region:'US', level:'summary', dataDate:'03/08/2026' },
+  'us-washington':     { name:'Washington',            region:'US', level:'summary', dataDate:'03/08/2026' },
+  // US States — pending (not yet in system)
+  'us-missouri':       { name:'Missouri',              region:'US', level:'pending',  dataDate:null },
+  'us-new_mexico':     { name:'New Mexico',            region:'US', level:'pending',  dataDate:null },
+  'us-new_york':       { name:'New York',              region:'US', level:'pending',  dataDate:null },
+  'us-north_carolina': { name:'North Carolina',        region:'US', level:'pending',  dataDate:null },
+  'us-ohio':           { name:'Ohio',                  region:'US', level:'pending',  dataDate:null },
+  'us-oregon':         { name:'Oregon',                region:'US', level:'pending',  dataDate:null },
+  'us-pennsylvania':   { name:'Pennsylvania',          region:'US', level:'pending',  dataDate:null },
+  'us-rhode_island':   { name:'Rhode Island',          region:'US', level:'pending',  dataDate:null },
+  'us-south_carolina': { name:'South Carolina',        region:'US', level:'pending',  dataDate:null },
+  'us-utah':           { name:'Utah',                  region:'US', level:'pending',  dataDate:null },
+  'us-vermont':        { name:'Vermont',               region:'US', level:'pending',  dataDate:null },
+  'us-virginia':       { name:'Virginia',              region:'US', level:'pending',  dataDate:null },
+  'us-wisconsin':      { name:'Wisconsin',             region:'US', level:'pending',  dataDate:null },
+  'us-wyoming':        { name:'Wyoming',               region:'US', level:'pending',  dataDate:null },
+  // International — current in system (summary level)
+  'intl-australia-nsw':{ name:'Australia – NSW',       region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-australia-nt': { name:'Australia – NT',        region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-australia-sa': { name:'Australia – South Australia', region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-australia-vic':{ name:'Australia – Victoria',  region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-australia-wa': { name:'Australia – Western Australia', region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-british_columbia':{ name:'British Columbia',   region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-france':       { name:'France',                region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-greece':       { name:'Greece',                region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-ireland':      { name:'Ireland',               region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-israel':       { name:'Israel',                region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-malaysia':     { name:'Malaysia',              region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-morocco':      { name:'Morocco',               region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-new_zealand':  { name:'New Zealand',           region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-norway':       { name:'Norway',                region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-philippines':  { name:'Philippines',           region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-quebec':       { name:'Quebec',                region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-romania':      { name:'Romania',               region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-south_africa': { name:'South Africa',          region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-south_korea':  { name:'South Korea',           region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-spain':        { name:'Spain',                 region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-thailand':     { name:'Thailand',              region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-turkey':       { name:'Turkey',                region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-uae_abu_dhabi':{ name:'UAE – Abu Dhabi',       region:'International', level:'summary', dataDate:'03/08/2026' },
+  'intl-united_kingdom':{ name:'United Kingdom',       region:'International', level:'summary', dataDate:'03/08/2026' },
+};
+
+const LEVEL_COLORS = { summary:'var(--green)', detailed:'var(--indigo)', pending:'var(--border2)' };
+const LEVEL_LABELS = { summary:'Summary', detailed:'Detailed', pending:'Pending' };
+
+function renderDataStatusGrid() {
+  const grid = document.getElementById('dataStatusGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  // Sort: US first, then International, pending at end within each group
+  const entries = Object.entries(DATA_STATUS).sort((a,b) => {
+    if (a[1].region !== b[1].region) return a[1].region === 'US' ? -1 : 1;
+    if (a[1].level !== b[1].level) return a[1].level === 'pending' ? 1 : -1;
+    return a[1].name.localeCompare(b[1].name);
+  });
+  entries.forEach(([id, info]) => {
+    const dot = document.createElement('div');
+    dot.style.cssText = `display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surface2);border-radius:var(--r);border:1px solid var(--border);`;
+    dot.innerHTML = `
+      <span style="width:8px;height:8px;border-radius:50%;background:${LEVEL_COLORS[info.level]};flex-shrink:0;"></span>
+      <div style="flex:1;min-width:0;">
+        <div style="font-family:var(--font-m);font-size:11px;color:${info.level==='pending'?'var(--text3)':'var(--text)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${info.name}</div>
+        <div style="font-family:var(--font-m);font-size:9px;color:var(--text3);margin-top:1px;">${info.level==='pending' ? 'Not yet ingested' : LEVEL_LABELS[info.level]+' · '+info.dataDate}</div>
+      </div>`;
+    grid.appendChild(dot);
+  });
+}
+
+let dataStatusOpen = false;
+function toggleDataStatus() {
+  dataStatusOpen = !dataStatusOpen;
+  const panel = document.getElementById('dataStatusPanel');
+  const btn   = document.getElementById('dataStatusBtn');
+  if (dataStatusOpen) {
+    panel.style.display = 'block';
+    btn.style.background = 'var(--indigo)';
+    btn.style.color = '#fff';
+    renderDataStatusGrid();
+  } else {
+    panel.style.display = 'none';
+    btn.style.background = 'var(--indigo-glow)';
+    btn.style.color = 'var(--indigo)';
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+userPhases = [
+  {name:'CASTING',         start:'', end:'', payDate:'', removable:true},
+  {name:'PREP',            start:'', end:'', payDate:'', removable:true},
+  {name:'PRODUCTION',      start:'', end:'', payDate:'', removable:true},
+  {name:'POST-PRODUCTION', start:'', end:'', payDate:'', removable:true},
+];
+renderPhases();
+updateGenerateButton();
+renderPtGrid();
+renderLocGrid();
+</script>
+</body>
+</html>
