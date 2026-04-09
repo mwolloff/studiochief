@@ -26,7 +26,7 @@ Frontend is plain HTML/CSS/vanilla JavaScript. NOT React, NOT a build system. Al
 
 ## CURRENT FRONTEND FILE
 
-**studiochief_v28.html** — current production frontend as of April 9, 2026.
+**studiochief_v29.html** — current production frontend as of April 9, 2026.
 
 Always use the highest-numbered studiochief_vXX.html unless this file says otherwise.
 
@@ -34,7 +34,7 @@ Always use the highest-numbered studiochief_vXX.html unless this file says other
 
 ## FILE SIZE NOTE
 
-v28 is ~2,327 lines. Flag proactively when approaching 3,000 lines or 300KB — at that point recommend splitting tools into separate HTML files.
+v29 is ~2,327 lines. Flag proactively when approaching 3,000 lines or 300KB — at that point recommend splitting tools into separate HTML files.
 
 ---
 
@@ -111,7 +111,7 @@ This rule applies to: Tax Incentive Calculator spend inputs, total budget field,
 | incentives_data.json | Raw incentive data, 46 locations, March 2026 |
 | tax-incentive-calculator.jsx | Original JSX — reference only |
 | studiochief_domain_rules.md | Legacy rules — superseded, kept for reference |
-| studiochief_v28.html | Current production frontend |
+| studiochief_v29.html | Current production frontend |
 | app.py | Flask backend |
 | requirements.txt | Python dependencies |
 | render.yaml | Render config |
