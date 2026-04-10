@@ -201,6 +201,7 @@ Missouri, New Mexico, New York, North Carolina, Ohio, Oregon, Pennsylvania, Rhod
 | TAX_INCENTIVE_RULES (1).md | Detailed source rules for Tool 4 incentive logic |
 | incentives_data.json | Raw incentive data, 46 locations, March 2026 |
 | TOOL6_ASSUMPTIONS_RULES.md | Budget Assumptions Generator rules and ingestion logic |
+| MARC_PRODUCTION_WISDOM.md | Marc's 30 years of production judgment — subjective reasoning reference for all tools |
 | studiochief_v30.html | Current production frontend |
 | app.py | Flask backend |
 | requirements.txt | Python dependencies |
@@ -271,6 +272,12 @@ Running list of ideas and directions discussed. Not a formal spec — just enoug
 - Target companies for white label: production companies, payroll companies (EP, Cast & Crew), guilds
 - Do not approach companies too early — come back when they'd feel like they're missing out
 - StudioChief is not a reality TV tool. It's a production tool built by someone with a reality TV background. Framing should reflect that as the suite grows.
+
+### MARC_PRODUCTION_WISDOM.md
+A dedicated document capturing Marc's 30 years of subjective production judgment in a form the AI can reference. Not a clean rulebook — raw, contextual, accumulated wisdom. Add to it whenever a good judgment call comes up in conversation. Always paste this file in sessions involving assumptions sheets or any tool requiring production judgment calls. File lives in repo root.
+
+### The "Ask Marc" escalation path (founding period feature)
+During the founding member period, when the AI hits a genuinely ambiguous production judgment call it can't confidently resolve, surface it to Marc directly. Marc answers, the answer gets captured in MARC_PRODUCTION_WISDOM.md, and the tool gets smarter. Mechanism TBD (email, text, form submission). Not scalable forever but extremely valuable early on for learning real edge cases and building product knowledge.
 
 ### Long-term questions (not urgent)
 - Pricing structure: free tier, paid tier, team/enterprise tier
